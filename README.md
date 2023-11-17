@@ -30,11 +30,14 @@ $ docker run -d --restart always --name PandoraNext --net=bridge -p 8181:8181 \
 
 ### 初始用户名：root 初始密码值:123456 (可自行调整)
 
-### 图片展示
-![Image](image/login.png)
+# 图片展示
+### 一键重启docket里的pandoraNext容器
+![image](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/e51d2fe1-e07d-48b8-be96-f860f65274c6)
+
 
 ## 管理Token,记录token更新时间，自动更新One-API的渠道
-![Image](image/home.png)
+![image](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/8906380f-886c-48cd-bf42-f7931f641069)
+
 
 ## 手机端展示
 ### 暂时还没写出来（给我赞让我写的更有劲吧！）
@@ -43,6 +46,8 @@ $ docker run -d --restart always --name PandoraNext --net=bridge -p 8181:8181 \
 - 1.请确保部署好了PandoraNext,拿到的JWT令牌
 - 2.下载[启动包](https://github.com/Yanyutin753/fakeApiTool-One-API/tree/main/simplyDeploy)，jar包
 - 3.上传到PandoraNext存放config.json和tokens.json的位置
+- #### 宝塔的pandoraNext的docker位置一般在
+<img width="1278" alt="屏幕截图 2023-11-17 203024" src="https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/96c1a9a8-5408-4575-a144-5ce913edc3d9">
 - 4.到达安装好包的路径下
 ```
 #先拿到管理员权限
@@ -57,9 +62,6 @@ java -version
 
 # 填写下面路径
 ## cd （你的PandoraNext存放config.json和tokens.json的位置）
-
-#### 宝塔的pandoraNext的docker位置一般在
-<img width="1278" alt="屏幕截图 2023-11-17 203024" src="https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/96c1a9a8-5408-4575-a144-5ce913edc3d9">
 
 ```
 - 5.输入下面代码启动（要先有java环境哦）

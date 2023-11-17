@@ -50,10 +50,12 @@ $ docker run -d --restart always --name PandoraNext --net=bridge -p 8181:8181 \
   
 #### 宝塔的pandoraNext的docker位置一般在
 <img width="1278" alt="屏幕截图 2023-11-17 203024" src="https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/96c1a9a8-5408-4575-a144-5ce913edc3d9">
+
+## 部署详情
 ```
 # 先拿到管理员权限
 sudo su -
-#提示你输入密码进行确认。输入密码并按照提示完成验证。
+# 提示你输入密码进行确认。输入密码并按照提示完成验证。
 ```
 
 ```

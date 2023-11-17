@@ -22,9 +22,9 @@ $ docker run -d --restart always --name PandoraNext --net=bridge -p 8181:8181 \
 
 3. **每五天自动通过openAI账号密码刷新token,更新渠道：** 工具会每五天自动通过openAI账号密码刷新token,更新渠道，方便使用。
 
-4. **通过账号密码添加token，避免查找繁琐的token 
+4. **通过账号密码添加token** ，避免查找繁琐的token
 
-5. **一键重启PandoraNext，使得修改token效率更高
+5. **一键重启PandoraNext** ，使得修改token效率更高
 
 - 现如今只支持账号密码登录，希望大佬能扩充！
 

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="LanguageInjectionConfiguration">
+    <injection language="MySQL" injector-id="java">
+      <display-name>Delete.value (org.apache.ibatis.annotations)</display-name>
+      <value-pattern>(?:&lt;script&gt;)?(.+?)(?:&lt;\/script&gt;)?</value-pattern>
+      <single-file value="true" />
+      <place><![CDATA[psiMethod().withName("value").withParameters().definedInClass("org.apache.ibatis.annotations.Delete")]]></place>
+    </injection>
+    <injection language="MySQL" injector-id="java">
+      <display-name>Insert.value (org.apache.ibatis.annotations)</display-name>
+      <value-pattern>(?:&lt;script&gt;)?(.+?)(?:&lt;\/script&gt;)?</value-pattern>
+      <single-file value="true" />
+      <place><![CDATA[psiMethod().withName("value").withParameters().definedInClass("org.apache.ibatis.annotations.Insert")]]></place>
+    </injection>
+  </component>
+</project>

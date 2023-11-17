@@ -24,14 +24,14 @@
       </el-menu-item>
       <div class="flex-grow" />
       <el-menu-item index="1">
-        <a href="https://github.com/Yanyutin753/fakeApiTool-One-API"
-          >fakeApiTool地址</a
+        <a href="https://github.com/Yanyutin753/PandoraNext-TokensTool"
+          >TokensTool地址</a
         >
       </el-menu-item>
       <el-sub-menu index="4">
-        <template #title>用户设置</template>
-        <el-menu-item index="4-1" @click="requireUser"
-          >修改用户信息</el-menu-item
+        <template #title>系统设置</template>
+        <el-menu-item index="4-1" @click="AgainPandora"
+          >重启PandoraNext</el-menu-item
         >
         <el-menu-item index="4-2" @click="logout">退出登录</el-menu-item>
       </el-sub-menu>
@@ -41,14 +41,14 @@
         <template #content>
           <div class="flex items-center">
             <el-avatar size="52.6px" class="mr-3" :src="image" />
-            <span class="text-large font-600 mr-3">One-API</span>
+            <span class="text-large font-600 mr-3">PandoraNext</span>
             <span
               class="text-sm mr-2"
               style="color: var(--el-text-color-regular)"
             >
-              fakeApiTool
+              TokensTool
             </span>
-            <el-tag>made by Yang</el-tag>
+            <el-tag>By YY</el-tag>
           </div>
         </template>
       </el-page-header>
@@ -62,15 +62,6 @@
       @click="addToken"
     />
 
-    <!-- <van-search
-        v-model="value"
-        shape="round"
-        background="rgb(250 250 250 / 22%)"
-        placeholder="请输入搜索任务关键词"
-        @search="onSearch"
-        width:70vw
-      /> -->
-    <!-- 数据表 -->
     <div class="under">
       <div class="search">
         <div
@@ -83,7 +74,7 @@
           <van-search
             v-model="value"
             shape="round"
-            placeholder="请输入搜索任务关键词"
+            placeholder="请输入搜索token名称关键词"
             @search="onSearch"
           />
         </div>
@@ -96,7 +87,12 @@
           "
         >
           <!-- 数据表 -->
-          <el-table :data="tableData" style="width: 100%" height="100%">
+          <el-table
+            v-loading="loading"
+            :data="tableData"
+            style="width: 100%"
+            height="100%"
+          >
             <!-- Token名称表 宽150 -->
             <el-table-column label="名称" width="126">
               <template #default="scope">
@@ -117,11 +113,11 @@
                   width="auto"
                 >
                   <template #default>
-                    <div>账号: {{ scope.row.userName }}</div>
-                    <div>密码: {{ scope.row.password }}</div>
+                    <div>账号: {{ scope.row.username }}</div>
+                    <div>密码: {{ scope.row.userPassword }}</div>
                   </template>
                   <template #reference>
-                    <el-tag>{{ scope.row.userName }}</el-tag>
+                    <el-tag>{{ scope.row.username }}</el-tag>
                   </template>
                 </el-popover>
               </template>
@@ -137,11 +133,11 @@
                   width="auto"
                 >
                   <template #default>
-                    <div>token: {{ scope.row.value }}</div>
+                    <div>token: {{ scope.row.token }}</div>
                   </template>
                   <template #reference>
                     <!-- 做了超过50加...的操作 -->
-                    <el-tag>{{ dataToken(scope.row.value) }}</el-tag>
+                    <el-tag>{{ dataToken(scope.row.token) }}</el-tag>
                   </template>
                 </el-popover>
               </template>
@@ -211,12 +207,15 @@
         <div style="text-align: center; transform: translateY(0vh)">
           <h2>
             获取token
-            <a href="https://chat.OpenAI.com/api/auth/session">官网地址 </a>
+            <a
+              href="https://chat.OpenAI.com/api/auth/session"
+              >官网地址
+            </a>
             <br />
             <a href="https://ai.fakeopen.com/auth">Pandora地址</a>
             欢迎大家来扩展
-            <a href="https://github.com/Yanyutin753/fakeApiTool-One-API"
-              >fakeApiToolv0.1.0-oneApi
+            <a href="https://github.com/Yanyutin753/PandoraNext-TokensTool"
+              >pandoraNext-TokensTool v0.1.0
             </a>
           </h2>
         </div>
@@ -229,7 +228,7 @@
   <van-dialog
     v-model:show="show"
     title="修改token信息"
-    width="80vw"
+    width="90vw"
     :close-on-click-overlay="true"
     :show-cancel-button="false"
     :show-confirm-button="false"
@@ -240,29 +239,56 @@
         <van-cell-group inset>
           <br />
           <van-field
-            v-model="username"
-            name="OpenAI用户名"
-            label="OpenAI用户名"
-            placeholder="OpenAI用户名"
-            :rules="[{ required: true, message: '请填写OpenAI用户名' }]"
+            v-model="temUsername"
+            name="OpenAi用户名"
+            label="OpenAi用户名"
+            placeholder="OpenAi用户名"
+            :rules="[{ required: true, message: '请填写OpenAi用户名' }]"
           />
           <br />
           <van-field
-            v-model="password"
+            v-model="temUserPassword"
             type="password"
-            name="OpenAI密码"
-            label="OpenAI密码"
-            placeholder="OpenAI密码"
-            :rules="[{ required: true, message: '请填写OpenAI密码' }]"
+            name="OpenAi密码"
+            label="OpenAi密码"
+            placeholder="OpenAi密码"
+            :rules="[{ required: true, message: '请填写OpenAi密码' }]"
+          />
+          <br />
+          <van-field name="switch" label="是否分享出来">
+            <template #right-icon>
+              <van-switch active-color="#0ea27e" v-model="temShared" />
+            </template>
+          </van-field>
+          <br />
+          <van-field name="switch" label="是否分享聊天记录">
+            <template #right-icon>
+              <van-switch active-color="#0ea27e" v-model="temShow_user_info" />
+            </template>
+          </van-field>
+          <br />
+          <van-field name="switch" label="是否显示金光">
+            <template #right-icon>
+              <van-switch active-color="#0ea27e" v-model="temPlus" />
+            </template>
+          </van-field>
+          <br />
+          <br />
+          <van-field
+            v-model="temPassword"
+            type="temPassword"
+            name="进入Token的密码"
+            label="进入Token的密码"
+            placeholder="进入Token的密码(选填)"
           />
           <br />
           <van-field
-            v-model="apiToken"
+            v-model="temToken"
             rows="5"
-            label="OpenAI的Token"
+            label="OpenAi的Token"
             type="textarea"
             maxlength="5000"
-            placeholder="请填写OpenAI的Token"
+            placeholder="请填写OpenAi的Token(选填)"
             show-word-limit
           />
           <br />
@@ -282,7 +308,7 @@
   <van-dialog
     v-model:show="show_1"
     title="添加token信息"
-    width="80vw"
+    width="90vw"
     :close-on-click-overlay="true"
     :show-cancel-button="false"
     :show-confirm-button="false"
@@ -293,43 +319,54 @@
         <van-cell-group inset>
           <br />
           <van-field
-            v-model="tokenName"
+            v-model="addName"
             name="Token用户名"
             label="Token用户名"
             placeholder="Token用户名"
-            :rules="[
-              {
-                required: true,
-                message: '请填写Token用户名(中文名不超过五个字)',
-              },
-            ]"
+            :rules="[{ required: true, message: '请填写Token用户名' }]"
           />
           <br />
           <van-field
-            v-model="username"
-            name="OpenAI用户名"
-            label="OpenAI用户名"
-            placeholder="OpenAI用户名"
-            :rules="[{ required: true, message: '请填写OpenAI用户名' }]"
+            v-model="addUsername"
+            name="OpenAi用户名"
+            label="OpenAi用户名"
+            placeholder="OpenAi用户名"
+            :rules="[{ required: true, message: '请填写OpenAi用户名' }]"
           />
           <br />
           <van-field
-            v-model="password"
-            type="password"
-            name="OpenAI密码"
-            label="OpenAI密码"
-            placeholder="OpenAI密码"
-            :rules="[{ required: true, message: '请填写OpenAI密码' }]"
+            v-model="addUserPassword"
+            type="temUserPassword"
+            name="OpenAi密码"
+            label="OpenAi密码"
+            placeholder="OpenAi密码"
+            :rules="[{ required: true, message: '请填写OpenAi密码' }]"
           />
           <br />
+          <van-field name="switch" label="是否分享出来">
+            <template #right-icon>
+              <van-switch active-color="#0ea27e" v-model="addShared" />
+            </template>
+          </van-field>
+          <br />
+          <van-field name="switch" label="是否分享聊天记录">
+            <template #right-icon>
+              <van-switch active-color="#0ea27e" v-model="addShow_user_info" />
+            </template>
+          </van-field>
+          <br />
+          <van-field name="switch" label="是否显示金光">
+            <template #right-icon>
+              <van-switch active-color="#0ea27e" v-model="addPlus" />
+            </template>
+          </van-field>
+          <br />
           <van-field
-            v-model="apiToken"
-            rows="5"
-            label="OpenAI的Token"
-            type="textarea"
-            maxlength="5000"
-            placeholder="请填写OpenAi的Token(选填)"
-            show-word-limit
+            v-model="addPassword"
+            type="temPassword"
+            name="进入Token的密码"
+            label="进入Token的密码"
+            placeholder="进入Token的密码"
           />
           <br />
         </van-cell-group>
@@ -342,55 +379,14 @@
     </div>
     <br />
   </van-dialog>
+
   <!------------------------------------------------------------------------------------------------------>
 
-  <!-- 添加User信息 主键 名称为show_2 -->
+  <!-- 查看token信息 主键 名称为show_2 -->
   <van-dialog
     v-model:show="show_2"
-    title="修改User信息"
-    width="80vw"
-    :close-on-click-overlay="true"
-    :show-cancel-button="false"
-    :show-confirm-button="false"
-    class="requireDialog"
-  >
-    <van-form @submit="onRequireUser()">
-      <van-cell-group inset>
-        <br />
-        <van-field
-          v-model="rootName"
-          name="登录用户名"
-          label="登录用户名"
-          placeholder="修改登录用户名"
-        />
-        <br />
-        <br />
-        <br />
-        <van-field
-          v-model="rootPassword"
-          type="password"
-          name="登录密码"
-          label="登录密码"
-          placeholder="修改登录密码"
-        />
-      </van-cell-group>
-      <br />
-      <br />
-      <div style="margin: 11.2px; transform: translateY(14px)">
-        <van-button round block color="#0ea27e" native-type="submit">
-          提交
-        </van-button>
-      </div>
-    </van-form>
-    <br />
-  </van-dialog>
-  <!------------------------------------------------------------------------------------------------------>
-
-  <!-- 查看token信息 主键 名称为show_3 -->
-  <van-dialog
-    v-model:show="show_3"
     title="token信息"
-    width="80vw"
+    width="90vw"
     :close-on-click-overlay="true"
     :show-cancel-button="false"
     :show-confirm-button="false"
@@ -401,34 +397,60 @@
         <van-cell-group inset>
           <br />
           <van-field
-            v-model="tokenName"
+            v-model="temName"
             name="Token用户名"
             label="Token用户名"
-            autosize
             placeholder="Token用户名"
-            maxlength="10"
-            show-word-limit
+            :rules="[{ required: true, message: '请填写Token用户名' }]"
           />
           <br />
           <van-field
-            v-model="username"
-            name="OpenAI用户名"
-            label="OpenAI用户名"
-            placeholder="OpenAI用户名"
+            v-model="temUsername"
+            name="OpenAi用户名"
+            label="OpenAi用户名"
+            placeholder="OpenAi用户名"
+            :rules="[{ required: true, message: '请填写OpenAi用户名' }]"
           />
           <br />
           <van-field
-            v-model="password"
+            v-model="temUserPassword"
             type="password"
-            name="OpenAI密码"
-            label="OpenAI密码"
-            placeholder="OpenAI密码"
+            name="OpenAi密码"
+            label="OpenAi密码"
+            placeholder="OpenAi密码"
+            :rules="[{ required: true, message: '请填写OpenAi密码' }]"
+          />
+          <br />
+          <van-field name="temShared" label="是否分享出来">
+            <template #right-icon>
+              <van-switch active-color="#0ea27e" v-model="temShared" />
+            </template>
+          </van-field>
+          <br />
+          <van-field name="temShow_user_info" label="是否分享聊天记录">
+            <template #right-icon>
+              <van-switch active-color="#0ea27e" v-model="temShow_user_info" />
+            </template>
+          </van-field>
+          <br />
+          <van-field name="temPlus" label="是否显示金光">
+            <template #right-icon>
+              <van-switch active-color="#0ea27e" v-model="temPlus" />
+            </template>
+          </van-field>
+          <br />
+          <van-field
+            v-model="temPassword"
+            type="temPassword"
+            name="进入Token的密码"
+            label="进入Token的密码"
+            placeholder="进入Token的密码"
           />
           <br />
           <van-field
-            v-model="apiToken"
+            v-model="temToken"
             rows="5"
-            label="OpenAI的Token"
+            label="OpenAi的Token"
             type="textarea"
             maxlength="5000"
             placeholder="请填写OpenAi的Token"
@@ -443,6 +465,8 @@
   <!------------------------------------------------------------------------------------------------------>
 </template>
 
+
+
 <script lang="ts" setup>
 // 导入类
 import { Timer } from "@element-plus/icons-vue";
@@ -452,19 +476,20 @@ import axios from "axios";
 import png from "../asserts/chatGpt.jpg";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { differenceInDays, parseISO } from "date-fns";
+import { ElLoading } from "element-plus";
 
+const loading = ref(true);
+//加载状态
+const fullscreenLoading = ref(false);
 /**
  *   <!-- 添加token信息 主键 名称为show_1 -->
  *   <!-- 添加token信息 主键 名称为show_1 -->
- *   <!-- 添加User信息 主键 名称为show_2 -->
- *   <!-- 添加User信息 主键 名称为show_2 -->
- *   <!-- 查看token信息 主键 名称为show_3 -->
+ *   <!-- 查看token信息 主键 名称为show_2 -->
  *
  */
 const show = ref(false);
 const show_1 = ref(false);
 const show_2 = ref(false);
-const show_3 = ref(false);
 
 //页头图片 image
 const image = png;
@@ -479,36 +504,39 @@ const router = useRouter();
  */
 interface User {
   name: string;
-  userName: string;
+  token: string;
+  username: string;
+  userPassword: string;
+  shared: boolean;
+  show_user_info: boolean;
+  plus: boolean;
   password: string;
-  value: string;
   updateTime: string;
 }
+
 /**
  * 查看或者修改token信息参数
  */
-const tokenName = ref("");
-const apiToken = ref("");
-const username = ref("");
-const password = ref("");
-
-/**
- * 添加token信息参数
- */
-const addTokenName = ref("");
-const addApiToken = ref("");
-const addUsername = ref("");
-const addPassword = ref("");
+const temName = ref("");
+const temToken = ref("");
+const temUsername = ref("");
+const temUserPassword = ref("");
+const temShared = ref(false);
+const temShow_user_info = ref(false);
+const temPlus = ref(false);
+const temPassword = ref();
 const tableData = ref<User[]>([]);
 
 /**
- * 添加、查看或者修改用户信息参数
+ * 添加用户信息参数
  */
-const rootName = ref("");
-const rootPassword = ref("");
-
-//中间变量，用于删除数据
-let name = "";
+const addName = ref("");
+const addUsername = ref("");
+const addUserPassword = ref("");
+const addShared = ref(false);
+const addShow_user_info = ref(false);
+const addPlus = ref(false);
+const addPassword = ref();
 
 /**
  * 控制悬浮球位置
@@ -518,7 +546,6 @@ let name = "";
 var y = window.innerHeight * 0.1;
 var x = window.innerWidth * 0.852;
 
-const iconSize = ref(window.innerHeight * 0.1);
 console.log(window.innerHeight.toString());
 const offset_task = ref({ x: x, y: y });
 
@@ -561,7 +588,9 @@ const fetchLoginToken = () => {
 };
 
 const onSearch = (value: string) => {
+  fullscreenLoading.value = true;
   fetchDataAndFillForm(value);
+  loading.value = false;
 };
 /**
  * 获取数据操作，并把数据返回到tableData
@@ -569,9 +598,12 @@ const onSearch = (value: string) => {
  */
 const fetchDataAndFillForm = async (value: string) => {
   try {
-    const response = await axios.get(`/api/seleteToken?name=${value}`, {
-      headers,
-    });
+    const response = await axios.get(
+      `/api/seleteToken?name=${value}`,
+      {
+        headers,
+      }
+    );
     const data = response.data.data;
     console.log(data);
 
@@ -579,9 +611,13 @@ const fetchDataAndFillForm = async (value: string) => {
     if (Array.isArray(data)) {
       const resUsers: User[] = data.map((item: User) => ({
         name: item.name,
-        userName: item.userName,
+        username: item.username,
+        userPassword: item.userPassword,
+        token: item.token,
+        shared: item.shared,
+        show_user_info: item.show_user_info,
         password: item.password,
-        value: item.value,
+        plus: item.plus,
         updateTime: item.updateTime,
       }));
 
@@ -592,6 +628,7 @@ const fetchDataAndFillForm = async (value: string) => {
     console.error("获取数据失败", error);
     ElMessage("获取数据失败");
   }
+  fullscreenLoading.value = false;
 };
 
 // 在组件加载完成后自动触发数据加载和填充
@@ -609,10 +646,15 @@ const handleSelect = (key: string, keyPath: string[]) => {
 };
 const handleEdit = (index: number, row: User) => {
   console.log(index, row);
-  name = row.name;
-  username.value = row.userName;
-  password.value = row.password;
-  apiToken.value = row.value;
+  temName.value = row.name;
+  console.log(temName.value);
+  temUsername.value = row.username;
+  temUserPassword.value = row.userPassword;
+  temToken.value = row.token;
+  temShared.value = row.shared;
+  temShow_user_info.value = row.show_user_info;
+  temPlus.value = row.plus;
+  temPassword.value = row.password;
   show.value = true;
 };
 
@@ -629,14 +671,33 @@ const addToken = () => {
  * 类user
  */
 const onAddToken = () => {
-  const api = {
-    name: addTokenName.value,
-    value: addApiToken.value,
-    userName: addUsername.value,
+  const loadingInstance = ElLoading.service({ fullscreen: true });
+  const now: Date = new Date();
+  const formattedTime = `${now.getFullYear()}-${(now.getMonth() + 1)
+    .toString()
+    .padStart(2, "0")}-${now.getDate().toString().padStart(2, "0")} ${now
+    .getHours()
+    .toString()
+    .padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}:${now
+    .getSeconds()
+    .toString()
+    .padStart(2, "0")}`;
+  let api = {
+    name: addName.value,
+    token: "",
+    username: addUsername.value,
+    userPassword: addUserPassword.value,
+    shared: addShared.value,
+    show_user_info: addShow_user_info.value,
+    plus: addPlus.value,
     password: addPassword.value,
-    updateTime: new Date().toString(),
+    updateTime: formattedTime,
   };
-
+  if((api.password === "" || api.password === null) && api.shared === true){
+    ElMessage("shared的token是不能设置密码的，请重新再试！");
+    loadingInstance.close();
+    return;
+  }
   fetch("/api/addToken", {
     method: "POST",
     headers: {
@@ -649,8 +710,9 @@ const onAddToken = () => {
     .then((data) => {
       if (data.code == 1) {
         console.log(data.data);
+        api.token = data.data as string;
         tableData.value.unshift(api);
-        ElMessage(data.data);
+        ElMessage("添加成功！");
       } else {
         ElMessage(data.msg);
       }
@@ -660,11 +722,12 @@ const onAddToken = () => {
       ElMessage("添加失败！");
       // 处理请求失败的情况
     });
-  tokenName.value = "";
-  username.value = "";
-  password.value = "";
-  apiToken.value = "";
+  temName.value = "";
+  temUsername.value = "";
+  temUserPassword.value = "";
+  temToken.value = "";
   show_1.value = false;
+  loadingInstance.close();
 };
 
 /**
@@ -672,11 +735,15 @@ const onAddToken = () => {
  * 类user
  */
 const showData = (row: User) => {
-  tokenName.value = row.name;
-  username.value = row.userName;
-  password.value = row.password;
-  apiToken.value = row.value;
-  show_3.value = true;
+  temName.value = row.name;
+  temUsername.value = row.username;
+  temUserPassword.value = row.userPassword;
+  temToken.value = row.token;
+  temShared.value = row.shared;
+  temShow_user_info.value = row.show_user_info;
+  temPlus.value = row.plus;
+  temPassword.value = row.password;
+  show_2.value = true;
 };
 
 /**
@@ -684,13 +751,32 @@ const showData = (row: User) => {
  * 类user
  */
 const RequireToken = () => {
+  const loadingInstance = ElLoading.service({ fullscreen: true });
+  const now: Date = new Date();
+  const formattedTime = `${now.getFullYear()}-${(now.getMonth() + 1)
+    .toString()
+    .padStart(2, "0")}-${now.getDate().toString().padStart(2, "0")} ${now
+    .getHours()
+    .toString()
+    .padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}:${now
+    .getSeconds()
+    .toString()
+    .padStart(2, "0")}`;
   const api = {
-    name: name,
-    value: apiToken.value,
-    userName: username.value,
-    password: password.value,
+    name: temName.value,
+    token: temToken.value,
+    username: temUsername.value,
+    userPassword: temUserPassword.value,
+    shared: temShared.value,
+    show_user_info: temShow_user_info.value,
+    plus: temPlus.value,
+    password: temPassword.value,
   };
-
+  if((api.password != "" || api.password === null) && api.shared === true){
+    ElMessage("shared的token是不能设置密码的，请重新再试！");
+    loadingInstance.close();
+    return;
+  }
   fetch("/api/requiredToken", {
     method: "POST",
     headers: {
@@ -705,11 +791,18 @@ const RequireToken = () => {
       if (data.code == 1) {
         console.log(data.data);
         ElMessage(data.data);
+        console.log(tableData.value);
         for (let i = 0; i < tableData.value.length; i++) {
-          if (tableData.value[i].name === api.name) {
-            tableData.value[i].value = api.value;
-            tableData.value[i].userName = api.userName;
+          console.log(tableData.value[i].name);
+          if (tableData.value[i].name === temName.value) {
+            tableData.value[i].token = api.token;
+            tableData.value[i].username = api.username;
+            tableData.value[i].userPassword = api.password;
+            tableData.value[i].shared = api.shared;
+            tableData.value[i].show_user_info = api.show_user_info;
+            tableData.value[i].plus = api.plus;
             tableData.value[i].password = api.password;
+            tableData.value[i].updateTime = formattedTime;
             break; // 找到匹配的元素后跳出循环
           }
         }
@@ -719,65 +812,22 @@ const RequireToken = () => {
       console.error("请求requireToken接口失败", error);
       ElMessage("修改失败！");
     });
-  //参数复原
-  name = "";
-  apiToken.value = "";
-  username.value = "";
-  password.value = "";
   show.value = false;
+  loadingInstance.close();
 };
 
 /**
- * 修改用户的启动函数
+ * 重启pandora函数
  */
-const requireUser = () => {
-  show_2.value = true;
-};
-/**
- * 修改User函数
- * userName和password
- */
-const onRequireUser = () => {
-  axios
-    .post(
-      `/api/requiredUser?userName=${rootName.value}&password=${rootPassword.value}`,
-      null,
-      {
-        headers,
-      }
-    )
-
-    .then((response) => {
-      if (response.data.code == 1) {
-        console.log("修改成功", response.data.data);
-        ElMessage("修改成功,请重新登录！");
-        logout();
-      } else {
-        console.error("修改失败");
-        ElMessage("修改失败");
-      }
-    })
-    .catch((error) => {
-      console.error("修改时出现错误:", error);
-      ElMessage("修改时出现错误");
-    });
-  show_2.value = false;
-};
-
-/**
- * 刷新Token函数
- * 由于获取账号密码操作还不确定，开发功能暂定
- */
-const reNew = async (row: User) => {
-  const response = await axios.get(`/api/updateToken?name=${row.name}`, {
+const AgainPandora = async () => {
+  const loadingInstance = ElLoading.service({ fullscreen: true });
+  const response = await axios.get(`/api/restart`, {
     headers,
   });
   const data = response.data.data;
   console.log(data);
   if (data != null && data != "") {
-    row.value = data.value;
-    row.updateTime = data.updateTime;
-    ElMessageBox.alert("更新成功!", "温馨提醒", {
+    ElMessageBox.alert(data, "温馨提醒", {
       confirmButtonText: "OK",
       callback: () => {
         ElMessage({
@@ -787,6 +837,74 @@ const reNew = async (row: User) => {
       },
     });
   } else ElMessage(response.data.msg);
+  loadingInstance.close();
+};
+
+/**
+ * 刷新Token函数
+ */
+const reNew = (row: User) => {
+  const loadingInstance = ElLoading.service({ fullscreen: true });
+  console.log(row);
+  console.log(row.token);
+  const api = {
+    name: row.name,
+    token: row.token,
+    username: row.username,
+    userPassword: row.userPassword,
+    shared: row.shared,
+    show_user_info: row.show_user_info,
+    plus: row.plus,
+    password: row.password,
+  };
+
+  fetch("/api/updateToken", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`, // 确保 token 变量已定义
+    },
+    body: JSON.stringify(api),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      if (data != null && data != "") {
+        row.token = data.data;
+
+        const now: Date = new Date();
+        const formattedTime = `${now.getFullYear()}-${(now.getMonth() + 1)
+          .toString()
+          .padStart(2, "0")}-${now.getDate().toString().padStart(2, "0")} ${now
+          .getHours()
+          .toString()
+          .padStart(2, "0")}:${now
+          .getMinutes()
+          .toString()
+          .padStart(2, "0")}:${now.getSeconds().toString().padStart(2, "0")}`;
+
+        row.updateTime = formattedTime;
+        ElMessageBox.alert("更新成功!", "温馨提醒", {
+          confirmButtonText: "OK",
+          callback: () => {
+            ElMessage({
+              type: "info",
+              message: "感谢Pandora大佬！",
+            });
+          },
+        });
+      } else {
+        ElMessage(data.msg);
+      }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+  loadingInstance.close();
 };
 
 /**
@@ -794,6 +912,7 @@ const reNew = async (row: User) => {
  * 参数 user
  */
 const deleteToken = (index: number, row: User) => {
+  const loadingInstance = ElLoading.service({ fullscreen: true });
   let msg = "";
   ElMessageBox.confirm(
     "您确定要删除这个Token吗，删除之后就找不到咯，请您要仔细认真考虑哦！",
@@ -806,22 +925,22 @@ const deleteToken = (index: number, row: User) => {
   )
     .then(() => {
       axios
-        .put(`/api/deleteToken?name=${row.name}`, null, {
-          headers,
-        })
-        .then((response) => {
-          if (response.data.code == 1 && response.data.data === "删除成功！") {
-            // 从数组中移除商品项
-            console.log(response.data.data);
-            tableData.value.splice(index, 1);
-            ElMessage({
-              type: "success",
-              message: response.data.data,
-            });
-          } else {
-            console.error("删除失败");
-            ElMessage("删除失败，请重新登录！");
+        .put(
+          `/api/deleteToken?name=${row.name}`,
+          null,
+          {
+            headers,
           }
+        )
+        .then((response) => {
+          msg = "删除成功！";
+          // 从数组中移除商品项
+          console.log(response.data.data);
+          tableData.value.splice(index, 1);
+          ElMessage({
+            type: "success",
+            message: msg,
+          });
         })
         .catch((error) => {
           // 处理完成失败的逻辑
@@ -834,12 +953,13 @@ const deleteToken = (index: number, row: User) => {
         message: "删除取消！",
       });
     });
+  loadingInstance.close();
 };
 
 /**
  * 获取token的过期时间
  */
-const formatDate = (value: any) => {
+const formatDate = (value:string) => {
   if (!value) return "";
   var nowDay = new Date();
   const timeDay = parseISO(value);
@@ -852,7 +972,7 @@ const formatDate = (value: any) => {
 /**
  * 更改Token显示操作
  */
-const dataToken = (value: any) => {
+const dataToken = (value:string) => {
   return value.substring(0, 40) + "...";
 };
 
@@ -944,17 +1064,29 @@ const logout = () => {
 }
 
 .requireDialog {
-  height: auto;
+  height: 60vh;
+  overflow-y: auto;
+  /* 显示垂直滚动条 */
+  overflow-x: hidden;
 }
 
 .requireTokenDialog {
-  height: auto;
+  height: 60vh;
+  overflow-y: auto;
+  /* 显示垂直滚动条 */
+  overflow-x: hidden;
 }
 .addTokenDialog {
-  height: auto;
+  height: 60vh;
+  overflow-y: auto;
+  /* 显示垂直滚动条 */
+  overflow-x: hidden;
 }
 .showDialog {
-  height: auto;
+  height: 60vh;
+  overflow-y: auto;
+  /* 显示垂直滚动条 */
+  overflow-x: hidden;
 }
 .van-field__label {
   font-size: 13px;

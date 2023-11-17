@@ -6,7 +6,7 @@
     />
     <div class="login-container">
       <img :src="image" alt="Your Image" />
-      <h1>PandoraNext-tokensTool用户登录</h1>
+      <h1>Pandora-TokensTool</h1>
     </div>
     <div class="container">
       <div style="display: flex; transform: translate(0vw, 2vh)">
@@ -266,6 +266,7 @@ h3 {
   align-items: center;
   /* 让底部组件紧贴容器底部 */
   justify-content: flex-end;
+  margin-top:10px;
 }
 
 .van-field__label :deep() .label {

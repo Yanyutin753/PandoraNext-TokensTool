@@ -80,13 +80,18 @@
           <van-search
             v-model="value"
             shape="round"
-            placeholder="请输入搜索任务关键词"
+            placeholder="请输入搜索token名称关键词"
             @search="onSearch"
           />
         </div>
         <div style="display: flex; width: 71.5vw; transform: translateX(0.5vw)">
           <!-- 数据表 -->
-          <el-table :data="tableData" style="width: 72vw" height="610px">
+          <el-table
+            v-loading="loading"
+            :data="tableData"
+            style="width: 72vw"
+            height="610px"
+          >
             <!-- Token名称表 宽150 -->
             <el-table-column label="名称" width="126">
               <template #default="scope">
@@ -205,7 +210,7 @@
               >pandoraNext-TokensTool v0.1.0
             </a>
             获取token
-            <a href="https://chat.openai.com/api/auth/session">官网地址 </a>
+            <a href="https://chat.openai.com/auth/session">官网地址 </a>
             <a href="https://ai.fakeopen.com/auth">Pandora地址</a>
           </h2>
         </div>
@@ -462,7 +467,19 @@ import { useRouter } from "vue-router";
 import axios from "axios";
 import png from "../asserts/chatGpt.jpg";
 import { ElMessage, ElMessageBox } from "element-plus";
+import { differenceInDays, parseISO } from "date-fns";
+import { ElLoading } from "element-plus";
 
+const loading = ref(true);
+//加载状态
+
+/**
+ * router 切换页面
+ */
+const router = useRouter();
+if (window.innerWidth <= 700) {
+  router.replace("/iphone");
+}
 /**
  *   <!-- 添加token信息 主键 名称为show_1 -->
  *   <!-- 添加token信息 主键 名称为show_1 -->
@@ -475,11 +492,6 @@ const show_2 = ref(false);
 
 //页头图片 image
 const image = png;
-
-/**
- * router 切换页面
- */
-const router = useRouter();
 
 /**
  * 定义User类接口
@@ -575,6 +587,7 @@ const fetchLoginToken = () => {
 
 const onSearch = (value: string) => {
   fetchDataAndFillForm(value);
+  loading.value = false;
 };
 /**
  * 获取数据操作，并把数据返回到tableData
@@ -582,12 +595,9 @@ const onSearch = (value: string) => {
  */
 const fetchDataAndFillForm = async (value: string) => {
   try {
-    const response = await axios.get(
-      `/api/seleteToken?name=${value}`,
-      {
-        headers,
-      }
-    );
+    const response = await axios.get(`/api/seleteToken?name=${value}`, {
+      headers,
+    });
     const data = response.data.data;
     console.log(data);
 
@@ -654,17 +664,33 @@ const addToken = () => {
  * 类user
  */
 const onAddToken = () => {
-  const api = {
+  const loadingInstance = ElLoading.service({ fullscreen: true });
+  const now: Date = new Date();
+  const formattedTime = `${now.getFullYear()}-${(now.getMonth() + 1)
+    .toString()
+    .padStart(2, "0")}-${now.getDate().toString().padStart(2, "0")} ${now
+    .getHours()
+    .toString()
+    .padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}:${now
+    .getSeconds()
+    .toString()
+    .padStart(2, "0")}`;
+  let api = {
     name: addName.value,
+    token: "",
     username: addUsername.value,
     userPassword: addUserPassword.value,
     shared: addShared.value,
     show_user_info: addShow_user_info.value,
     plus: addPlus.value,
     password: addPassword.value,
-    updateTime: new Date().toString(),
+    updateTime: formattedTime,
   };
-
+  if ((api.password === "" || api.password === null) && api.shared === true) {
+    ElMessage("shared的token是不能设置密码的，请重新再试！");
+    loadingInstance.close();
+    return;
+  }
   fetch("/api/addToken", {
     method: "POST",
     headers: {
@@ -677,7 +703,7 @@ const onAddToken = () => {
     .then((data) => {
       if (data.code == 1) {
         console.log(data.data);
-        api.token = data.data;
+        api.token = data.data as string;
         tableData.value.unshift(api);
         ElMessage("添加成功！");
       } else {
@@ -694,6 +720,7 @@ const onAddToken = () => {
   temUserPassword.value = "";
   temToken.value = "";
   show_1.value = false;
+  loadingInstance.close();
 };
 
 /**
@@ -717,6 +744,17 @@ const showData = (row: User) => {
  * 类user
  */
 const RequireToken = () => {
+  const loadingInstance = ElLoading.service({ fullscreen: true });
+  const now: Date = new Date();
+  const formattedTime = `${now.getFullYear()}-${(now.getMonth() + 1)
+    .toString()
+    .padStart(2, "0")}-${now.getDate().toString().padStart(2, "0")} ${now
+    .getHours()
+    .toString()
+    .padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}:${now
+    .getSeconds()
+    .toString()
+    .padStart(2, "0")}`;
   const api = {
     name: temName.value,
     token: temToken.value,
@@ -727,6 +765,11 @@ const RequireToken = () => {
     plus: temPlus.value,
     password: temPassword.value,
   };
+  if ((api.password != "" || api.password === null) && api.shared === true) {
+    ElMessage("shared的token是不能设置密码的，请重新再试！");
+    loadingInstance.close();
+    return;
+  }
   fetch("/api/requiredToken", {
     method: "POST",
     headers: {
@@ -752,7 +795,7 @@ const RequireToken = () => {
             tableData.value[i].show_user_info = api.show_user_info;
             tableData.value[i].plus = api.plus;
             tableData.value[i].password = api.password;
-            show.value = false;
+            tableData.value[i].updateTime = formattedTime;
             break; // 找到匹配的元素后跳出循环
           }
         }
@@ -762,12 +805,15 @@ const RequireToken = () => {
       console.error("请求requireToken接口失败", error);
       ElMessage("修改失败！");
     });
+  show.value = false;
+  loadingInstance.close();
 };
 
 /**
  * 重启pandora函数
  */
 const AgainPandora = async () => {
+  const loadingInstance = ElLoading.service({ fullscreen: true });
   const response = await axios.get(`/api/restart`, {
     headers,
   });
@@ -784,12 +830,14 @@ const AgainPandora = async () => {
       },
     });
   } else ElMessage(response.data.msg);
+  loadingInstance.close();
 };
 
 /**
  * 刷新Token函数
  */
 const reNew = (row: User) => {
+  const loadingInstance = ElLoading.service({ fullscreen: true });
   console.log(row);
   console.log(row.token);
   const api = {
@@ -849,6 +897,7 @@ const reNew = (row: User) => {
     .catch((error) => {
       console.error("Error:", error);
     });
+  loadingInstance.close();
 };
 
 /**
@@ -856,6 +905,7 @@ const reNew = (row: User) => {
  * 参数 user
  */
 const deleteToken = (index: number, row: User) => {
+  const loadingInstance = ElLoading.service({ fullscreen: true });
   let msg = "";
   ElMessageBox.confirm(
     "您确定要删除这个Token吗，删除之后就找不到咯，请您要仔细认真考虑哦！",
@@ -892,32 +942,25 @@ const deleteToken = (index: number, row: User) => {
         message: "删除取消！",
       });
     });
+  loadingInstance.close();
 };
 
 /**
  * 获取token的过期时间
  */
-const formatDate = (value) => {
+const formatDate = (value: string) => {
   if (!value) return "";
-
-  // 当前时间
-  var nowTime = new Date().getTime();
-
-  // 给定的时间
-  var givenTime = new Date(value).getTime();
-
-  // 计算两个时间之间的差距
-  let timeDiff = Math.ceil((nowTime - givenTime) / (1000 * 60 * 60 * 24));
-
-  return timeDiff >= 10
+  var nowDay = new Date();
+  const timeDay = parseISO(value);
+  const daysDiff = differenceInDays(nowDay, timeDay);
+  return daysDiff >= 10
     ? "已经过去了至少10天"
-    : Math.ceil(10 - timeDiff) + "天";
+    : Math.ceil(10 - daysDiff) + "天";
 };
-
 /**
  * 更改Token显示操作
  */
-const dataToken = (value) => {
+const dataToken = (value: string) => {
   return value.substring(0, 40) + "...";
 };
 
@@ -1081,6 +1124,7 @@ h2 {
   justify-content: center;
   align-items: center;
   height: auto;
+  margin-top: 1.3vh;
 }
 
 .under {

@@ -46,9 +46,10 @@ $ docker run -d --restart always --name PandoraNext --net=bridge -p 8181:8181 \
 - 1.请确保部署好了PandoraNext,拿到的JWT令牌
 - 2.下载[启动包](https://github.com/Yanyutin753/fakeApiTool-One-API/tree/main/simplyDeploy)，jar包
 - 3.上传到PandoraNext存放config.json和tokens.json的位置
-- #### 宝塔的pandoraNext的docker位置一般在
-<img width="1278" alt="屏幕截图 2023-11-17 203024" src="https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/96c1a9a8-5408-4575-a144-5ce913edc3d9">
 - 4.到达安装好包的路径下
+  
+#### 宝塔的pandoraNext的docker位置一般在
+<img width="1278" alt="屏幕截图 2023-11-17 203024" src="https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/96c1a9a8-5408-4575-a144-5ce913edc3d9">
 ```
 #先拿到管理员权限
 sudo su -

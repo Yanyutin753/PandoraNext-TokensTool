@@ -1,4 +1,4 @@
-# fakeapitoolweb
+# PandoraNext-TokensTool
 
 ## Project setup
 ```

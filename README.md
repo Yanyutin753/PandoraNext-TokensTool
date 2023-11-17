@@ -44,7 +44,7 @@ $ docker run -d --restart always --name PandoraNext --net=bridge -p 8181:8181 \
 
 ## 使用方法
 - 1.请确保部署好了PandoraNext,拿到的JWT令牌
-- 2.下载[启动包](https://github.com/Yanyutin753/fakeApiTool-One-API/tree/main/simplyDeploy)，jar包
+- 2.下载[启动包](https://github.com/Yanyutin753/PandoraNext-TokensTool/tree/main/simplyDeploy)，jar包
 - 3.上传到PandoraNext存放config.json和tokens.json的位置
 - 4.到达安装好包的路径下
   

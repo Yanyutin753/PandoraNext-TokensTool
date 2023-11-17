@@ -40,7 +40,8 @@ $ docker run -d --restart always --name PandoraNext --net=bridge -p 8181:8181 \
 
 
 ## 手机端展示
-### 暂时还没写出来（给我赞让我写的更有劲吧！）
+### 肝了一个晚上（给我赞让我写的更有劲吧！）
+![63a8b2a97b7f7b650ee0d8fc823b413](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/ee3b4306-07d4-40ed-a6b6-f62b1d61004d)
 
 ## 使用方法
 - 1.请确保部署好了PandoraNext,拿到的JWT令牌

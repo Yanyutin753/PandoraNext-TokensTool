@@ -51,26 +51,24 @@ $ docker run -d --restart always --name PandoraNext --net=bridge -p 8181:8181 \
 #### 宝塔的pandoraNext的docker位置一般在
 <img width="1278" alt="屏幕截图 2023-11-17 203024" src="https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/96c1a9a8-5408-4575-a144-5ce913edc3d9">
 ```
-#先拿到管理员权限
+# 先拿到管理员权限
 sudo su -
-
 #提示你输入密码进行确认。输入密码并按照提示完成验证。
+```
 
-#安装 OpenJDK 11：
+```
+# 安装 OpenJDK 11：
 sudo apt install openjdk-11-jdk
-安装完成后，可以通过运行以下命令来验证 JDK 安装：
+# 安装完成后，可以通过运行以下命令来验证 JDK 安装：
 java -version
+```
 
+```
 # 填写下面路径
-## cd （你的PandoraNext存放config.json和tokens.json的位置）
-
-```
-- 5.输入下面代码启动（要先有java环境哦）
-```
-# 修改下面代码，填写你的初始密码，初始账号，想要启动的端口号
-#例如
+cd （你的PandoraNext存放config.json和tokens.json的位置）
+# 修改并输入下面代码，填写你的初始密码，初始账号，想要启动的端口号
+# 例如
 nohup java -jar pandoraNext-0.0.1-SNAPSHOT.jar --server.port=8081 --loginUsername=root --loginPassword=123456 > output.log 2>&1 &
-
 # 等待一会 放行8001端口即可运行（自行调整）
 ```
 

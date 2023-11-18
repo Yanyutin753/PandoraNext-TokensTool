@@ -138,7 +138,7 @@ public class apiColltroller {
         String containerName = "PandoraNext";
         if (deployWay.contains("docker")) {
             try {
-                docker(containerName,"start");
+                docker(containerName,"unpause");
                 return Result.success("开启PandoraNext镜像成功");
             } catch (Exception e) {
                 throw new RuntimeException(e);

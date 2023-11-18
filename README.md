@@ -2,17 +2,9 @@
 ##### 请给我点个免费的star⭐吧，十分感谢！
 ## 简介
 
-[PandoraNext-TokensTool](https://github.com/Yanyutin753/PandoraNext-TokensTool) 是一个基于 [PandoraNext](https://github.com/pandora-next/deploy) 中的便捷添加管理token的工具，旨在更加简便地使用[pandoraNext](https://github.com/pandora-next/deploy)资源，使得可以方便地白嫖 chatGPT，本工具是站在巨人的肩膀上，方便大家，麻烦给个不要钱的星星⭐⭐⭐！
+[PandoraNext-TokensTool](https://github.com/Yanyutin753/PandoraNext-TokensTool) 是一个基于 [PandoraNext](https://github.com/pandora-next/deploy) 中的便捷添加管理token的工具，旨在更加简便地使用[pandoraNext](https://github.com/pandora-next/deploy)资源，手机端电脑端在线管理PandoraNext,使得可以方便地白嫖 chatGPT，本工具是站在巨人的肩膀上，方便大家，麻烦给个不要钱的星星⭐⭐⭐！
 
-### 请大家配合PandoraNext一起使用
-##### docker PandoraNext启动命令
-```
-# 记得在下面代码的指定位置填写好你的One-API数据表的密码
-$ docker pull pengzhile/pandora-next
-$ docker run -d --restart always --name PandoraNext --net=bridge -p 8181:8181 \
-             -e PANDORA_NEXT_LICENSE="<JWT Token>" pengzhile/pandora-next
-
-```
+### 请大家配合PandoraNext一起使用(一定要先安装PandoraNext)
 
 ## 功能特性
 
@@ -25,6 +17,12 @@ $ docker run -d --restart always --name PandoraNext --net=bridge -p 8181:8181 \
 4. **通过账号密码添加token** ，避免查找繁琐的token
 
 5. **一键重启PandoraNext** ，使得修改token效率更高
+
+6. **支持多种部署方法，开箱就用**
+
+7. **支持一键暂停，启动，重启PandoraNext**
+   
+8. **支持在线修改config.json文件,重启PandoraNext生效**
 
 - 现如今只支持账号密码登录，希望大佬能扩充！
 
@@ -42,6 +40,11 @@ $ docker run -d --restart always --name PandoraNext --net=bridge -p 8181:8181 \
 ## 手机端展示
 ### 肝了一个晚上（给我赞让我写的更有劲吧！）
 ![63a8b2a97b7f7b650ee0d8fc823b413](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/ee3b4306-07d4-40ed-a6b6-f62b1d61004d)
+
+## 在线修改系统设置，启动，重启，暂停PandoraNext操作
+![1f272d22383b975be2f32764ef1774a](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/bdc4bd3e-f984-4358-95ea-82cdc6e583a4)
+
+
 
 ## 使用方法
 - 1.请确保部署好了PandoraNext,拿到的JWT令牌
@@ -69,9 +72,10 @@ java -version
 ```
 # 填写下面路径
 cd （你的PandoraNext存放config.json和tokens.json的位置）
-# 修改并输入下面代码，填写你的初始密码，初始账号，想要启动的端口号
+# 修改并输入下面代码，填写你的初始密码，初始账号，想要启动的端口号，和你的部署方式
+# 手动部署--deployWay=releases,docker和docker-compose --deployWay=docker
 # 例如
-nohup java -jar pandoraNext-0.0.1-SNAPSHOT.jar --server.port=8081 --loginUsername=root --loginPassword=123456 > output.log 2>&1 &
+nohup java -jar pandoraNext-0.0.1-SNAPSHOT.jar --server.port=8081 --loginUsername=root --loginPassword=123456 --deployWay=releases > myput.log 2>&1 &
 # 等待一会 放行8001端口即可运行（自行调整）
 ```
 

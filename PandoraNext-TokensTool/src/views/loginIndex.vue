@@ -266,7 +266,7 @@ h3 {
   align-items: center;
   /* 让底部组件紧贴容器底部 */
   justify-content: flex-end;
-  margin-top:10px;
+  margin-top: 10px;
 }
 
 .van-field__label :deep() .label {
@@ -320,6 +320,11 @@ h3 {
     background-color: #0ea27e;
     border-radius: 14px;
     height: 40px;
+  }
+  .el-message--info .el-message__content {
+    color: var(--el-message-text-color);
+    overflow-wrap: anywhere;
+    width: 41vw;
   }
 }
 </style>

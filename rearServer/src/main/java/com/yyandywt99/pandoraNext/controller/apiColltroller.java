@@ -7,9 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.List;
 
 /**
@@ -94,49 +92,174 @@ public class apiColltroller {
             return Result.error("删除失败");
         }
     }
+    @Value("${deployWay}")
+    private String deployWay;
     /**
      * @return 通过访问restart，重启PandoraNext服务
      */
     @GetMapping("/restart")
     public Result restartContainer() {
         try {
-            restartDockerContainer("PandoraNext");
-            return Result.success("重启PandoraNext服务成功");
+            restartContainer("PandoraNext");
+            return Result.success("重启PandoraNext镜像成功");
         } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            return Result.error("重启PandoraNext服务失败！");
+            log.error("重启PandoraNext镜像失败！", e);
+            return Result.error("重启PandoraNext镜像失败！");
+        }
+    }
+    /**
+     * @return 通过访问close，关闭PandoraNext服务
+     */
+    @GetMapping("/close")
+    public Result closeContainer() {
+        String containerName = "PandoraNext";
+        if (deployWay.contains("docker")) {
+            docker(containerName,"pause");
+            return Result.success("暂停PandoraNext镜像成功");
+        }
+        else if (deployWay.equals("releases")) {
+            try {
+                closeRelease(containerName);
+                return Result.success("暂停PandoraNext镜像成功");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        else {
+            return Result.success("jar用错名称");
         }
     }
 
-    @Value("${deployWay}")
-    private String deployWay;
-    private void restartDockerContainer(String containerName) throws IOException, InterruptedException {
-        Process process = null;
-        if(deployWay.contains("docker")){
-            String[] command = {"docker", "restart", containerName};
-            ProcessBuilder processBuilder = new ProcessBuilder(command);
-            process = processBuilder.start();
-        }
-        else if(deployWay.contains("Releases")){
-            //重启命令为nohup ./PandoraNext &
-            String[] command = {"nohup", "./"+containerName, "&"};
-            ProcessBuilder processBuilder = new ProcessBuilder(command);
-            process = processBuilder.start();
-        }
-        else{
-            throw new RuntimeException("未正常启动jar包，没有正确配置好启动方法");
-        }
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line);
+    /**
+     * @return 通过访问open，开启PandoraNext服务
+     */
+    @GetMapping("/open")
+    public Result openContainer() {
+        String containerName = "PandoraNext";
+        if (deployWay.contains("docker")) {
+            try {
+                docker(containerName,"start");
+                return Result.success("开启PandoraNext镜像成功");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         }
-        int exitCode = process.waitFor();
-        if (exitCode != 0) {
-            log.info("无法重启PandoraNext服务");
-            throw new RuntimeException("无法重启PandoraNext服务");
+        else if (deployWay.equals("releases")) {
+            try {
+                openRelease(containerName);
+                return Result.success("开启PandoraNext镜像成功");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
-        log.info("重启PandoraNext服务成功！");
+        else {
+            return Result.success("jar用错名称");
+        }
+    }
+    /**
+     * containerName
+     * 重启containerName的容器
+     * 分为docker和releases
+     */
+    public void restartContainer(String containerName) throws IOException, InterruptedException {
+        log.info(deployWay);
+        if (deployWay.contains("docker")) {
+          docker(containerName,"restart");
+        }
+        else if (deployWay.equals("releases")) {
+            try {
+                try {
+                    closeRelease(containerName);
+                    openRelease(containerName);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                log.info("重启PandoraNext服务成功！");
+            } catch (Exception e) {
+                log.info("无法重启PandoraNext服务");
+                throw new RuntimeException(e);
+            }
+        }
+        else {
+            log.info("jar包填错信息");
+        }
+    }
+
+    /**
+     * docker命令
+     * containeeName：容器名
+     * way:命令方法（启动：start 暂停：pause 重启：restart）
+     */
+    public void docker(String containerName,String way){
+        try {
+            String dockerCommand = "docker "+ way + " " + containerName;
+            Process process = executeCommand(dockerCommand);
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                log.info("无法"+way+"PandoraNext服务");
+                throw new RuntimeException("无法"+way+"PandoraNext服务");
+            }
+            log.info(way+"PandoraNext服务");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * releases命令
+     * containeeName：容器名
+     * 关闭容器项目
+     */
+    public void closeRelease(String containName){
+        try {
+            // 构建杀死进程的命令
+            String killCommand = "pkill -f " + containName;
+            // 执行杀死进程的命令
+            Process killProcess = executeCommand(killCommand);
+            // 等待杀死进程完成
+            killProcess.waitFor();
+            log.info("关闭成功！");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * releaser命令
+     * containeeName：容器名
+     * 开启容器项目
+     */
+    public void openRelease(String containerName){
+        try {
+            String projectRoot = System.getProperty("user.dir");
+            String startCommand = "cd " + projectRoot + " ; exec nohup ./" + containerName + " > output.log 2>&1 &";
+            Process startProcess = executeCommand(startCommand);
+            int exitCode = startProcess.waitFor();
+            if (exitCode != 0) {
+                log.info("无法重启PandoraNext服务");
+                throw new RuntimeException("无法重启PandoraNext服务");
+            }
+            log.info("重启PandoraNext服务成功！");
+        } catch (InterruptedException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * release 命令函数
+     * command：命令
+     * 用 bash ,-c ，来包裹命令增加其稳定性
+     */
+    public Process executeCommand(String command) throws IOException {
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", command);
+            return processBuilder.start();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -16,13 +16,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 public class autoTokenController {
+
     @Autowired
     private com.yyandywt99.pandoraNext.service.apiService apiService;
 
+    @Autowired
+    private apiColltroller apiColltroller;
+
     /**
      * 自动更新Token
-     * 更换fakeApiTool里存储的Token
-     * 更换One-API相应的FakeAPI
+     * 更换tokens.json里存储的Tokens
+     * 自动重启
      * @return "更新成功" or "更新失败"
      * @throws Exception
      */
@@ -30,8 +34,13 @@ public class autoTokenController {
     public Result toUpdateToken(){
         try {
             String res = apiService.autoUpdateToken("");
-            if(res.contains("自动修改Token成功")){
-                return Result.success(res);
+            if(res.contains("修改Token成功")){
+                try {
+                    apiColltroller.restartContainer("PandoraNext");
+                    return Result.success(res);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -39,6 +48,11 @@ public class autoTokenController {
         return Result.error("更新失败");
     }
 
+    /**
+     * 自动更新指定用户名的Token
+     * @return "更新成功" or "刷新Token失败,请尝重新刷新！”
+     * @throws Exception
+     */
     @PostMapping ("updateToken")
     public Result toUpdateToken(@RequestBody token token){
         try {
@@ -49,6 +63,6 @@ public class autoTokenController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return Result.error("刷新Token失败,请尝试重新登录！");
+        return Result.error("刷新Token失败,请尝重新刷新！");
     }
 }

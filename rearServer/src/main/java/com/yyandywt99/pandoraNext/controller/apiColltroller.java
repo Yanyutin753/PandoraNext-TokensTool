@@ -1,5 +1,8 @@
 package com.yyandywt99.pandoraNext.controller;
 
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.core.DockerClientBuilder;
 import com.yyandywt99.pandoraNext.pojo.Result;
 import com.yyandywt99.pandoraNext.pojo.token;
 import lombok.extern.slf4j.Slf4j;
@@ -130,16 +133,34 @@ public class apiColltroller {
         }
     }
 
+    private static boolean isContainerPaused(DockerClient dockerClient, String containerIdOrName) {
+        // 使用 Docker Java API 查询容器信息
+        InspectContainerResponse containerInfo = dockerClient.inspectContainerCmd(containerIdOrName).exec();
+
+        // 获取容器状态
+        return containerInfo.getState().getPaused();
+    }
     /**
      * @return 通过访问open，开启PandoraNext服务
      */
     @GetMapping("/open")
-    public Result openContainer() {
+    public Result openContainer(){
+        // 要检查的容器ID或名称
         String containerName = "PandoraNext";
         if (deployWay.contains("docker")) {
             try {
-                docker(containerName,"unpause");
-                return Result.success("开启PandoraNext镜像成功");
+                // Docker 客户端初始化
+                DockerClient dockerClient = DockerClientBuilder.getInstance().build();
+                // 检查容器状态
+                boolean isPaused = isContainerPaused(dockerClient, containerName);
+                if (isPaused) {
+                    log.info("容器 " + containerName + " 已暂停。");
+                    docker(containerName,"unpause");
+                    return Result.success("开启PandoraNext镜像成功");
+                }
+                // 关闭 Docker 客户端连接
+                dockerClient.close();
+                return Result.success("容器 " + containerName + " 未暂停,不能重复启动");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

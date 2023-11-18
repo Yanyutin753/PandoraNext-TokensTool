@@ -29,7 +29,7 @@
 ### 初始用户名：root 初始密码值:123456 (可自行调整)
 
 # 图片展示
-### 一键重启docket里的pandoraNext容器
+### 一键重启docker里的pandoraNext容器
 ![image](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/e51d2fe1-e07d-48b8-be96-f860f65274c6)
 
 
@@ -76,7 +76,7 @@ cd （你的PandoraNext存放config.json和tokens.json的位置）
 # 手动部署--deployWay=releases,docker和docker-compose --deployWay=docker
 # 例如
 nohup java -jar pandoraNext-0.0.1-SNAPSHOT.jar --server.port=8081 --loginUsername=root --loginPassword=123456 --deployWay=releases > myput.log 2>&1 &
-# 等待一会 放行8001端口即可运行（自行调整）
+# 等待一会 放行8081端口即可运行（自行调整）
 ```
 
 ### 想要二开项目的友友们，可以自行更改前后端项目，本人小白，项目写的不太好，还请谅解！

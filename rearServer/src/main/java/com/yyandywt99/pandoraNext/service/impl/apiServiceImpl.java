@@ -50,8 +50,10 @@ public class apiServiceImpl implements apiService {
         }
         return parent;
     }
+
     /**
      * 打印token全部
+     *
      * @return res（List<token> ）
      */
     @Override
@@ -68,7 +70,7 @@ public class apiServiceImpl implements apiService {
             while (fields.hasNext()) {
                 Map.Entry<String, JsonNode> entry = fields.next();
                 String nodeName = entry.getKey();
-                if(nodeName.contains(name)){
+                if (nodeName.contains(name)) {
                     token temRes = new token();
                     temRes.setName(nodeName);
                     // 获取对应的节点
@@ -94,18 +96,18 @@ public class apiServiceImpl implements apiService {
     /**
      * 添加token
      * 并添加对应keys
+     *
      * @return "添加成功！"or"添加失败,检查你的token是否正确或登录是否过期！"
      */
     @Override
-    public String addToken(token token){
+    public String addToken(token token) {
         String res = "";
         //不填token,填账号密码
-        if(token.getToken() == null || token.getToken().length() == 0){
+        if (token.getToken() == null || token.getToken().length() == 0) {
             res = updateToken(token);
-            if(res != null){
+            if (res != null) {
                 token.setToken(res);
-            }
-            else {
+            } else {
                 return "添加失败,检查你的账号密码是否正确或FakeOpen服务异常";
             }
         }
@@ -121,28 +123,25 @@ public class apiServiceImpl implements apiService {
                 Files.createFile(jsonFilePath);
                 System.out.println("tokens.json创建完成: " + jsonFilePath);
                 rootNode = objectMapper.createObjectNode();
-            }
-            else {
+            } else {
                 if (Files.exists(jsonFilePath) && Files.size(jsonFilePath) > 0) {
                     rootNode = objectMapper.readTree(jsonFile).deepCopy();
-                }
-                else {
+                } else {
                     rootNode = objectMapper.createObjectNode();
                 }
             }
             // 创建要添加的新数据
             ObjectNode newData = objectMapper.createObjectNode();
             newData.put("token", token.getToken());
-            newData.put("username",token.getUsername());
-            newData.put("userPassword",token.getUserPassword());
+            newData.put("username", token.getUsername());
+            newData.put("userPassword", token.getUserPassword());
             newData.put("shared", token.isShared());
             newData.put("show_user_info", token.isShow_user_info());
             newData.put("plus", token.isPlus());
             // 检查是否需要 TokenPassword
             if (token.getPassword() != null && token.getPassword().length() > 0) {
                 newData.put("password", token.getPassword());
-            }
-            else {
+            } else {
                 newData.put("password", "");
             }
             LocalDateTime now = LocalDateTime.now();
@@ -160,14 +159,14 @@ public class apiServiceImpl implements apiService {
     }
 
 
-
     /**
      * 修改token值或者其他
      * 会通过删除相应的keys,并添加新keys(会检验是否Token合格)
+     *
      * @return "修改成功！"or"修改失败"or修改失败,检查你的token是否正确！
      */
     @Override
-    public String requiredToken(token tem){
+    public String requiredToken(token tem) {
         try {
             String parent = selectFile();
             log.info(parent);
@@ -196,13 +195,12 @@ public class apiServiceImpl implements apiService {
                 nodeToModifyInNew.put("userPassword", tem.getUserPassword());
                 nodeToModifyInNew.put("shared", tem.isShared());
                 nodeToModifyInNew.put("show_user_info", tem.isShow_user_info());
-                log.info(tem.isPlus()+"");
+                log.info(tem.isPlus() + "");
                 nodeToModifyInNew.put("plus", tem.isPlus());
                 // 检查是否需要 TokenPassword
                 if (tem.getPassword() != null && tem.getPassword().length() > 0) {
                     nodeToModifyInNew.put("password", tem.getPassword());
-                }
-                else {
+                } else {
                     nodeToModifyInNew.put("password", "");
                 }
                 LocalDateTime now = LocalDateTime.now();
@@ -222,10 +220,10 @@ public class apiServiceImpl implements apiService {
     }
 
 
-
     /**
      * 删除token
      * 并删除对应keys
+     *
      * @return "删除成功！"or"删除失败"
      */
     @Override
@@ -267,11 +265,11 @@ public class apiServiceImpl implements apiService {
     /**
      * 自动更新Token方法
      * 通过https://ai.fakeopen.com/auth/login拿到token
-     * 更换fakeApiTool里存储的Token
+     * 更换tokens.json里存储的Token
      * 账号为token.getUserName()
      * 密码为token.getUserPassword()
      */
-    public String updateToken(token token){
+    public String updateToken(token token) {
         String url = "https://ai.fakeopen.com/auth/login";
         try {
             // 创建HttpClient实例
@@ -320,8 +318,10 @@ public class apiServiceImpl implements apiService {
         }
         return null;
     }
+
     /**
      * 刷新Token
+     *
      * @return "更新成功" or "更新失败"
      */
     @Override
@@ -349,6 +349,7 @@ public class apiServiceImpl implements apiService {
      * 自动更新Token
      * 更换fakeApiTool里存储的Token
      * 更换One-API相应的FakeAPI
+     *
      * @return "更新成功" or "更新失败"
      */
     public String autoUpdateToken(String name) {
@@ -376,6 +377,4 @@ public class apiServiceImpl implements apiService {
             return "自动修改Token成功：" + newToken + "失败：" + (resTokens.size() - newToken);
         }
     }
-
-
 }

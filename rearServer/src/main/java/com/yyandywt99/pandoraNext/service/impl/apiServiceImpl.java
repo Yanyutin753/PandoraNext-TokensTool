@@ -47,6 +47,9 @@ public class apiServiceImpl implements apiService {
             // 创建文件
             Files.createFile(jsonFilePath);
             System.out.println("tokens.json创建完成: " + jsonFilePath);
+            // 往 tokens.json 文件中添加一个空数组，防止重启报错
+            Files.writeString(jsonFilePath, "{}");
+            System.out.println("空数组添加完成");
         }
         return parent;
     }
@@ -62,7 +65,13 @@ public class apiServiceImpl implements apiService {
         try {
             String parent = selectFile();
             log.info(parent);
+            File jsonFile = new File(parent);
             ObjectMapper objectMapper = new ObjectMapper();
+            // 如果 JSON 文件不存在或为空，则创建一个新的 JSON 对象并写入空数组
+            if (!jsonFile.exists() || jsonFile.length() == 0) {
+                Files.writeString(Paths.get(parent), "{}");
+                return res;
+            }
             // 读取JSON文件并获取根节点
             JsonNode rootNode = objectMapper.readTree(new File(parent));
             // 遍历所有字段

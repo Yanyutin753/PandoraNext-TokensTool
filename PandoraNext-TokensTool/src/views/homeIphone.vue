@@ -30,10 +30,19 @@
       </el-menu-item>
       <el-sub-menu index="4">
         <template #title>系统设置</template>
-        <el-menu-item index="4-1" @click="AgainPandora"
+        <el-menu-item index="4-1" @click="openPandora"
+          >开启PandoraNext</el-menu-item
+        >
+        <el-menu-item index="4-2" @click="closePandora"
+          >暂停PandoraNext</el-menu-item
+        >
+        <el-menu-item index="4-3" @click="AgainPandora"
           >重启PandoraNext</el-menu-item
         >
-        <el-menu-item index="4-2" @click="logout">退出登录</el-menu-item>
+        <el-menu-item index="4-4" @click="onRequireSetting"
+          >修改PandoraNext的系统设置</el-menu-item
+        >
+        <el-menu-item index="4-5" @click="logout">退出登录</el-menu-item>
       </el-sub-menu>
     </el-menu>
     <div style="display: block; transform: translate(5vw, 2.5vh); width=95vw;">
@@ -207,10 +216,7 @@
         <div style="text-align: center; transform: translateY(0vh)">
           <h2>
             获取token
-            <a
-              href="https://chat.OpenAI.com/api/auth/session"
-              >官网地址
-            </a>
+            <a href="https://chat.OpenAI.com/api/auth/session">官网地址 </a>
             <br />
             <a href="https://ai.fakeopen.com/auth">Pandora地址</a>
             欢迎大家来扩展
@@ -463,6 +469,73 @@
     </div>
   </van-dialog>
   <!------------------------------------------------------------------------------------------------------>
+  <!-- 修改系统设置信息 主键 名称为show_3 -->
+  <van-dialog
+    v-model:show="show_3"
+    title="修改系统设置信息"
+    width="90vw"
+    :close-on-click-overlay="true"
+    :show-cancel-button="false"
+    :show-confirm-button="false"
+    class="requireSettingDialog"
+  >
+    <div style="display: block">
+      <van-form @submit="RequireSetting">
+        <van-cell-group inset>
+          <br />
+          <van-field
+            v-model="bing"
+            name="绑定IP和端口"
+            label="绑定IP和端口"
+            placeholder="绑定IP和端口(选填)"
+          />
+          <br />
+          <van-field
+            v-model="timeout"
+            name="请求超时时间"
+            label="请求超时时间"
+            placeholder="请求超时时间(选填)"
+          />
+          <br />
+          <van-field name="switch" label="是否分享对话(选填)">
+            <template #right-icon>
+              <van-switch active-color="#0ea27e" v-model="public_share" />
+            </template>
+          </van-field>
+          <br />
+          <van-field
+            v-model="proxy_url"
+            type="temPassword"
+            name="代理服务URL"
+            label="代理服务URL"
+            placeholder="代理服务URL(选填)"
+          />
+          <br />
+          <van-field
+            v-model="site_password"
+            name="访问网站密码"
+            label="访问网站密码"
+            placeholder="访问网站密码(选填)"
+          />
+          <br />
+          <van-field
+            v-model="whitelist"
+            name="白名单"
+            label="白名单"
+            placeholder="[]限制所有账号(默认为null)"
+          />
+          <br />
+        </van-cell-group>
+        <div style="margin: 5.2px">
+          <van-button round block color="#0ea27e" native-type="submit">
+            提交
+          </van-button>
+        </div>
+      </van-form>
+    </div>
+    <br />
+  </van-dialog>
+  <!------------------------------------------------------------------------------------------------------>
 </template>
 
 
@@ -490,6 +563,7 @@ const fullscreenLoading = ref(false);
 const show = ref(false);
 const show_1 = ref(false);
 const show_2 = ref(false);
+const show_3 = ref(false);
 
 //页头图片 image
 const image = png;
@@ -513,6 +587,16 @@ interface User {
   password: string;
   updateTime: string;
 }
+
+/**
+ * 修改系统设置信息
+ */
+const bing = ref("");
+const timeout = ref("");
+const proxy_url = ref("");
+const public_share = ref(false);
+const site_password = ref("");
+const whitelist = ref("");
 
 /**
  * 查看或者修改token信息参数
@@ -598,12 +682,9 @@ const onSearch = (value: string) => {
  */
 const fetchDataAndFillForm = async (value: string) => {
   try {
-    const response = await axios.get(
-      `/api/seleteToken?name=${value}`,
-      {
-        headers,
-      }
-    );
+    const response = await axios.get(`/api/seleteToken?name=${value}`, {
+      headers,
+    });
     const data = response.data.data;
     console.log(data);
 
@@ -693,7 +774,7 @@ const onAddToken = () => {
     password: addPassword.value,
     updateTime: formattedTime,
   };
-  if((api.password === "" || api.password === null) && api.shared === true){
+  if ((api.password === "" || api.password === null) && api.shared === true) {
     ElMessage("shared的token是不能设置密码的，请重新再试！");
     loadingInstance.close();
     return;
@@ -747,6 +828,67 @@ const showData = (row: User) => {
 };
 
 /**
+ * 修改系统设置函数
+ */
+const onRequireSetting = async () => {
+  const response = await axios.get(`/api/selectSetting`, {
+    headers,
+  });
+  const data = response.data.data;
+  console.log(data);
+  bing.value = data.bing;
+  timeout.value = data.timeout;
+  proxy_url.value = data.proxy_url;
+  public_share.value = data.public_share;
+  site_password.value = data.site_password;
+  console.log(data.whitelist);
+  if(data.whitelist == null){
+    whitelist.value = "null";
+  }
+  else whitelist.value = data.whitelist;
+  show_3.value = true;
+};
+
+const RequireSetting = () => {
+  const loadingInstance = ElLoading.service({ fullscreen: true });
+  if(whitelist.value == null || whitelist.value == "null"){
+    whitelist.value = "";
+  }
+  const setting = {
+    bing: bing.value,
+    timeout: timeout.value,
+    proxy_url: proxy_url.value,
+    public_share: public_share.value,
+    site_password: site_password.value,
+    whitelist: whitelist.value,
+  };
+
+  fetch("/api/requireSetting", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(setting),
+  })
+    // 将 .json() 放在正确的位置
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.code == 1) {
+        console.log(data.data);
+        ElMessage(data.data);
+      } 
+      else ElMessage(data.msg);
+    })
+    .catch((error) => {
+      console.error("请求requireSetting接口失败", error);
+      ElMessage("修改失败！");
+    });
+  show_3.value = false;
+  loadingInstance.close();
+};
+
+/**
  * 修改token函数
  * 类user
  */
@@ -772,7 +914,7 @@ const RequireToken = () => {
     plus: temPlus.value,
     password: temPassword.value,
   };
-  if((api.password != "" || api.password === null) && api.shared === true){
+  if ((api.password != "" || api.password === null) && api.shared === true) {
     ElMessage("shared的token是不能设置密码的，请重新再试！");
     loadingInstance.close();
     return;
@@ -816,6 +958,52 @@ const RequireToken = () => {
   loadingInstance.close();
 };
 
+/**
+ * 开启pandora函数
+ */
+ const openPandora = async () => {
+  const loadingInstance = ElLoading.service({ fullscreen: true });
+  const response = await axios.get(`/api/open`, {
+    headers,
+  });
+  const data = response.data.data;
+  console.log(data);
+  if (data != null && data != "") {
+    ElMessageBox.alert(data, "温馨提醒", {
+      confirmButtonText: "OK",
+      callback: () => {
+        ElMessage({
+          type: "info",
+          message: "感谢Pandora大佬！",
+        });
+      },
+    });
+  } else ElMessage(response.data.msg);
+  loadingInstance.close();
+};
+/**
+ * 暂停pandora函数
+ */
+ const closePandora = async () => {
+  const loadingInstance = ElLoading.service({ fullscreen: true });
+  const response = await axios.get(`/api/close`, {
+    headers,
+  });
+  const data = response.data.data;
+  console.log(data);
+  if (data != null && data != "") {
+    ElMessageBox.alert(data, "温馨提醒", {
+      confirmButtonText: "OK",
+      callback: () => {
+        ElMessage({
+          type: "info",
+          message: "感谢Pandora大佬！",
+        });
+      },
+    });
+  } else ElMessage(response.data.msg);
+  loadingInstance.close();
+};
 /**
  * 重启pandora函数
  */
@@ -925,13 +1113,9 @@ const deleteToken = (index: number, row: User) => {
   )
     .then(() => {
       axios
-        .put(
-          `/api/deleteToken?name=${row.name}`,
-          null,
-          {
-            headers,
-          }
-        )
+        .put(`/api/deleteToken?name=${row.name}`, null, {
+          headers,
+        })
         .then((response) => {
           msg = "删除成功！";
           // 从数组中移除商品项
@@ -959,7 +1143,7 @@ const deleteToken = (index: number, row: User) => {
 /**
  * 获取token的过期时间
  */
-const formatDate = (value:string) => {
+const formatDate = (value: string) => {
   if (!value) return "";
   var nowDay = new Date();
   const timeDay = parseISO(value);
@@ -972,7 +1156,7 @@ const formatDate = (value:string) => {
 /**
  * 更改Token显示操作
  */
-const dataToken = (value:string) => {
+const dataToken = (value: string) => {
   return value.substring(0, 40) + "...";
 };
 
@@ -1172,5 +1356,11 @@ h2 {
   border-bottom: 1px solid #fff;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
   border-radius: 0%;
+}
+
+.el-message--info .el-message__content {
+    color: var(--el-message-text-color);
+    overflow-wrap: anywhere;
+    width: 41vw;
 }
 </style>

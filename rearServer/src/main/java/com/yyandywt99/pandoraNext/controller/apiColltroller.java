@@ -4,6 +4,7 @@ import com.yyandywt99.pandoraNext.pojo.Result;
 import com.yyandywt99.pandoraNext.pojo.token;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.BufferedReader;
@@ -100,18 +101,31 @@ public class apiColltroller {
     public Result restartContainer() {
         try {
             restartDockerContainer("PandoraNext");
-            return Result.success("重启PandoraNext镜像成功");
+            return Result.success("重启PandoraNext服务成功");
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
-            return Result.error("重启PandoraNext镜像失败！");
+            return Result.error("重启PandoraNext服务失败！");
         }
     }
 
+    @Value("${deployWay}")
+    private String deployWay;
     private void restartDockerContainer(String containerName) throws IOException, InterruptedException {
-        String[] command = {"docker", "restart", containerName};
-        ProcessBuilder processBuilder = new ProcessBuilder(command);
-        Process process = processBuilder.start();
-
+        Process process = null;
+        if(deployWay.contains("docker")){
+            String[] command = {"docker", "restart", containerName};
+            ProcessBuilder processBuilder = new ProcessBuilder(command);
+            process = processBuilder.start();
+        }
+        else if(deployWay.contains("Releases")){
+            //重启命令为nohup ./PandoraNext &
+            String[] command = {"nohup", "./"+containerName, "&"};
+            ProcessBuilder processBuilder = new ProcessBuilder(command);
+            process = processBuilder.start();
+        }
+        else{
+            throw new RuntimeException("未正常启动jar包，没有正确配置好启动方法");
+        }
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -120,9 +134,9 @@ public class apiColltroller {
         }
         int exitCode = process.waitFor();
         if (exitCode != 0) {
-            log.info("无法重启PandoraNext镜像");
-            throw new RuntimeException("无法重启PandoraNext镜像");
+            log.info("无法重启PandoraNext服务");
+            throw new RuntimeException("无法重启PandoraNext服务");
         }
-        log.info("重启PandoraNext镜像成功！");
+        log.info("重启PandoraNext服务成功！");
     }
 }

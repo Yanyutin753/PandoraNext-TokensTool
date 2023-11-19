@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -23,6 +22,11 @@ import java.util.List;
 public class apiColltroller {
     @Autowired
     private com.yyandywt99.pandoraNext.service.apiService apiService;
+
+    @Value("${deployPosition}")
+    private String deployPosition;
+
+    public String deploy = "default";
 
     /**
      * @param name
@@ -105,7 +109,7 @@ public class apiColltroller {
         try {
             restartContainer("PandoraNext");
             return Result.success("重启PandoraNext镜像成功");
-        } catch (IOException | InterruptedException e) {
+        } catch (Exception e) {
             log.error("重启PandoraNext镜像失败！", e);
             return Result.error("重启PandoraNext镜像失败！");
         }
@@ -182,7 +186,7 @@ public class apiColltroller {
      * 重启containerName的容器
      * 分为docker和releases
      */
-    public void restartContainer(String containerName) throws IOException, InterruptedException {
+    public void restartContainer(String containerName){
         log.info(deployWay);
         if (deployWay.contains("docker")) {
           docker(containerName,"restart");
@@ -191,11 +195,11 @@ public class apiColltroller {
             try {
                 try {
                     closeRelease(containerName);
+                    Thread.sleep(1000);
                     openRelease(containerName);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-                log.info("重启PandoraNext服务成功！");
             } catch (Exception e) {
                 log.info("无法重启PandoraNext服务");
                 throw new RuntimeException(e);
@@ -203,6 +207,67 @@ public class apiColltroller {
         }
         else {
             log.info("jar包填错信息");
+        }
+    }
+
+    /**
+     * releases命令
+     * containeeName：容器名
+     * 关闭容器项目
+     */
+    public void closeRelease(String containName){
+        try {
+            String killCommand = "pkill -f " + containName;
+            log.info(killCommand);
+            int exitCode = 0;
+            try {
+                // 执行杀死进程的命令
+                Process killProcess = executeCommand(killCommand);
+                // 等待杀死进程完成
+                try {
+                    exitCode = killProcess.waitFor();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            if (exitCode != 0) {
+                log.info("无法关闭PandoraNext服务");
+                throw new RuntimeException("无法关闭PandoraNext服务");
+            }
+            log.info("关闭PandoraNext服务成功！");
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
+    }
+
+    /**
+     * releaser命令
+     * containeeName：容器名
+     * 开启容器项目
+     */
+    public void openRelease(String containerName){
+        try {
+            String projectRoot;
+            if(deploy.equals(deployPosition)){
+                projectRoot = System.getProperty("user.dir");
+                log.info(projectRoot);
+            }
+            else{
+                projectRoot = deployPosition;
+            }
+            String startCommand = "cd " + projectRoot + " && nohup ./" + containerName + " > output.log 2>&1 & echo $! > pid.txt";
+            log.info(startCommand);
+            Process startProcess = executeCommand(startCommand);
+            int exitCode = startProcess.waitFor();
+            if (exitCode != 0) {
+                log.info("无法启动PandoraNext服务");
+                throw new RuntimeException("无法启动PandoraNext服务");
+            }
+            log.info("启动PandoraNext服务成功！");
+        } catch (Exception e) {
+            throw new RuntimeException();
         }
     }
 
@@ -221,66 +286,21 @@ public class apiColltroller {
                 throw new RuntimeException("无法"+way+"PandoraNext服务");
             }
             log.info(way+"PandoraNext服务");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException();
         }
     }
-
-    /**
-     * releases命令
-     * containeeName：容器名
-     * 关闭容器项目
-     */
-    public void closeRelease(String containName){
-        try {
-            // 构建杀死进程的命令
-            String killCommand = "pkill -f " + containName;
-            // 执行杀死进程的命令
-            Process killProcess = executeCommand(killCommand);
-            // 等待杀死进程完成
-            killProcess.waitFor();
-            log.info("关闭成功！");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * releaser命令
-     * containeeName：容器名
-     * 开启容器项目
-     */
-    public void openRelease(String containerName){
-        try {
-            String projectRoot = System.getProperty("user.dir");
-            String startCommand = "cd " + projectRoot + " ; exec nohup ./" + containerName + " > output.log 2>&1 &";
-            Process startProcess = executeCommand(startCommand);
-            int exitCode = startProcess.waitFor();
-            if (exitCode != 0) {
-                log.info("无法重启PandoraNext服务");
-                throw new RuntimeException("无法重启PandoraNext服务");
-            }
-            log.info("重启PandoraNext服务成功！");
-        } catch (InterruptedException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     /**
      * release 命令函数
      * command：命令
      * 用 bash ,-c ，来包裹命令增加其稳定性
      */
-    public Process executeCommand(String command) throws IOException {
+    public Process executeCommand(String command){
         try {
             ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", command);
             return processBuilder.start();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException();
         }
     }
 }

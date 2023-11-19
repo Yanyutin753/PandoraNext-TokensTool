@@ -1,24 +1,25 @@
 # PandoraNext-TokensTool
-##### 请给我点个免费的star⭐吧，十分感谢！
+## 不准白嫖，请给我免费的star⭐吧，十分感谢！
+
 ## 简介
 
-[PandoraNext-TokensTool](https://github.com/Yanyutin753/PandoraNext-TokensTool) 是一个基于 [PandoraNext](https://github.com/pandora-next/deploy) 中的便捷添加管理token的工具，旨在更加简便地使用[pandoraNext](https://github.com/pandora-next/deploy)资源，手机端电脑端在线管理PandoraNext,使得可以方便地白嫖 chatGPT，本工具是站在巨人的肩膀上，方便大家，麻烦给个不要钱的星星⭐⭐⭐！
+[PandoraNext-TokensTool](https://github.com/Yanyutin753/PandoraNext-TokensTool) 是一个基于 [PandoraNext](https://github.com/pandora-next/deploy) 中的便捷添加管理tokens.json和config.josn的工具，旨在更加简便地使用[pandoraNext](https://github.com/pandora-next/deploy)资源，手机端电脑端在线管理PandoraNext,使得可以方便地白嫖 chatGPT，本工具是站在巨人的肩膀上，方便大家，麻烦给个不要钱的星星⭐⭐⭐！
 
-### 请大家配合PandoraNext一起使用(一定要先安装PandoraNext)
+### 请大家配合PandoraNext一起使用(一定要配合PandoraNext使用，能知道tokens.json和config.json的位置)
 
 ## 功能特性
 
 1. **保存账号信息：** 支持保存 OpenAI 账号密码和 token，方便快速访问。
 
-2. **自动添加删除修改token：** 工具能够自动在 One-API 中添加删除修改渠道，简化配置过程。
+2. **自动添加删除修改token：** 工具能够自动在 tokens.josn 中添加删除刷新token，简化配置过程。
 
-3. **每五天自动通过openAI账号密码刷新token,更新渠道：** 工具会每五天自动通过openAI账号密码刷新token,更新渠道，方便使用。
+3. **每五天自动通过openAI账号密码刷新token,更新渠道：** 工具会每五天自动通过openAI账号密码刷新tokens,重启PandoraNext，方便使用。
 
 4. **通过账号密码添加token** ，避免查找繁琐的token
 
 5. **一键重启PandoraNext** ，使得修改token效率更高
 
-6. **支持多种部署方法，开箱就用**
+6. **支持多种PandoraNext部署方法，开箱就用**
 
 7. **支持一键暂停，启动，重启PandoraNext**
    
@@ -33,7 +34,7 @@
 ![image](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/e51d2fe1-e07d-48b8-be96-f860f65274c6)
 
 
-## 管理Token,记录token更新时间，自动更新One-API的渠道
+## 管理Token,记录token更新时间，自动更新tokens.json和config.json
 ![image](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/8906380f-886c-48cd-bf42-f7931f641069)
 
 
@@ -72,14 +73,23 @@ java -version
 ```
 # 填写下面路径
 cd （你的PandoraNext存放config.json和tokens.json的位置）
-# 修改并输入下面代码，填写你的初始密码，初始账号，想要启动的端口号，和你的部署方式
-# 手动部署--deployWay=releases,docker和docker-compose --deployWay=docker
+```
+##### 环境变量
+- 登录密码：loginPassword=123456
+- 登录账号：loginUsername=root
+- 启动端口号：server.port=8081
+- PandoraNext的部署方式：手动部署--deployWay=releases、docker和docker-compose --deployWay=docker
+
+##### 运行程序
+```
 # 例如
 nohup java -jar pandoraNext-0.0.1-SNAPSHOT.jar --server.port=8081 --loginUsername=root --loginPassword=123456 --deployWay=releases > myput.log 2>&1 &
 # 等待一会 放行8081端口即可运行（自行调整）
 ```
 
 ### 想要二开项目的友友们，可以自行更改前后端项目，本人小白，项目写的不太好，还请谅解！
+
+### 项目遵循相应的开源规则，请自行食用
 
 ## 强调
 本项目是站在巨人的肩膀上的，感谢[Pandora](https://github.com/pandora-next/deploy)超级无敌始皇!，欢迎各位来帮助修改本项目，使得本项目变得更方便，更简单！

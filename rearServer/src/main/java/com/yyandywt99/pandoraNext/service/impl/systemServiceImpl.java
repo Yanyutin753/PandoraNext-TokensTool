@@ -5,6 +5,7 @@ import com.yyandywt99.pandoraNext.service.systemService;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -23,27 +24,43 @@ import java.util.List;
 @Slf4j
 @Service
 public class systemServiceImpl implements systemService {
+    @Value("${deployPosition}")
+    private String deployPosition;
+    private String deploy = "default";
 
-    /**
-     * 修改config.json里的系统值
-     * @return "修改成功！"or"修改失败"
-     */
-    @Override
-    public String requiredSetting(systemSetting tem){
-        String projectRoot = System.getProperty("user.dir");
+    public String selectFile(){
+        String projectRoot;
+        if(deploy.equals(deployPosition)){
+            projectRoot = System.getProperty("user.dir");
+        }
+        else{
+            projectRoot = deployPosition;
+        }
         String parent = projectRoot + File.separator + "config.json";
         File jsonFile = new File(parent);
         Path jsonFilePath = Paths.get(parent);
         // 如果 JSON 文件不存在，创建一个新的 JSON 对象
         if (!jsonFile.exists()) {
             try {
-                // 创建文件
+                // 创建文件config.json
                 Files.createFile(jsonFilePath);
+                // 往 config.json 文件中添加一个空数组，防止重启报错
+                Files.writeString(jsonFilePath, "{}");
+                System.out.println("空数组添加完成");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            System.out.println("tokens.json创建完成: " + jsonFilePath);
+            System.out.println("config.json创建完成: " + jsonFilePath);
         }
+        return parent;
+    }
+    /**
+     * 修改config.json里的系统值
+     * @return "修改成功！"or"修改失败"
+     */
+    @Override
+    public String requiredSetting(systemSetting tem){
+        String parent = selectFile();
         try {
             // 读取 JSON 文件内容
             String jsonContent = new String(Files.readAllBytes(Paths.get(parent)));
@@ -99,23 +116,10 @@ public class systemServiceImpl implements systemService {
      * @return systemSettings类
      */
     public systemSetting selectSetting(){
-        String projectRoot = System.getProperty("user.dir");
-        String parent = projectRoot + File.separator + "config.json";
-        File jsonFile = new File(parent);
-        Path jsonFilePath = Paths.get(parent);
-        if (!jsonFile.exists()) {
-            try {
-                // 创建文件
-                Files.createFile(jsonFilePath);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            System.out.println("tokens.json创建完成: " + jsonFilePath);
-        }
+        String parent = selectFile();
         try {
             // 读取 JSON 文件内容
             String jsonContent = new String(Files.readAllBytes(Paths.get(parent)));
-
             // 将 JSON 字符串解析为 JSONObject
             JSONObject jsonObject = new JSONObject(jsonContent);
 

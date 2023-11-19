@@ -16,6 +16,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -37,8 +38,24 @@ import java.util.Map;
 @Slf4j
 @Service
 public class apiServiceImpl implements apiService {
+    @Value("${deployPosition}")
+    private String deployPosition;
+
+    private String deploy = "default";
+
+    /**
+     * 通过判断是否需要自定义查询tokens.json文件位置
+     * @return tokens.json文件位置
+     * @throws IOException
+     */
     public String selectFile() throws IOException {
-        String projectRoot = System.getProperty("user.dir");
+        String projectRoot;
+        if(deploy.equals(deployPosition)){
+            projectRoot = System.getProperty("user.dir");
+        }
+        else{
+            projectRoot = deployPosition;
+        }
         String parent = projectRoot + File.separator + "tokens.json";
         File jsonFile = new File(parent);
         Path jsonFilePath = Paths.get(parent);

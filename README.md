@@ -98,7 +98,6 @@ docker pull yangclivia/tokenstool:latest
 
 #### 手动部署PandoraNext启动命令
 
-```
 - 登录密码：loginPassword=123456
 - 登录账号：loginUsername=root
 - 启动端口号：server.port=8081
@@ -109,6 +108,7 @@ docker pull yangclivia/tokenstool:latest
 ⭐记住路径没有/config.json
 
 记得修改你的路径，密码，账号，端口号（选填），最最重要没有括号
+
 ```
 docker run -d \
   --restart=always \
@@ -125,7 +125,6 @@ docker run -d \
   --loginPassword=(你的登录密码)  \
   --deployWay=docker \
   --deployPosition=（你config.json的文件目录）
-
 ```
 
 #### docker部署PandoraNext启动命令

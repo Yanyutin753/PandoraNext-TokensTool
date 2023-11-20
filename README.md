@@ -31,32 +31,41 @@
 
 # 图片展示
 ### 一键重启docker里的pandoraNext容器
+
 ![image](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/e51d2fe1-e07d-48b8-be96-f860f65274c6)
 
 
 ## 管理Token,记录token更新时间，自动更新tokens.json和config.json
+
 ![image](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/8906380f-886c-48cd-bf42-f7931f641069)
 
 
 ## 手机端展示
+
 ### 肝了一个晚上（给我赞让我写的更有劲吧！）
+
 ![63a8b2a97b7f7b650ee0d8fc823b413](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/ee3b4306-07d4-40ed-a6b6-f62b1d61004d)
 
 ## 在线修改系统设置，启动，重启，暂停PandoraNext操作
+
 ![1f272d22383b975be2f32764ef1774a](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/bdc4bd3e-f984-4358-95ea-82cdc6e583a4)
 
 
 
 ## 使用方法
+
 - 1.请确保部署好了PandoraNext,拿到的JWT令牌
-- 2.下载[启动包](https://github.com/Yanyutin753/PandoraNext-TokensTool/tree/main/simplyDeploy)，jar包
-- 3.上传到PandoraNext存放config.json和tokens.json的位置
-- 4.到达安装好包的路径下
+
+- 2.下载[启动包](https://github.com/Yanyutin753/PandoraNext-TokensTool/tree/main/simplyDeploy)，jar包或者拉去docker镜像
+
+- 3.上传到PandoraNext存放config.json和tokens.json的位置或者随便一个目录
+
+- 4.然后看下方部署指令
   
 #### 宝塔的pandoraNext的docker位置一般在
 <img width="1278" alt="屏幕截图 2023-11-17 203024" src="https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/96c1a9a8-5408-4575-a144-5ce913edc3d9">
 
-## 部署详情
+## java部署详情
 ```
 # 先拿到管理员权限
 sudo su -
@@ -72,42 +81,60 @@ java -version
 
 ```
 # 填写下面路径
-cd （你的PandoraNext存放config.json和tokens.json的位置）
+cd （你的jar包的位置）
 ```
+
 ##### 环境变量
+
 - 登录密码：loginPassword=123456
+
 - 登录账号：loginUsername=root
+
 - 启动端口号：server.port=8081
-- PandoraNext的部署方式：手动部署--deployWay=releases、docker和docker-compose --deployWay=docker
+
+- PandoraNext的部署方式：手动部署--deployWay=releases、docker和docker-compose部署 --deployWay=docker
+
 - PandoraNext中存放config.json的位置 --deployPosition
-（如果你的tokensTool的jar包放在了coofig.json --deployPosition=default）
+（如果你的tokensTool的jar包放在了config.json --deployPosition=default）
  (如果不在的话就填你config.json的文件目录 例如：--deployPosition=/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88)
 
+- ⭐记住路径没有/config.json
+
 ##### 运行程序
+
 ```
 # 例如
 nohup java -jar pandoraNext-0.0.1-SNAPSHOT.jar --server.port=8081 --loginUsername=root --loginPassword=123456 --deployWay=releases --deployPosition=default > myput.log 2>&1 &
+
 # 等待一会 放行8081端口即可运行（自行调整）
 ```
 
-## docker部署
+## docker部署详情
+
 ```
-# 拉取镜像
+# 先拉取镜像
 docker pull yangclivia/tokenstool:latest
 ```
 
-#### 手动部署PandoraNext启动命令
+#### 环境变量
 
 - 登录密码：loginPassword=123456
-- 登录账号：loginUsername=root
-- 启动端口号：server.port=8081
-- PandoraNext的部署方式：手动部署--deployWay=releases、docker和docker-compose --deployWay=docker
-- PandoraNext中存放config.json的位置 --deployPosition
-（如果你的tokensTool的jar包放在了coofig.json --deployPosition=default）
- (如果不在的话就填你config.json的文件目录 例如：--deployPosition=/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88)
-⭐记住路径没有/config.json
 
-记得修改你的路径，密码，账号，端口号（选填），最最重要没有括号
+- 登录账号：loginUsername=root
+
+- 启动端口号：server.port=8081
+
+- PandoraNext的部署方式：手动部署--deployWay=releases、docker和docker-compose部署 --deployWay=docker
+
+- PandoraNext中存放config.json的位置 --deployPosition
+（如果你的tokensTool的jar包放在了config.json --deployPosition=default）
+ (如果不在的话就填你config.json的文件目录 例如：--deployPosition=/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88)
+
+- ⭐记住路径没有/config.json
+
+- 记得修改你的路径，密码，账号，端口号（选填），最最重要没有括号
+
+#### 手动部署PandoraNext启动命令
 
 ```
 docker run -d \

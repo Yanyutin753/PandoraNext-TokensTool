@@ -79,13 +79,75 @@ cd （你的PandoraNext存放config.json和tokens.json的位置）
 - 登录账号：loginUsername=root
 - 启动端口号：server.port=8081
 - PandoraNext的部署方式：手动部署--deployWay=releases、docker和docker-compose --deployWay=docker
+- PandoraNext中存放config.json的位置 --deployPosition
+（如果你的tokensTool的jar包放在了coofig.json --deployPosition=default）
+ (如果不在的话就填你config.json的文件目录 例如：--deployPosition=/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88)
 
 ##### 运行程序
 ```
 # 例如
-nohup java -jar pandoraNext-0.0.1-SNAPSHOT.jar --server.port=8081 --loginUsername=root --loginPassword=123456 --deployWay=releases > myput.log 2>&1 &
+nohup java -jar pandoraNext-0.0.1-SNAPSHOT.jar --server.port=8081 --loginUsername=root --loginPassword=123456 --deployWay=releases --deployPosition=default > myput.log 2>&1 &
 # 等待一会 放行8081端口即可运行（自行调整）
 ```
+
+## docker部署
+```
+# 拉取镜像
+docker pull yangclivia/tokenstool:latest
+```
+
+#### 手动部署PandoraNext启动命令
+
+```
+- 登录密码：loginPassword=123456
+- 登录账号：loginUsername=root
+- 启动端口号：server.port=8081
+- PandoraNext的部署方式：手动部署--deployWay=releases、docker和docker-compose --deployWay=docker
+- PandoraNext中存放config.json的位置 --deployPosition
+（如果你的tokensTool的jar包放在了coofig.json --deployPosition=default）
+ (如果不在的话就填你config.json的文件目录 例如：--deployPosition=/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88)
+⭐记住路径没有/config.json
+
+记得修改你的路径，密码，账号，端口号（选填），最最重要没有括号
+```
+docker run -d \
+  --restart=always \
+  -u root \
+  --name tokensTool \
+  -p 8081:8081 \
+  --net=host \
+  --pid=host \
+  --privileged=true \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v （你config.json的文件目录）:（你config.json的文件目录） \
+  yangclivia/tokenstool:latest \
+  --loginUsername=(你的登录账号) \
+  --loginPassword=(你的登录密码)  \
+  --deployWay=docker \
+  --deployPosition=（你config.json的文件目录）
+
+```
+
+#### docker部署PandoraNext启动命令
+
+```
+docker run -d \
+  --restart=always \
+  -u root \
+  --name tokensTool \
+  -p 8081:8081 \
+  --net=host \
+  --pid=host \
+  --privileged=true \
+  -v （你config.json的文件目录）:（你config.json的文件目录） \
+  -v /usr/bin/docker:/usr/bin/docker \
+  yangclivia/tokenstool:latest \
+  --loginUsername=(你的登录账号) \
+  --loginPassword=(你的登录密码) \
+  --deployWay=releases \
+  --deployPosition=（你config.json的文件目录）
+```
+
 
 ### 想要二开项目的友友们，可以自行更改前后端项目，本人小白，项目写的不太好，还请谅解！
 

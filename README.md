@@ -94,15 +94,15 @@ cd （你的jar包的位置）
 
 - PandoraNext的部署方式：--deployWay=releases/docker
   
-手动部署--deployWay=releases
+* 手动部署--deployWay=releases
 
-docker和docker-compose部署 --deployWay=docker
+* docker和docker-compose部署 --deployWay=docker
 
 - PandoraNext中存放config.json的位置 --deployPosition
   
-（如果你的tokensTool的jar包放在了config.json --deployPosition=default）
+* 如果你的tokensTool的jar包放在了config.json --deployPosition=default
 
-（如果不在的话就填你config.json的文件目录 例如：--deployPosition=/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88）
+* 如果不在的话就填你config.json的文件目录 例如：--deployPosition=/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88
 
 - ⭐记住路径没有/config.json
 
@@ -134,15 +134,15 @@ docker pull yangclivia/tokenstool:latest
 
 - PandoraNext的部署方式：--deployWay=releases/docker
   
-手动部署--deployWay=releases
+* 手动部署--deployWay=releases
 
-docker和docker-compose部署 --deployWay=docker
+* docker和docker-compose部署 --deployWay=docker
 
 - PandoraNext中存放config.json的位置 --deployPosition
   
-（如果你的tokensTool的jar包放在了config.json --deployPosition=default）
+* 如果你的tokensTool的jar包放在了config.json --deployPosition=default
 
-（如果不在的话就填你config.json的文件目录 例如：--deployPosition=/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88）
+* 如果不在的话就填你config.json的文件目录 例如：--deployPosition=/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88
 
 - ⭐记住路径没有/config.json
 
@@ -200,15 +200,15 @@ docker run -d \
 
 - PandoraNext的部署方式：--deployWay=releases/docker
   
-手动部署--deployWay=releases
+* 手动部署--deployWay=releases
 
-docker和docker-compose部署 --deployWay=docker
+* docker和docker-compose部署 --deployWay=docker
 
 - PandoraNext中存放config.json的位置 --deployPosition
   
-（如果你的tokensTool的jar包放在了config.json --deployPosition=default）
+* 如果你的tokensTool的jar包放在了config.json --deployPosition=default
 
-（如果不在的话就填你config.json的文件目录 例如：--deployPosition=/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88）
+* 如果不在的话就填你config.json的文件目录 例如：--deployPosition=/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88
 
 - ⭐记住路径没有/config.json
 
@@ -263,3 +263,6 @@ docker-compose up -d
 本项目是站在巨人的肩膀上的，感谢[Pandora](https://github.com/pandora-next/deploy)超级无敌始皇!，欢迎各位来帮助修改本项目，使得本项目变得更方便，更简单！
 
 ### 请给我一个免费的⭐吧！！！
+
+![star-history-20231121](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/d89852cc-b00d-4c44-8b91-cec87e1e18f2)
+

@@ -168,7 +168,7 @@ docker run -d \
   --deployPosition=（你config.json的文件目录）
 ```
 
-#### docker部署PandoraNext启动命令
+#### Docker部署PandoraNext启动命令
 
 ```
 docker run -d \
@@ -188,6 +188,71 @@ docker run -d \
   --deployPosition=（你config.json的文件目录）
 ```
 
+## Docker Compose部署详情
+
+#### 环境变量
+
+- 登录密码：loginPassword=123456
+
+- 登录账号：loginUsername=root
+
+- 启动端口号：server.port=8081
+
+- PandoraNext的部署方式：--deployWay=releases/docker
+  
+手动部署--deployWay=releases
+
+docker和docker-compose部署 --deployWay=docker
+
+- PandoraNext中存放config.json的位置 --deployPosition
+  
+（如果你的tokensTool的jar包放在了config.json --deployPosition=default）
+
+（如果不在的话就填你config.json的文件目录 例如：--deployPosition=/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88）
+
+- ⭐记住路径没有/config.json
+
+- 记得修改你的路径，密码，账号，端口号（选填），最最重要没有括号
+
+## 代码模板
+```
+version: '3'
+
+services:
+  tokensTool:
+    image: yangclivia/tokenstool:latest
+    container_name: tokensTool
+    restart: always
+    user: root
+    ports:
+      - "8081:8081"
+    network_mode: host
+    pid: host
+    privileged: true
+    volumes:
+      - （你config.json的文件目录）:（你config.json的文件目录）
+      - /usr/bin/docker:/usr/bin/docker
+    command: 
+      - --loginUsername=(你的登录账号)
+      - --loginPassword=(你的登录密码)
+      - --deployWay=(部署方式看环境变量)
+      - --deployPosition=（你config.json的文件目录）
+```
+
+```
+# 启动tokensTool
+
+cd (你的docker-compose.yml位置)
+
+docker-compose up -d
+```
+
+```
+#更新tokensTool项目代码
+cd (你的docker-compose.yml位置)
+docker-compose pull
+docker-compose up -d
+```
 
 ### 想要二开项目的友友们，可以自行遵循相应的开源规则更改前后端项目，本人小白，项目写的不太好，还请谅解！
 

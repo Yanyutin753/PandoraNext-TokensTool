@@ -35,7 +35,7 @@
 ![image](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/e51d2fe1-e07d-48b8-be96-f860f65274c6)
 
 
-## 管理Token,记录token更新时间，自动更新tokens.json和config.json
+### 管理Token,记录token更新时间，自动更新tokens.json和config.json
 
 ![image](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/8906380f-886c-48cd-bf42-f7931f641069)
 
@@ -46,10 +46,10 @@
 
 ![63a8b2a97b7f7b650ee0d8fc823b413](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/ee3b4306-07d4-40ed-a6b6-f62b1d61004d)
 
-## 在线修改系统设置，启动，重启，暂停PandoraNext操作
+
+### 在线修改系统设置，启动，重启，暂停PandoraNext操作
 
 ![1f272d22383b975be2f32764ef1774a](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/bdc4bd3e-f984-4358-95ea-82cdc6e583a4)
-
 
 
 ## 使用方法
@@ -92,13 +92,21 @@ cd （你的jar包的位置）
 
 - 启动端口号：server.port=8081
 
-- PandoraNext的部署方式：手动部署--deployWay=releases、docker和docker-compose部署 --deployWay=docker
+- PandoraNext的部署方式：--deployWay=releases/docker
+  
+手动部署--deployWay=releases
+
+docker和docker-compose部署 --deployWay=docker
 
 - PandoraNext中存放config.json的位置 --deployPosition
+  
 （如果你的tokensTool的jar包放在了config.json --deployPosition=default）
- (如果不在的话就填你config.json的文件目录 例如：--deployPosition=/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88)
+
+（如果不在的话就填你config.json的文件目录 例如：--deployPosition=/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88）
 
 - ⭐记住路径没有/config.json
+
+- 记得修改你的路径，密码，账号，端口号（选填），最最重要没有括号
 
 ##### 运行程序
 
@@ -124,11 +132,17 @@ docker pull yangclivia/tokenstool:latest
 
 - 启动端口号：server.port=8081
 
-- PandoraNext的部署方式：手动部署--deployWay=releases、docker和docker-compose部署 --deployWay=docker
+- PandoraNext的部署方式：--deployWay=releases/docker
+  
+手动部署--deployWay=releases
+
+docker和docker-compose部署 --deployWay=docker
 
 - PandoraNext中存放config.json的位置 --deployPosition
+  
 （如果你的tokensTool的jar包放在了config.json --deployPosition=default）
- (如果不在的话就填你config.json的文件目录 例如：--deployPosition=/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88)
+
+（如果不在的话就填你config.json的文件目录 例如：--deployPosition=/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88）
 
 - ⭐记住路径没有/config.json
 
@@ -175,11 +189,12 @@ docker run -d \
 ```
 
 
-### 想要二开项目的友友们，可以自行更改前后端项目，本人小白，项目写的不太好，还请谅解！
+### 想要二开项目的友友们，可以自行遵循相应的开源规则更改前后端项目，本人小白，项目写的不太好，还请谅解！
 
 ### 项目遵循相应的开源规则，请自行食用
 
 ## 强调
+
 本项目是站在巨人的肩膀上的，感谢[Pandora](https://github.com/pandora-next/deploy)超级无敌始皇!，欢迎各位来帮助修改本项目，使得本项目变得更方便，更简单！
 
 ### 请给我一个免费的⭐吧！！！

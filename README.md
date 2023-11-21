@@ -96,13 +96,13 @@ cd （你的jar包的位置）
   
 * 手动部署--deployWay=releases
 
-* docker和docker-compose部署 --deployWay=docker
+   * docker和docker-compose部署 --deployWay=docker
 
 - PandoraNext中存放config.json的位置 --deployPosition
   
-* 如果你的tokensTool的jar包放在了config.json --deployPosition=default
+   * 如果你的tokensTool的jar包放在了config.json --deployPosition=default
 
-* 如果不在的话就填你config.json的文件目录 例如：--deployPosition=/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88
+   * 如果不在的话就填你config.json的文件目录 例如：--deployPosition=/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88
 
 - ⭐记住路径没有/config.json
 
@@ -134,15 +134,15 @@ docker pull yangclivia/tokenstool:latest
 
 - PandoraNext的部署方式：--deployWay=releases/docker
   
-* 手动部署--deployWay=releases
+   * 手动部署--deployWay=releases
 
-* docker和docker-compose部署 --deployWay=docker
+   * docker和docker-compose部署 --deployWay=docker
 
 - PandoraNext中存放config.json的位置 --deployPosition
   
-* 如果你的tokensTool的jar包放在了config.json --deployPosition=default
+   * 如果你的tokensTool的jar包放在了config.json --deployPosition=default
 
-* 如果不在的话就填你config.json的文件目录 例如：--deployPosition=/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88
+   * 如果不在的话就填你config.json的文件目录 例如：--deployPosition=/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88
 
 - ⭐记住路径没有/config.json
 
@@ -199,16 +199,16 @@ docker run -d \
 - 启动端口号：server.port=8081
 
 - PandoraNext的部署方式：--deployWay=releases/docker
-  
-* 手动部署--deployWay=releases
+     
+   * 手动部署--deployWay=releases
 
-* docker和docker-compose部署 --deployWay=docker
+   * docker和docker-compose部署 --deployWay=docker
 
 - PandoraNext中存放config.json的位置 --deployPosition
   
-* 如果你的tokensTool的jar包放在了config.json --deployPosition=default
+   * 如果你的tokensTool的jar包放在了config.json --deployPosition=default
 
-* 如果不在的话就填你config.json的文件目录 例如：--deployPosition=/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88
+   * 如果不在的话就填你config.json的文件目录 例如：--deployPosition=/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88
 
 - ⭐记住路径没有/config.json
 
@@ -239,16 +239,17 @@ services:
       - --deployPosition=（你config.json的文件目录）
 ```
 
+##### 启动tokensTool
 ```
-# 启动tokensTool
 
 cd (你的docker-compose.yml位置)
 
 docker-compose up -d
 ```
 
+##### 更新tokensTool项目代码
 ```
-#更新tokensTool项目代码
+
 cd (你的docker-compose.yml位置)
 docker-compose pull
 docker-compose up -d

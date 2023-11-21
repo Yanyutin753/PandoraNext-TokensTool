@@ -9,7 +9,9 @@
       <h1>Pandora-TokensTool</h1>
     </div>
     <div class="container">
-      <div style="display: flex; transform: translate(0vw, 2vh)">
+      <div
+        style="display: flex; transform: translate(0vw, 2vh); font-size: 14.6px"
+      >
         <van-field
           v-model="username"
           name="用户名"
@@ -23,7 +25,7 @@
           display: flex;
           transform: translate(0vw, 2vh);
           margin-top: 5vh;
-          font-size: 12px;
+          font-size: 14.6px;
         "
       >
         <van-field
@@ -36,17 +38,13 @@
         />
       </div>
       <div
-        style="
-          display: flex;
-          transform: translate(0.5vw, 2.5vh);
-          margin-top: 5vh;
-        "
+        style="display: flex; transform: translate(0.5vw, 0vh); margin-top: 6vh"
       >
         <van-checkbox
           class="remember"
           v-model="checked"
           checked-color="#0ea27e"
-          icon-size="10px"
+          icon-size="13.5px"
         >
           <h9 style="font-size: 13.5px; transform: translateX(7px)"
             >记住密码</h9
@@ -56,8 +54,8 @@
       <div
         style="
           display: block;
-          transform: translate(0vw, 0.5vh);
-          margin-top: 5vh;
+          transform: translate(0vw, 0vh);
+          margin-top: 3.5vh;
         "
       >
         <input type="submit" @click="submit" value="登录" class="userName" />
@@ -182,7 +180,9 @@ body {
   background-color: #f2f2f2;
 }
 .van-cell {
-  background: #fbfbfb;
+  /* background: #fbfbfb; */
+  box-shadow: 2px 2px 2px rgba(113, 55, 55, 0.08);
+  border-radius: 14px;
 }
 .userName {
   font-size: 1vw;
@@ -231,7 +231,7 @@ input[type="submit"]:hover {
   margin-bottom: 5vh;
   background-color: #0ea27e;
   padding: 17.5px;
-  border-radius: 21px;
+  border-radius: 25px;
   backdrop-filter: blur(7px);
   height: 5vh;
   display: flex;
@@ -240,7 +240,8 @@ input[type="submit"]:hover {
   flex-direction: row; /* 指定Flex容器的主轴方向，这里设置为水平方向 */
 }
 .login-container h1 {
-  margin-right: 7px; /* 在文本和图像之间添加一些间距 */
+  margin-right: 20px; /* 在文本和图像之间添加一些间距 */
+  font-size: 30px;
 }
 
 .login-container img {
@@ -289,6 +290,20 @@ h3 {
     /* 隐藏水平滚动条 */
     flex-direction: column;
   }
+  .login-container {
+    color: #fff;
+    margin-top: 0vh;
+    margin-bottom: 5vh;
+    background-color: #0ea27e;
+    padding: 17.5px;
+    border-radius: 0px;
+    backdrop-filter: blur(7px);
+    height: 5vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row; /* 指定Flex容器的主轴方向，这里设置为水平方向 */
+  }
   .container {
     max-width: 65vw;
     height: auto;
@@ -308,8 +323,8 @@ h3 {
     justify-content: center;
     align-items: center;
   }
-  .van-field__label >>> .label {
-    font-size: 15.6px;
+  .van-field__label {
+    font-size: 14.6px;
   }
   h3 {
     font-size: 14.5px;

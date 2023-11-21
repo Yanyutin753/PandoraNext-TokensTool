@@ -1,0 +1,68 @@
+docker run -d \
+  --restart=always \
+  -u root \
+  --name tokensTool \
+  -p 8081:8081 \
+  --net=host \
+  --pid=host \
+  --privileged=true\
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /var/lib/docker/volumes/6f8f5c5fbb708e9e486138111624c324b8095c6ef2346954e96fff88e2d8072a/_data:/var/lib/docker/volumes/6f8f5c5fbb708e9e486138111624c324b8095c6ef2346954e96fff88e2d8072a/_data \
+  yangclivia/tokenstool:latest \
+  --loginUsername=root \
+  --loginPassword=20030707 \
+  --deployWay=docker \
+  --deployPosition=/var/lib/docker/volumes/6f8f5c5fbb708e9e486138111624c324b8095c6ef2346954e96fff88e2d8072a/_data
+
+
+docker run -d \
+  --restart=always \
+  -u root \
+  --name tokensTool \
+  -p 8081:8081 \
+  --net=host \
+  --pid=host \
+  --privileged=true \
+  -v /www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88:/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88 \
+  -v /usr/bin/docker:/usr/bin/docker \
+  yangclivia/tokenstool:latest \
+  --loginUsername=root \
+  --loginPassword=20030707 \
+  --deployWay=releases \
+  --deployPosition=/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88
+
+
+sudo mkdir -p /etc/docker
+sudo tee /etc/docker/daemon.json <<-'EOF'
+{
+  "registry-mirrors": ["http://hub-mirror.c.163.com"]
+}
+EOF
+
+
+//构建多操作系统的镜像
+1.先确保你的配置文件满足多操作系统，
+2.然后确保已经创建 Buildx Builder：
+```
+docker buildx create --use
+```
+3.登录docker
+```
+docker login
+```
+3.构建多平台镜像并上传：
+例如：如果dockerFile位于 /www/wwwroot/fakeApiTool 目录下
+```
+docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t yangclivia/fakeapitool -f /www/wwwroot/fakeApiTool/Dockerfile --push /www/wwwroot/fakeApiTool
+
+docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t yangclivia/tokenstool -f /www/wwwroot/PandoraNext-v0.1.3-linux-386-51a5f88/Dockerfile --push /www/wwwroot/PandoraNext-v0.1.3-linux-386-51a5f88
+
+
+```
+4.上传成功
+5.拉取镜像
+```
+docker pull yangclivia/fakeapitool:latest
+````
+
+映射路径会把路径上的文件全部覆盖，被覆盖的文件会被全覆盖

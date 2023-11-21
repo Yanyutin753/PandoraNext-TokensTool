@@ -54,6 +54,9 @@ public class apiColltroller {
             if(res.length() > 300){
                 return Result.success(res);
             }
+            else if(res.length() == 0){
+                return Result.success("添加成功，已装填你的token");
+            }
             else{
                 return Result.error(res);
             }
@@ -194,8 +197,13 @@ public class apiColltroller {
         else if (deployWay.equals("releases")) {
             try {
                 try {
+                    //先确保是开启状态
+                    openRelease(containerName);
+                    //再关闭
+                    Thread.sleep(500);
                     closeRelease(containerName);
-                    Thread.sleep(1000);
+                    //在重启
+                    Thread.sleep(500);
                     openRelease(containerName);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -217,7 +225,7 @@ public class apiColltroller {
      */
     public void closeRelease(String containName){
         try {
-            String killCommand = "pkill -f " + containName;
+            String killCommand = "pkill " + containName;
             log.info(killCommand);
             int exitCode = 0;
             try {

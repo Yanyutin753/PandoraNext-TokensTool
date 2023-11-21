@@ -40,7 +40,7 @@
           >重启PandoraNext</el-menu-item
         >
         <el-menu-item index="4-4" @click="onRequireSetting"
-          >修改PandoraNext的系统设置</el-menu-item
+          >PandoraNext参数设置</el-menu-item
         >
         <el-menu-item index="4-5" @click="logout">退出登录</el-menu-item>
       </el-sub-menu>
@@ -216,7 +216,10 @@
         <div style="text-align: center; transform: translateY(0vh)">
           <h2>
             获取token
-            <a href="https://chat.OpenAI.com/api/auth/session">官网地址 </a>
+            <a
+              href="https://chat.OpenAI.com/api/auth/session"
+              >官网地址
+            </a>
             <br />
             <a href="https://ai.fakeopen.com/auth">Pandora地址</a>
             欢迎大家来扩展
@@ -266,27 +269,33 @@
               <van-switch active-color="#0ea27e" v-model="temShared" />
             </template>
           </van-field>
-          <br />
-          <van-field name="switch" label="是否分享聊天记录">
-            <template #right-icon>
-              <van-switch active-color="#0ea27e" v-model="temShow_user_info" />
-            </template>
-          </van-field>
-          <br />
-          <van-field name="switch" label="是否显示金光">
-            <template #right-icon>
-              <van-switch active-color="#0ea27e" v-model="temPlus" />
-            </template>
-          </van-field>
-          <br />
-          <br />
-          <van-field
-            v-model="temPassword"
-            type="temPassword"
-            name="进入Token的密码"
-            label="进入Token的密码"
-            placeholder="进入Token的密码(选填)"
-          />
+          <div v-if="temShared == true">
+            <br />
+            <van-field name="switch" label="是否分享聊天记录">
+              <template #right-icon>
+                <van-switch
+                  active-color="#0ea27e"
+                  v-model="temShow_user_info"
+                />
+              </template>
+            </van-field>
+            <br />
+            <van-field name="switch" label="是否显示金光">
+              <template #right-icon>
+                <van-switch active-color="#0ea27e" v-model="temPlus" />
+              </template>
+            </van-field>
+          </div>
+          <div v-if="temShared == false">
+            <br />
+            <van-field
+              v-model="temPassword"
+              type="temPassword"
+              name="进入Token的密码"
+              label="进入Token的密码"
+              placeholder="填了将不会分享给他人！"
+            />
+          </div>
           <br />
           <van-field
             v-model="temToken"
@@ -342,38 +351,58 @@
           <br />
           <van-field
             v-model="addUserPassword"
-            type="temUserPassword"
+            type="password"
             name="OpenAi密码"
             label="OpenAi密码"
             placeholder="OpenAi密码"
             :rules="[{ required: true, message: '请填写OpenAi密码' }]"
           />
           <br />
-          <van-field name="switch" label="是否分享出来">
-            <template #right-icon>
-              <van-switch active-color="#0ea27e" v-model="addShared" />
-            </template>
-          </van-field>
-          <br />
-          <van-field name="switch" label="是否分享聊天记录">
-            <template #right-icon>
-              <van-switch active-color="#0ea27e" v-model="addShow_user_info" />
-            </template>
-          </van-field>
-          <br />
-          <van-field name="switch" label="是否显示金光">
-            <template #right-icon>
-              <van-switch active-color="#0ea27e" v-model="addPlus" />
-            </template>
-          </van-field>
-          <br />
           <van-field
-            v-model="addPassword"
-            type="temPassword"
-            name="进入Token的密码"
-            label="进入Token的密码"
-            placeholder="进入Token的密码"
+            rows="3"
+            type="textarea"
+            maxlength="5000"
+            show-word-limit
+            v-model="addTokenValue"
+            name="OpenAI的token"
+            label="OpenAI的token"
+            placeholder="选填(可不填,不填则使用账号密码)access token/session token/refresh token/share token"
           />
+          <br />
+          <div v-if="addPassword == ''">
+            <van-field name="switch" label="是否分享出来">
+              <template #right-icon>
+                <van-switch active-color="#0ea27e" v-model="addShared" />
+              </template>
+            </van-field>
+            <br />
+            <div v-if="addShared == true">
+              <van-field name="switch" label="是否分享聊天记录">
+                <template #right-icon>
+                  <van-switch
+                    active-color="#0ea27e"
+                    v-model="addShow_user_info"
+                  />
+                </template>
+              </van-field>
+              <br />
+              <van-field name="switch" label="是否显示金光">
+                <template #right-icon>
+                  <van-switch active-color="#0ea27e" v-model="addPlus" />
+                </template>
+              </van-field>
+            </div>
+          </div>
+          <div v-if="addShared == ''">
+            <br />
+            <van-field
+              v-model="addPassword"
+              type="temPassword"
+              name="进入Token的密码"
+              label="进入Token的密码"
+              placeholder="填了将不会分享给他人！"
+            />
+          </div>
           <br />
         </van-cell-group>
         <div style="margin: 5.2px">
@@ -407,6 +436,7 @@
             name="Token用户名"
             label="Token用户名"
             placeholder="Token用户名"
+            :readonly="true"
             :rules="[{ required: true, message: '请填写Token用户名' }]"
           />
           <br />
@@ -415,6 +445,7 @@
             name="OpenAi用户名"
             label="OpenAi用户名"
             placeholder="OpenAi用户名"
+            :readonly="true"
             :rules="[{ required: true, message: '请填写OpenAi用户名' }]"
           />
           <br />
@@ -424,24 +455,33 @@
             name="OpenAi密码"
             label="OpenAi密码"
             placeholder="OpenAi密码"
+            :readonly="true"
             :rules="[{ required: true, message: '请填写OpenAi密码' }]"
           />
           <br />
-          <van-field name="temShared" label="是否分享出来">
+          <van-field name="temShared" :readonly="true" label="是否分享出来">
             <template #right-icon>
-              <van-switch active-color="#0ea27e" v-model="temShared" />
+              <van-switch disabled active-color="#0ea27e" v-model="temShared" />
             </template>
           </van-field>
           <br />
-          <van-field name="temShow_user_info" label="是否分享聊天记录">
+          <van-field
+            :readonly="true"
+            name="temShow_user_info"
+            label="是否分享聊天记录"
+          >
             <template #right-icon>
-              <van-switch active-color="#0ea27e" v-model="temShow_user_info" />
+              <van-switch
+                disabled
+                active-color="#0ea27e"
+                v-model="temShow_user_info"
+              />
             </template>
           </van-field>
           <br />
-          <van-field name="temPlus" label="是否显示金光">
+          <van-field :readonly="true" name="temPlus" label="是否显示金光">
             <template #right-icon>
-              <van-switch active-color="#0ea27e" v-model="temPlus" />
+              <van-switch disabled active-color="#0ea27e" v-model="temPlus" />
             </template>
           </van-field>
           <br />
@@ -451,6 +491,7 @@
             name="进入Token的密码"
             label="进入Token的密码"
             placeholder="进入Token的密码"
+            :readonly="true"
           />
           <br />
           <van-field
@@ -461,6 +502,7 @@
             maxlength="5000"
             placeholder="请填写OpenAi的Token"
             show-word-limit
+            :readonly="true"
           />
           <br />
         </van-cell-group>
@@ -617,10 +659,11 @@ const tableData = ref<User[]>([]);
 const addName = ref("");
 const addUsername = ref("");
 const addUserPassword = ref("");
+const addTokenValue = ref("");
 const addShared = ref(false);
 const addShow_user_info = ref(false);
 const addPlus = ref(false);
-const addPassword = ref();
+const addPassword = ref("");
 
 /**
  * 控制悬浮球位置
@@ -682,9 +725,12 @@ const onSearch = (value: string) => {
  */
 const fetchDataAndFillForm = async (value: string) => {
   try {
-    const response = await axios.get(`/api/seleteToken?name=${value}`, {
-      headers,
-    });
+    const response = await axios.get(
+      `/api/seleteToken?name=${value}`,
+      {
+        headers,
+      }
+    );
     const data = response.data.data;
     console.log(data);
 
@@ -763,9 +809,14 @@ const onAddToken = () => {
     .getSeconds()
     .toString()
     .padStart(2, "0")}`;
+  if (addPassword.value != "") {
+    addShared.value = false;
+    addShow_user_info.value = false;
+    addPlus.value = false;
+  }
   let api = {
     name: addName.value,
-    token: "",
+    token: addTokenValue.value,
     username: addUsername.value,
     userPassword: addUserPassword.value,
     shared: addShared.value,
@@ -774,7 +825,7 @@ const onAddToken = () => {
     password: addPassword.value,
     updateTime: formattedTime,
   };
-  if ((api.password === "" || api.password === null) && api.shared === true) {
+  if (api.password !== "" && api.shared === true) {
     ElMessage("shared的token是不能设置密码的，请重新再试！");
     loadingInstance.close();
     return;
@@ -791,9 +842,12 @@ const onAddToken = () => {
     .then((data) => {
       if (data.code == 1) {
         console.log(data.data);
-        api.token = data.data as string;
+        if (api.token == "") {
+          api.token = data.data as string;
+          ElMessage("添加成功！已为你自动装填token");
+        }
         tableData.value.unshift(api);
-        ElMessage("添加成功！");
+        ElMessage(data.data);
       } else {
         ElMessage(data.msg);
       }
@@ -831,9 +885,12 @@ const showData = (row: User) => {
  * 修改系统设置函数
  */
 const onRequireSetting = async () => {
-  const response = await axios.get(`/api/selectSetting`, {
-    headers,
-  });
+  const response = await axios.get(
+    `/api/selectSetting`,
+    {
+      headers,
+    }
+  );
   const data = response.data.data;
   console.log(data);
   bing.value = data.bing;
@@ -842,16 +899,15 @@ const onRequireSetting = async () => {
   public_share.value = data.public_share;
   site_password.value = data.site_password;
   console.log(data.whitelist);
-  if(data.whitelist == null){
+  if (data.whitelist == null) {
     whitelist.value = "null";
-  }
-  else whitelist.value = data.whitelist;
+  } else whitelist.value = data.whitelist;
   show_3.value = true;
 };
 
 const RequireSetting = () => {
   const loadingInstance = ElLoading.service({ fullscreen: true });
-  if(whitelist.value == null || whitelist.value == "null"){
+  if (whitelist.value == null || whitelist.value == "null") {
     whitelist.value = "";
   }
   const setting = {
@@ -877,8 +933,7 @@ const RequireSetting = () => {
       if (data.code == 1) {
         console.log(data.data);
         ElMessage(data.data);
-      } 
-      else ElMessage(data.msg);
+      } else ElMessage(data.msg);
     })
     .catch((error) => {
       console.error("请求requireSetting接口失败", error);
@@ -904,6 +959,11 @@ const RequireToken = () => {
     .getSeconds()
     .toString()
     .padStart(2, "0")}`;
+  if (temPassword.value != "") {
+    temShared.value = false;
+    temPlus.value = false;
+    temShow_user_info.value = false;
+  }
   const api = {
     name: temName.value,
     token: temToken.value,
@@ -914,11 +974,6 @@ const RequireToken = () => {
     plus: temPlus.value,
     password: temPassword.value,
   };
-  if ((api.password != "" || api.password === null) && api.shared === true) {
-    ElMessage("shared的token是不能设置密码的，请重新再试！");
-    loadingInstance.close();
-    return;
-  }
   fetch("/api/requiredToken", {
     method: "POST",
     headers: {
@@ -939,7 +994,7 @@ const RequireToken = () => {
           if (tableData.value[i].name === temName.value) {
             tableData.value[i].token = api.token;
             tableData.value[i].username = api.username;
-            tableData.value[i].userPassword = api.password;
+            tableData.value[i].userPassword = api.userPassword;
             tableData.value[i].shared = api.shared;
             tableData.value[i].show_user_info = api.show_user_info;
             tableData.value[i].plus = api.plus;
@@ -961,7 +1016,7 @@ const RequireToken = () => {
 /**
  * 开启pandora函数
  */
- const openPandora = async () => {
+const openPandora = async () => {
   const loadingInstance = ElLoading.service({ fullscreen: true });
   const response = await axios.get(`/api/open`, {
     headers,
@@ -978,13 +1033,15 @@ const RequireToken = () => {
         });
       },
     });
-  } else ElMessage(response.data.msg);
+  } else {
+    ElMessage(response.data.msg);
+  }
   loadingInstance.close();
 };
 /**
  * 暂停pandora函数
  */
- const closePandora = async () => {
+const closePandora = async () => {
   const loadingInstance = ElLoading.service({ fullscreen: true });
   const response = await axios.get(`/api/close`, {
     headers,
@@ -1001,7 +1058,9 @@ const RequireToken = () => {
         });
       },
     });
-  } else ElMessage(response.data.msg);
+  } else {
+    ElMessage(response.data.msg);
+  }
   loadingInstance.close();
 };
 /**
@@ -1024,7 +1083,9 @@ const AgainPandora = async () => {
         });
       },
     });
-  } else ElMessage(response.data.msg);
+  } else {
+    ElMessage(response.data.msg);
+  }
   loadingInstance.close();
 };
 
@@ -1113,9 +1174,13 @@ const deleteToken = (index: number, row: User) => {
   )
     .then(() => {
       axios
-        .put(`/api/deleteToken?name=${row.name}`, null, {
-          headers,
-        })
+        .put(
+          `/api/deleteToken?name=${row.name}`,
+          null,
+          {
+            headers,
+          }
+        )
         .then((response) => {
           msg = "删除成功！";
           // 从数组中移除商品项
@@ -1202,6 +1267,7 @@ const logout = () => {
 }
 .van-field__label {
   width: 84px;
+  font-size: 13px;
 }
 .el-table .cell {
   font-size: 14px;
@@ -1272,9 +1338,7 @@ const logout = () => {
   /* 显示垂直滚动条 */
   overflow-x: hidden;
 }
-.van-field__label {
-  font-size: 13px;
-}
+
 /* 集合内框内字体颜色 */
 .el-tag {
   --el-tag-text-color: #0ea27e;
@@ -1359,8 +1423,8 @@ h2 {
 }
 
 .el-message--info .el-message__content {
-    color: var(--el-message-text-color);
-    overflow-wrap: anywhere;
-    width: 41vw;
+  color: var(--el-message-text-color);
+  overflow-wrap: anywhere;
+  width: 41vw;
 }
 </style>

@@ -1338,7 +1338,9 @@ const logout = () => {
 .showDialog {
   height: auto;
 }
-
+.requireSettingDialog {
+  height: auto;
+}
 /* 集合内框内字体颜色 */
 .el-tag {
   --el-tag-text-color: #0ea27e;

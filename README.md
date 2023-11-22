@@ -7,6 +7,16 @@
 
 ### 请大家配合PandoraNext一起使用(一定要配合PandoraNext使用，能知道tokens.json和config.json的位置)
 
+#### 如果不知道docker里面容器PandoraNext存储卷位置，可以参考以下代码
+
+![image](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/8aacabd0-4cb1-4d44-a5e6-4bf1136b3865)
+
+```
+# 查找容器名为 "PandoraNext" 的所有挂载信息
+docker inspect -f '{{range .Mounts}}{{.Destination}}: {{.Source}}{{"\n"}}{{end}}' PandoraNext
+# 拿到后面的地址
+```
+
 ## 功能特性
 
 1. **保存账号信息：** 支持保存 OpenAI 账号密码和 token，方便快速访问。

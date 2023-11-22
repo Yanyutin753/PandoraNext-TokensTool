@@ -194,7 +194,7 @@ docker run -d \
   yangclivia/tokenstool:latest \
   --loginUsername=(你的登录账号) \
   --loginPassword=(你的登录密码)  \
-  --deployWay=docker \
+  --deployWay=releases \
   --deployPosition=（你config.json的文件目录）
   --hotReload=true
   --pandoraNext_Url=http(s)://ip:port(或者你的域名)
@@ -216,7 +216,7 @@ docker run -d \
   yangclivia/tokenstool:latest \
   --loginUsername=(你的登录账号) \
   --loginPassword=(你的登录密码) \
-  --deployWay=releases \
+  --deployWay=docker \
   --deployPosition=（你config.json的文件目录）
   --hotReload=true
   --pandoraNext_Url=http(s)://ip:port(或者你的域名)

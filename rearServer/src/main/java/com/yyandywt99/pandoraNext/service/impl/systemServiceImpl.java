@@ -87,6 +87,12 @@ public class systemServiceImpl implements systemService {
             else {
                 jsonObject.put("site_password", "");
             }
+            if (tem.getSetup_password() != null && tem.getSetup_password().length() > 0) {
+                jsonObject.put("setup_password", tem.getSetup_password());
+            }
+            else {
+                jsonObject.put("setup_password", "");
+            }
             JSONArray jsonArray = null;
             if (tem.getWhitelist() != null && tem.getWhitelist().length() > 0 && tem.getWhitelist() != "null") {
                 String numbersString = tem.getWhitelist().replaceAll("[\\[\\]]", "");
@@ -126,6 +132,7 @@ public class systemServiceImpl implements systemService {
             // 将 JSONObject 转换为 Config 类的实例
             systemSetting config = new systemSetting();
             config.setSite_password(jsonObject.optString("site_password"));
+            config.setSetup_password(jsonObject.optString("setup_password"));
             config.setBing(jsonObject.optString("bind"));
             config.setPublic_share(jsonObject.optBoolean("public_share"));
             config.setProxy_url(jsonObject.optString("proxy_url"));

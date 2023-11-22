@@ -6,10 +6,10 @@ F:\vue\fakeApiTool\PandoraNext-TokensTool\rearServer\src\main\java\com\yyandywt9
 F:\vue\fakeApiTool\PandoraNext-TokensTool\rearServer\src\main\java\com\yyandywt99\pandoraNext\anno\Log.java
 F:\vue\fakeApiTool\PandoraNext-TokensTool\rearServer\src\main\java\com\yyandywt99\pandoraNext\aop\LogAspect.java
 F:\vue\fakeApiTool\PandoraNext-TokensTool\rearServer\src\main\java\com\yyandywt99\pandoraNext\config\TaskSchedulerConfig.java
-F:\vue\fakeApiTool\PandoraNext-TokensTool\rearServer\src\main\java\com\yyandywt99\pandoraNext\controller\apiColltroller.java
 F:\vue\fakeApiTool\PandoraNext-TokensTool\rearServer\src\main\java\com\yyandywt99\pandoraNext\service\systemService.java
 F:\vue\fakeApiTool\PandoraNext-TokensTool\rearServer\src\main\java\com\yyandywt99\pandoraNext\config\WebConfig.java
 F:\vue\fakeApiTool\PandoraNext-TokensTool\rearServer\src\main\java\com\yyandywt99\pandoraNext\controller\systemColltroller.java
+F:\vue\fakeApiTool\PandoraNext-TokensTool\rearServer\src\main\java\com\yyandywt99\pandoraNext\controller\apiController.java
 F:\vue\fakeApiTool\PandoraNext-TokensTool\rearServer\src\main\java\com\yyandywt99\pandoraNext\service\apiService.java
 F:\vue\fakeApiTool\PandoraNext-TokensTool\rearServer\src\main\java\com\yyandywt99\pandoraNext\service\loginService.java
 F:\vue\fakeApiTool\PandoraNext-TokensTool\rearServer\src\main\java\com\yyandywt99\pandoraNext\service\impl\loginServiceImpl.java

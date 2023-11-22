@@ -33,6 +33,10 @@ public class systemSetting {
      */
     private String site_password;
     /**
+     * 重载服务密码
+     */
+    private String setup_password;
+    /**
      * 白名单（null则不限制，为空数组[]则限制所有账号）
      */
     private String whitelist;

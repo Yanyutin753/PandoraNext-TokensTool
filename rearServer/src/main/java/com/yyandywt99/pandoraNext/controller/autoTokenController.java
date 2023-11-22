@@ -1,5 +1,6 @@
 package com.yyandywt99.pandoraNext.controller;
 
+import com.yyandywt99.pandoraNext.anno.Log;
 import com.yyandywt99.pandoraNext.pojo.Result;
 import com.yyandywt99.pandoraNext.pojo.token;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ public class autoTokenController {
     private com.yyandywt99.pandoraNext.service.apiService apiService;
 
     @Autowired
-    private apiColltroller apiColltroller;
+    private apiController apiColltroller;
 
     /**
      * 自动更新Token
@@ -30,6 +31,7 @@ public class autoTokenController {
      * @return "更新成功" or "更新失败"
      * @throws Exception
      */
+    @Log
     @Scheduled(cron = "0 3 0 */5 * ?")
     public Result toUpdateToken(){
         try {
@@ -53,6 +55,7 @@ public class autoTokenController {
      * @return "更新成功" or "刷新Token失败,请尝重新刷新！”
      * @throws Exception
      */
+    @Log
     @PostMapping ("updateToken")
     public Result toUpdateToken(@RequestBody token token){
         try {

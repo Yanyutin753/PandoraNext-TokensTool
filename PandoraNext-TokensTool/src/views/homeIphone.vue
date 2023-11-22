@@ -39,6 +39,9 @@
         <el-menu-item index="4-3" @click="AgainPandora"
           >重启PandoraNext</el-menu-item
         >
+        <el-menu-item index="4-3" @click="reloadPandora"
+          >重载PandoraNext</el-menu-item
+        >
         <el-menu-item index="4-4" @click="onRequireSetting"
           >PandoraNext参数设置</el-menu-item
         >
@@ -294,6 +297,7 @@
               name="进入Token的密码"
               label="进入Token的密码"
               placeholder="填了将不会分享给他人！"
+              :rules="[{ required: true, message: '如不分享token,则该项必填' }]"
             />
           </div>
           <br />
@@ -401,6 +405,7 @@
               name="进入Token的密码"
               label="进入Token的密码"
               placeholder="填了将不会分享给他人！"
+              :rules="[{ required: true, message: '如不分享token,则该项必填' }]"
             />
           </div>
           <br />
@@ -561,6 +566,13 @@
           />
           <br />
           <van-field
+            v-model="setup_password"
+            name="重载服务密码密码"
+            label="重载服务密码密码"
+            placeholder="重载服务密码密码(选填)"
+          />
+          <br />
+          <van-field
             v-model="whitelist"
             name="白名单"
             label="白名单"
@@ -638,6 +650,7 @@ const timeout = ref("");
 const proxy_url = ref("");
 const public_share = ref(false);
 const site_password = ref("");
+const setup_password = ref("");
 const whitelist = ref("");
 
 /**
@@ -898,6 +911,7 @@ const onRequireSetting = async () => {
   proxy_url.value = data.proxy_url;
   public_share.value = data.public_share;
   site_password.value = data.site_password;
+  setup_password.value = data.setup_password;
   console.log(data.whitelist);
   if (data.whitelist == null) {
     whitelist.value = "null";
@@ -916,6 +930,7 @@ const RequireSetting = () => {
     proxy_url: proxy_url.value,
     public_share: public_share.value,
     site_password: site_password.value,
+    setup_password: setup_password.value,
     whitelist: whitelist.value,
   };
 
@@ -959,10 +974,14 @@ const RequireToken = () => {
     .getSeconds()
     .toString()
     .padStart(2, "0")}`;
-  if (temPassword.value != "") {
-    temShared.value = false;
+
+  if (temPassword.value != "" && temShared.value === false) {
     temPlus.value = false;
     temShow_user_info.value = false;
+  }
+  else if(temShared.value === true || temPassword.value == ""){
+    temPassword.value = "";
+    temShared.value = true;
   }
   const api = {
     name: temName.value,
@@ -1069,6 +1088,32 @@ const closePandora = async () => {
 const AgainPandora = async () => {
   const loadingInstance = ElLoading.service({ fullscreen: true });
   const response = await axios.get(`/api/restart`, {
+    headers,
+  });
+  const data = response.data.data;
+  console.log(data);
+  if (data != null && data != "") {
+    ElMessageBox.alert(data, "温馨提醒", {
+      confirmButtonText: "OK",
+      callback: () => {
+        ElMessage({
+          type: "info",
+          message: "感谢Pandora大佬！",
+        });
+      },
+    });
+  } else {
+    ElMessage(response.data.msg);
+  }
+  loadingInstance.close();
+};
+
+/**
+ * 重载pandora函数
+ */
+const reloadPandora = async () => {
+  const loadingInstance = ElLoading.service({ fullscreen: true });
+  const response = await axios.get(`/api/reload`, {
     headers,
   });
   const data = response.data.data;

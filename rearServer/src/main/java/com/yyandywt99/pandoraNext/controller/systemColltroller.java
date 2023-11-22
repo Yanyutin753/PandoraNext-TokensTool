@@ -1,5 +1,6 @@
 package com.yyandywt99.pandoraNext.controller;
 
+import com.yyandywt99.pandoraNext.anno.Log;
 import com.yyandywt99.pandoraNext.pojo.Result;
 import com.yyandywt99.pandoraNext.pojo.systemSetting;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ public class systemColltroller {
      * 修改config.json里的系统值
      * @return "修改成功！"or"修改失败"
      */
+    @Log
     @PostMapping("requireSetting")
     public Result requireSetting(@RequestBody systemSetting setting){
         try {

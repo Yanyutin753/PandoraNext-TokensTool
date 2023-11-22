@@ -1,16 +1,12 @@
 package com.yyandywt99.pandoraNext.aop;
 
-import com.yyandywt99.pandoraNext.pojo.Result;
-import com.yyandywt99.pandoraNext.util.JwtUtils;
-import io.jsonwebtoken.Claims;
+import com.yyandywt99.pandoraNext.controller.apiController;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Yangyang
@@ -21,23 +17,33 @@ import javax.servlet.http.HttpServletRequest;
 //切面类
 @Aspect
 public class LogAspect {
+    /**
+     * @拿到controller里的reload()方法
+     */
     @Autowired
-    private HttpServletRequest httpServletRequest;
+    private apiController controller;
 
-    @Around("@annotation(com.yyandywt99.pandoraNext.anno.Log)")
+    /**
+     * @是否开启热重载
+     */
+    @Value("${hotReload}")
+    private String hotReload;
 
-    public Object recordLog(ProceedingJoinPoint joinPoint) throws Throwable {
-        String jwt = httpServletRequest.getHeader("Authorization");
-        Integer operateUser = null;
-        if(jwt != null){
+    /**
+     * @在方法之后执行reload
+     */
+    @After("@annotation(com.yyandywt99.pandoraNext.anno.Log)")
+    public void recordLog(){
+        if(Boolean.parseBoolean(hotReload)){
             try {
-                jwt = jwt.substring(7);
-                Claims claims = JwtUtils.parseJWT(jwt);
+                log.info(controller.reloadContainer().toString());
             } catch (Exception e) {
-                log.info(e.toString());
+                e.printStackTrace();
+                log.info("热重载失败！");
             }
         }
-        return Result.error("Not_LOGIN");
-
+        else{
+            log.info("热重载未开启！");
+        }
     }
 }

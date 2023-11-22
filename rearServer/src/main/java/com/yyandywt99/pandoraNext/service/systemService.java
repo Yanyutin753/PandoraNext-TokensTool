@@ -8,5 +8,5 @@ import com.yyandywt99.pandoraNext.pojo.systemSetting;
  */
 public interface systemService {
     String requiredSetting(systemSetting tem);
-    public systemSetting selectSetting();
+    systemSetting selectSetting();
 }

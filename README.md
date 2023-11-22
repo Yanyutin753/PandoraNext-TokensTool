@@ -202,7 +202,7 @@ docker run -d \
   --pid=host \
   --privileged=true \
   -v （你config.json的文件目录）:（你config.json的文件目录） \
-  -v /usr/bin/docker:/usr/bin/docker \
+  -v /var/run/docker.sock:/var/run/docker.sock \
   yangclivia/tokenstool:latest \
   --loginUsername=(你的登录账号) \
   --loginPassword=(你的登录密码) \
@@ -259,7 +259,7 @@ services:
     privileged: true
     volumes:
       - （你config.json的文件目录）:（你config.json的文件目录）
-      - /usr/bin/docker:/usr/bin/docker
+      - /var/run/docker.sock:/var/run/docker.sock
     command: 
       - --loginUsername=(你的登录账号)
       - --loginPassword=(你的登录密码)

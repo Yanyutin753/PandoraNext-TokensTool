@@ -1383,7 +1383,12 @@ const logout = () => {
   /* 显示垂直滚动条 */
   overflow-x: hidden;
 }
-
+.requireSettingDialog{
+  height: 60vh;
+  overflow-y: auto;
+  /* 显示垂直滚动条 */
+  overflow-x: hidden;
+}
 /* 集合内框内字体颜色 */
 .el-tag {
   --el-tag-text-color: #0ea27e;

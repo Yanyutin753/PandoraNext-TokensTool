@@ -134,9 +134,9 @@ cd （你的jar包的位置）
 
 - PandoraNext的部署ip  --pandoara_Ip=
   
-   * 如果你是静态IP,这填上你的PandoraNext部署的"外网IP"(格式：20.123.43.52）
+   * 如果你是静态IP,这填上你的PandoraNext部署的外网IP(格式：20.123.43.52）
      
-   * 如果你是动态IP，填上"default"，则将通过[淘宝链接](https://www.taobao.com/help/getip.php)自动获取你的外网ip
+   * 如果你是动态IP，填上default，则将通过[淘宝链接](https://www.taobao.com/help/getip.php)自动获取你的外网ip
 
 - ⭐记住路径没有/config.json
 
@@ -146,7 +146,7 @@ cd （你的jar包的位置）
 
 ```
 # 例如
-nohup java -jar pandoraNext-0.0.1-SNAPSHOT.jar --server.port=8081 --loginUsername=root --loginPassword=123456 --deployWay=releases --deployPosition=default --pandoara_Ip="（你的Pandoara部署的服务器外网Ip) Or default" > myput.log 2>&1 &
+nohup java -jar pandoraNext-0.0.1-SNAPSHOT.jar --server.port=8081 --loginUsername=root --loginPassword=123456 --deployWay=releases --deployPosition=default --pandoara_Ip=（你的Pandoara部署的服务器外网Ip) Or default > myput.log 2>&1 &
 
 # 等待一会 放行8081端口即可运行（自行调整）
 ```
@@ -182,9 +182,9 @@ docker pull yangclivia/tokenstool:latest
 
 - PandoraNext的部署ip  --pandoara_Ip=
   
-   * 如果你是静态IP,这填上你的PandoraNext部署的"外网IP"(格式：20.123.43.52）
+   * 如果你是静态IP,这填上你的PandoraNext部署的外网IP(格式：20.123.43.52）
      
-   * 如果你是动态IP，填上"default"，则将通过[淘宝链接](https://www.taobao.com/help/getip.php)自动获取你的外网ip
+   * 如果你是动态IP，填上default，则将通过[淘宝链接](https://www.taobao.com/help/getip.php)自动获取你的外网ip
 
 - ⭐记住路径没有/config.json
 
@@ -208,7 +208,7 @@ docker run -d \
   --deployWay=releases \
   --deployPosition=（你config.json的文件目录）
   --hotReload=true
-  --pandoara_Ip="（你的Pandoara部署的服务器外网Ip) Or default"
+  --pandoara_Ip=你的Pandoara部署的服务器外网Ip Or default
 ```
 
 #### Docker部署PandoraNext启动命令
@@ -230,7 +230,7 @@ docker run -d \
   --deployWay=docker \
   --deployPosition=（你config.json的文件目录）
   --hotReload=true
-  --pandoara_Ip="（你的Pandoara部署的服务器外网Ip) Or default"
+  --pandoara_Ip=你的Pandoara部署的服务器外网Ip Or default
 ```
 
 ## Docker Compose部署详情
@@ -259,9 +259,9 @@ docker run -d \
 
 - PandoraNext的部署ip  --pandoara_Ip=
   
-   * 如果你是静态IP,这填上你的PandoraNext部署的"外网IP"(格式：20.123.43.52）
+   * 如果你是静态IP,这填上你的PandoraNext部署的外网IP(格式：20.123.43.52）
      
-   * 如果你是动态IP，填上"default"，则将通过[淘宝链接](https://www.taobao.com/help/getip.php)自动获取你的外网ip
+   * 如果你是动态IP，填上default，则将通过[淘宝链接](https://www.taobao.com/help/getip.php)自动获取你的外网ip
 
 - ⭐记住路径没有/config.json
 
@@ -291,7 +291,7 @@ services:
       - --deployWay=(部署方式看环境变量)
       - --deployPosition=（你config.json的文件目录）
       - --hotReload=true
-      - --pandoara_Ip="（你的Pandoara部署的服务器外网Ip) Or default"
+      - --pandoara_Ip=你的Pandoara部署的服务器外网Ip) Or default
 ```
 
 ##### 启动tokensTool

@@ -1,0 +1,10 @@
+{
+  "site_password": "",
+  "bind": "127.0.0.1:8181",
+  "pandoraNext_License": "",
+  "setup_password": "",
+  "public_share": false,
+  "proxy_url": "",
+  "whitelist": null,
+  "timeout": 600
+}

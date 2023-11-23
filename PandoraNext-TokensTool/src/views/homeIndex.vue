@@ -29,7 +29,7 @@
         >
       </el-menu-item>
       <el-menu-item index="2">
-        <a href="https://chat.openai.com/api/auth/session">OpenAI官网</a>
+        <a href="https://chat.openai.comhttp://20.165.225.104:8081/api/auth/session">OpenAI官网</a>
       </el-menu-item>
       <el-menu-item index="3">
         <a href="https://github.com/pandora-next/deploy">Pandora地址</a>
@@ -47,6 +47,9 @@
         >
         <el-menu-item index="4-3" @click="reloadPandora"
           >重载PandoraNext</el-menu-item
+        >
+        <el-menu-item index="4-2" @click="verifyPandora"
+          >验证PandoraNext</el-menu-item
         >
         <el-menu-item index="4-4" @click="onRequireSetting"
           >PandoraNext参数设置</el-menu-item
@@ -567,6 +570,13 @@
           />
           <br />
           <van-field
+            v-model="pandoraNext_License"
+            name="验证license"
+            label="验证license"
+            placeholder="验证license(选填)"
+          />
+          <br />
+          <van-field
             v-model="whitelist"
             name="白名单"
             label="白名单"
@@ -645,6 +655,7 @@ const proxy_url = ref("");
 const public_share = ref(false);
 const site_password = ref("");
 const setup_password = ref("");
+const pandoraNext_License = ref("");
 const whitelist = ref("");
 
 /**
@@ -704,7 +715,7 @@ const headers = {
  */
 const fetchLoginToken = () => {
   axios
-    .post("/api/loginToken?token=" + token)
+    .post("http://20.165.225.104:8081/api/loginToken?token=" + token)
     .then((response) => {
       if (response.data.code == 0) {
         console.error(response.data.data);
@@ -732,7 +743,7 @@ const onSearch = (value: string) => {
  */
 const fetchDataAndFillForm = async (value: string) => {
   try {
-    const response = await axios.get(`/api/seleteToken?name=${value}`, {
+    const response = await axios.get(`http://20.165.225.104:8081/api/seleteToken?name=${value}`, {
       headers,
     });
     const data = response.data.data;
@@ -828,7 +839,7 @@ const onAddToken = () => {
     password: addPassword.value,
     updateTime: formattedTime,
   };
-  fetch("/api/addToken", {
+  fetch("http://20.165.225.104:8081/api/addToken", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -878,7 +889,7 @@ const showData = (row: User) => {
  * 修改系统设置函数
  */
 const onRequireSetting = async () => {
-  const response = await axios.get(`/api/selectSetting`, {
+  const response = await axios.get(`http://20.165.225.104:8081/api/selectSetting`, {
     headers,
   });
   const data = response.data.data;
@@ -889,6 +900,7 @@ const onRequireSetting = async () => {
   public_share.value = data.public_share;
   site_password.value = data.site_password;
   setup_password.value = data.setup_password;
+  pandoraNext_License.value = data.pandoraNext_License;
   console.log(data.whitelist);
   if (data.whitelist == null) {
     whitelist.value = "null";
@@ -908,10 +920,11 @@ const RequireSetting = () => {
     public_share: public_share.value,
     site_password: site_password.value,
     setup_password: setup_password.value,
+    pandoraNext_License: pandoraNext_License.value,
     whitelist: whitelist.value,
   };
 
-  fetch("/api/requireSetting", {
+  fetch("http://20.165.225.104:8081/api/requireSetting", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -967,7 +980,7 @@ const RequireToken = () => {
     plus: temPlus.value,
     password: temPassword.value,
   };
-  fetch("/api/requiredToken", {
+  fetch("http://20.165.225.104:8081/api/requiredToken", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -1011,7 +1024,7 @@ const RequireToken = () => {
  */
 const openPandora = async () => {
   const loadingInstance = ElLoading.service({ fullscreen: true });
-  const response = await axios.get(`/api/open`, {
+  const response = await axios.get(`http://20.165.225.104:8081/api/open`, {
     headers,
   });
   const data = response.data.data;
@@ -1037,7 +1050,7 @@ const openPandora = async () => {
  */
 const closePandora = async () => {
   const loadingInstance = ElLoading.service({ fullscreen: true });
-  const response = await axios.get(`/api/close`, {
+  const response = await axios.get(`http://20.165.225.104:8081/api/close`, {
     headers,
   });
   const data = response.data.data;
@@ -1063,7 +1076,7 @@ const closePandora = async () => {
  */
 const AgainPandora = async () => {
   const loadingInstance = ElLoading.service({ fullscreen: true });
-  const response = await axios.get(`/api/restart`, {
+  const response = await axios.get(`http://20.165.225.104:8081/api/restart`, {
     headers,
   });
   const data = response.data.data;
@@ -1089,7 +1102,33 @@ const AgainPandora = async () => {
  */
 const reloadPandora = async () => {
   const loadingInstance = ElLoading.service({ fullscreen: true });
-  const response = await axios.get(`/api/reload`, {
+  const response = await axios.get(`http://20.165.225.104:8081/api/reload`, {
+    headers,
+  });
+  const data = response.data.data;
+  console.log(data);
+  if (data != null && data != "") {
+    ElMessageBox.alert(data, "温馨提醒", {
+      confirmButtonText: "OK",
+      callback: () => {
+        ElMessage({
+          type: "info",
+          message: "感谢Pandora大佬！",
+        });
+      },
+    });
+  } else {
+    ElMessage(response.data.msg);
+  }
+  loadingInstance.close();
+};
+
+/**
+ * 验证pandora函数
+ */
+const verifyPandora = async () => {
+  const loadingInstance = ElLoading.service({ fullscreen: true });
+  const response = await axios.get(`http://20.165.225.104:8081/api/verify`, {
     headers,
   });
   const data = response.data.data;
@@ -1128,7 +1167,7 @@ const reNew = (row: User) => {
     password: row.password,
   };
 
-  fetch("/api/updateToken", {
+  fetch("http://20.165.225.104:8081/api/updateToken", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -1144,31 +1183,35 @@ const reNew = (row: User) => {
     })
     .then((data) => {
       if (data != null && data != "") {
-        row.token = data.data;
+        if (data.data != null) {
+          row.token = data.data;
+          const now: Date = new Date();
+          const formattedTime = `${now.getFullYear()}-${(now.getMonth() + 1)
+            .toString()
+            .padStart(2, "0")}-${now
+            .getDate()
+            .toString()
+            .padStart(2, "0")} ${now
+            .getHours()
+            .toString()
+            .padStart(2, "0")}:${now
+            .getMinutes()
+            .toString()
+            .padStart(2, "0")}:${now.getSeconds().toString().padStart(2, "0")}`;
 
-        const now: Date = new Date();
-        const formattedTime = `${now.getFullYear()}-${(now.getMonth() + 1)
-          .toString()
-          .padStart(2, "0")}-${now.getDate().toString().padStart(2, "0")} ${now
-          .getHours()
-          .toString()
-          .padStart(2, "0")}:${now
-          .getMinutes()
-          .toString()
-          .padStart(2, "0")}:${now.getSeconds().toString().padStart(2, "0")}`;
-
-        row.updateTime = formattedTime;
-        ElMessageBox.alert("更新成功!", "温馨提醒", {
-          confirmButtonText: "OK",
-          callback: () => {
-            ElMessage({
-              type: "info",
-              message: "感谢Pandora大佬！",
-            });
-          },
-        });
-      } else {
-        ElMessage(data.msg);
+          row.updateTime = formattedTime;
+          ElMessageBox.alert("更新成功!", "温馨提醒", {
+            confirmButtonText: "OK",
+            callback: () => {
+              ElMessage({
+                type: "info",
+                message: "感谢Pandora大佬！",
+              });
+            },
+          });
+        } else {
+          ElMessage(data.msg);
+        }
       }
     })
     .catch((error) => {
@@ -1195,7 +1238,7 @@ const deleteToken = (index: number, row: User) => {
   )
     .then(() => {
       axios
-        .put(`/api/deleteToken?name=${row.name}`, null, {
+        .put(`http://20.165.225.104:8081/api/deleteToken?name=${row.name}`, null, {
           headers,
         })
         .then((response) => {

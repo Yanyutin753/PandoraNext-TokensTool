@@ -40,4 +40,10 @@ public class systemSetting {
      * 白名单（null则不限制，为空数组[]则限制所有账号）
      */
     private String whitelist;
+
+    /**
+     * pandoraNext验证license
+     */
+    private String pandoraNext_License;
+
 }

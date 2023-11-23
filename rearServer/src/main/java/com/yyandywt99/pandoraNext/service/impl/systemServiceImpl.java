@@ -4,6 +4,7 @@ import com.yyandywt99.pandoraNext.pojo.systemSetting;
 import com.yyandywt99.pandoraNext.service.systemService;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -106,7 +107,9 @@ public class systemServiceImpl implements systemService {
             else {
                 jsonObject.put("whitelist", JSONObject.NULL);
             }
-
+            if(tem.getPandoraNext_License() != null && tem.getPandoraNext_License().length() > 0){
+                jsonObject.put("pandoraNext_License", tem.getPandoraNext_License());
+            }
             // 将修改后的 JSONObject 转换为格式化的 JSON 字符串
             String updatedJson = jsonObject.toString(2);
             Files.write(Paths.get(parent), updatedJson.getBytes());
@@ -138,6 +141,16 @@ public class systemServiceImpl implements systemService {
             config.setProxy_url(jsonObject.optString("proxy_url"));
             config.setWhitelist(jsonObject.isNull("whitelist") ? null : jsonObject.optString("whitelist"));
             config.setTimeout(jsonObject.getInt("timeout"));
+            try {
+                jsonObject.getString("pandoraNext_License");
+            } catch (JSONException e) {
+                jsonObject.put("pandoraNext_License", "");
+                log.info("config.json没有新增pandoraNext_License参数,现已增加！");
+            }
+            config.setPandoraNext_License(jsonObject.getString("pandoraNext_License"));
+            // 将修改后的 JSONObject 转换为格式化的 JSON 字符串
+            String updatedJson = jsonObject.toString(2);
+            Files.write(Paths.get(parent), updatedJson.getBytes());
             return config;
         } catch (Exception e) {
             e.printStackTrace();

@@ -10,9 +10,9 @@ import com.yyandywt99.pandoraNext.service.systemService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -31,6 +31,10 @@ public class apiController {
 
     public String deploy = "default";
 
+    /**
+     * 主机先前IP
+     */
+    private static String previousIPAddress = "";
     /**
      * @param name
      * @return 通过name获取到（tokens.json）文件里的全部值
@@ -153,6 +157,82 @@ public class apiController {
         // 获取容器状态
         return containerInfo.getState().getPaused();
     }
+
+    @Value("${pandoara_Ip}")
+    private String pandoara_Ip;
+
+    /**
+     * pandoara_Ip要是填写的是default
+     * 每隔5分钟刷新一次ip,若地址发生变化并重新验证
+     * 如不是则放回："Ip将采用用户设置："+pandoara_Ip
+     */
+    @Scheduled(fixedRate = 300000)
+    public void autoCheckIp(){
+        if(! pandoara_Ip.equals("default")){
+            if(previousIPAddress != pandoara_Ip){
+                previousIPAddress = pandoara_Ip;
+            }
+            log.info("Ip将采用用户设置："+pandoara_Ip);
+            return;
+        }
+        String currentIPAddress = apiService.getIp();
+        if(currentIPAddress == "失败"){
+            log.info("获取IP失败！");
+            return;
+        }
+        if (!currentIPAddress.equals(previousIPAddress)) {
+            log.info("IP地址已变化，新的IP地址是：" + currentIPAddress);
+            previousIPAddress = currentIPAddress;
+            String res = verifyContainer().toString();
+            log.info(res);
+        } else {
+             log.info("IP地址未发生变化。");
+        }
+    }
+    /**
+     * 验证PandoraNext
+     * 通过config.json里的pandoraNext_License
+     * 通过执行
+     * curl -fLO -H 'Authorization: Bearer 指令'
+     * 'https://dash.pandoranext.com/data/license.jwt'
+     * 拿到license.jwt文件
+     */
+    @Log
+    @GetMapping("/verify")
+    public Result verifyContainer(){
+        try {
+            String projectRoot;
+            if(deploy.equals(deployPosition)){
+                projectRoot = System.getProperty("user.dir");
+            }
+            else{
+                projectRoot = deployPosition;
+            }
+            log.info(projectRoot);
+            String pandoraNext_License = systemService.selectSetting().getPandoraNext_License();
+            String verifyCommand = "cd " + projectRoot +
+                    " && curl -fLO -H 'Authorization: Bearer " + pandoraNext_License +
+                    "' 'https://dash.pandoranext.com/data/license.jwt'";
+            // 执行验证PandoraNext进程的命令
+            log.info("验证PandoraNext命令:"+verifyCommand);
+            Process reloadProcess = executeCommand(verifyCommand);
+            // 等待验证PandoraNext进程完成
+            try {
+                int exitCode = reloadProcess.waitFor();
+                if (exitCode != 0) {
+                    log.info("无法验证PandoraNext服务");
+                }
+                return Result.success("验证PandoraNext服务成功！");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Result.error("无法验证PandoraNext服务");
+    }
+
+
     /**
      * @return 通过访问open，开启PandoraNext服务
      */
@@ -194,22 +274,21 @@ public class apiController {
     @Autowired
     private systemService systemService;
 
-    @Autowired
-    private HttpServletRequest httpServletRequest;
 
-    /**
-     * @pandoraNext端口号
-     */
-    @Value("${pandoraNext_Url}")
-    private String pandoraNext_Url;
     /**
      * @return 通过访问open，重载PandoraNext服务
      */
     @GetMapping("/reload")
     public Result reloadContainer(){
         try {
-            String baseUrlWithoutPath = pandoraNext_Url;
-            log.info(baseUrlWithoutPath);
+            String externalIP = previousIPAddress;
+            String bingUrl = systemService.selectSetting().getBing();
+            String[] parts = bingUrl.split(":");
+            String baseUrlWithoutPath = "http://" + externalIP + ":" + parts[1];
+            if (parts.length != 2) {
+                return Result.error("bind填写有误，无法提取port");
+            }
+            log.info("重载的PandoraNext服务Url:"+baseUrlWithoutPath);
             String setup_password = systemService.selectSetting().getSetup_password();
             String reloadCommand = "curl -H \"Authorization: Bearer "
                     + setup_password + "\" -X POST \"" + baseUrlWithoutPath + "/setup/reload\"";

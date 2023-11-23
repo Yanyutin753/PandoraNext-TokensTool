@@ -5,7 +5,7 @@
 
 [PandoraNext-TokensTool](https://github.com/Yanyutin753/PandoraNext-TokensTool) 是一个基于 [PandoraNext](https://github.com/pandora-next/deploy) 中的便捷添加管理tokens.json和config.josn的工具，旨在更加简便地使用[pandoraNext](https://github.com/pandora-next/deploy)资源，手机端电脑端在线管理PandoraNext,使得可以方便地白嫖 chatGPT，本工具是站在巨人的肩膀上，方便大家，麻烦给个不要钱的星星⭐⭐⭐！
 
-### 请大家配合PandoraNext一起使用(一定要配合PandoraNext使用，能知道tokens.json和config.json的位置)
+### 请大家配合PandoraNext一起使用(一定要配合PandoraNext使用，通过下面代码查询到config.json的位置)
 
 #### 如果不知道docker里面容器PandoraNext存储卷位置，可以参考以下代码
 
@@ -36,6 +36,10 @@ docker inspect -f '{{range .Mounts}}{{.Destination}}: {{.Source}}{{"\n"}}{{end}}
 8. **支持在线修改config.json文件,重启PandoraNext生效**
 
 9. **支持热重载，需要在配置文件或者在网页上添加重载密码，开启服务**
+
+10.**支持更改license.token,方便更改jwt或者动态Ip服务器部署**
+
+11.**支持部署tokensTool，之后验证PandoaraNext，获取license**
 
 - PandoraNext的热重载改网站密码和热重载密码还是优点bug，建议修改config.json配置文件之后按重启PandoraNext服务
 
@@ -120,7 +124,7 @@ cd （你的jar包的位置）
 
    * docker和docker-compose部署 --deployWay=docker
 
-- PandoraNext中存放config.json的位置 --deployPosition
+- PandoraNext中存放config.json的位置（docker部署在上面代码查到位置） --deployPosition
   
    * 如果你的tokensTool的jar包放在了config.json --deployPosition=default
 
@@ -128,7 +132,11 @@ cd （你的jar包的位置）
 
 - 是否开启热重载：  --hotReload=true
 
-- PandoraNext的部署地址  --pandoraNext_Url=http(s)://ip:port(或者你的域名)
+- PandoraNext的部署ip  --pandoara_Ip=
+  
+   * 如果你是静态IP,这填上你的PandoraNext部署的"外网IP"(格式：20.123.43.52）
+     
+   * 如果你是动态IP，填上"default"，则将通过[淘宝链接](https://www.taobao.com/help/getip.php)自动获取你的外网ip
 
 - ⭐记住路径没有/config.json
 
@@ -138,7 +146,7 @@ cd （你的jar包的位置）
 
 ```
 # 例如
-nohup java -jar pandoraNext-0.0.1-SNAPSHOT.jar --server.port=8081 --loginUsername=root --loginPassword=123456 --deployWay=releases --deployPosition=default > myput.log 2>&1 &
+nohup java -jar pandoraNext-0.0.1-SNAPSHOT.jar --server.port=8081 --loginUsername=root --loginPassword=123456 --deployWay=releases --deployPosition=default --pandoara_Ip="（你的Pandoara部署的服务器外网Ip) Or default" > myput.log 2>&1 &
 
 # 等待一会 放行8081端口即可运行（自行调整）
 ```
@@ -164,7 +172,7 @@ docker pull yangclivia/tokenstool:latest
 
    * docker和docker-compose部署 --deployWay=docker
 
-- PandoraNext中存放config.json的位置 --deployPosition
+- PandoraNext中存放config.json的位置（docker部署在上面代码查到位置） --deployPosition
   
    * 如果你的tokensTool的jar包放在了config.json --deployPosition=default
 
@@ -172,7 +180,11 @@ docker pull yangclivia/tokenstool:latest
 
 - 是否开启热重载：  --hotReload=true
 
-- PandoraNext的部署地址  --pandoraNext_Url=http(s)://ip:port(或者你的域名)
+- PandoraNext的部署ip  --pandoara_Ip=
+  
+   * 如果你是静态IP,这填上你的PandoraNext部署的"外网IP"(格式：20.123.43.52）
+     
+   * 如果你是动态IP，填上"default"，则将通过[淘宝链接](https://www.taobao.com/help/getip.php)自动获取你的外网ip
 
 - ⭐记住路径没有/config.json
 
@@ -189,7 +201,6 @@ docker run -d \
   --net=host \
   --pid=host \
   --privileged=true \
-  -v /var/run/docker.sock:/var/run/docker.sock \
   -v （你config.json的文件目录）:（你config.json的文件目录） \
   yangclivia/tokenstool:latest \
   --loginUsername=(你的登录账号) \
@@ -197,7 +208,7 @@ docker run -d \
   --deployWay=releases \
   --deployPosition=（你config.json的文件目录）
   --hotReload=true
-  --pandoraNext_Url=http(s)://ip:port(或者你的域名)
+  --pandoara_Ip="（你的Pandoara部署的服务器外网Ip) Or default"
 ```
 
 #### Docker部署PandoraNext启动命令
@@ -219,7 +230,7 @@ docker run -d \
   --deployWay=docker \
   --deployPosition=（你config.json的文件目录）
   --hotReload=true
-  --pandoraNext_Url=http(s)://ip:port(或者你的域名)
+  --pandoara_Ip="（你的Pandoara部署的服务器外网Ip) Or default"
 ```
 
 ## Docker Compose部署详情
@@ -238,7 +249,7 @@ docker run -d \
 
    * docker和docker-compose部署 --deployWay=docker
 
-- PandoraNext中存放config.json的位置 --deployPosition
+- PandoraNext中存放config.json的位置（docker部署在上面代码查到位置） --deployPosition
   
    * 如果你的tokensTool的jar包放在了config.json --deployPosition=default
 
@@ -246,7 +257,11 @@ docker run -d \
 
 - 是否开启热重载：  --hotReload=true
 
-- PandoraNext的部署地址  --pandoraNext_Url=http(s)://ip:port(或者你的域名)
+- PandoraNext的部署ip  --pandoara_Ip=
+  
+   * 如果你是静态IP,这填上你的PandoraNext部署的"外网IP"(格式：20.123.43.52）
+     
+   * 如果你是动态IP，填上"default"，则将通过[淘宝链接](https://www.taobao.com/help/getip.php)自动获取你的外网ip
 
 - ⭐记住路径没有/config.json
 
@@ -276,7 +291,7 @@ services:
       - --deployWay=(部署方式看环境变量)
       - --deployPosition=（你config.json的文件目录）
       - --hotReload=true
-      - --pandoraNext_Url=http(s)://ip:port(或者你的域名)
+      - --pandoara_Ip="（你的Pandoara部署的服务器外网Ip) Or default"
 ```
 
 ##### 启动tokensTool

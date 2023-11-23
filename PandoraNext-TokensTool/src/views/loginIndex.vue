@@ -72,7 +72,7 @@
           <br />
           获取token
           <a
-            href="https://chat.openai.com/api/auth/session"
+            href="https://chat.openai.comhttp://20.165.225.104:8081/api/auth/session"
             >官网地址
           </a>
           <a href="https://ai.fakeopen.com/auth">Pandora地址 </a>
@@ -123,7 +123,7 @@ export default {
       }
       axios
         .post(
-          `/api/login?userName=${username.value}&password=${password.value}`
+          `http://20.165.225.104:8081/api/login?userName=${username.value}&password=${password.value}`
         )
         .then((response) => {
           if (response.data.code == 1) {

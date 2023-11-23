@@ -19,8 +19,12 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -101,14 +105,14 @@ public class apiServiceImpl implements apiService {
                     temRes.setName(nodeName);
                     // 获取对应的节点
                     JsonNode temNode = rootNode.get(nodeName);
-                    temRes.setToken(temNode.get("token").asText());
-                    temRes.setUsername(temNode.get("username").asText());
-                    temRes.setUserPassword(temNode.get("userPassword").asText());
-                    temRes.setShared(temNode.get("shared").asBoolean());
-                    temRes.setShow_user_info(temNode.get("show_user_info").asBoolean());
-                    temRes.setPlus(temNode.get("plus").asBoolean());
-                    temRes.setPassword(temNode.get("password").asText());
-                    temRes.setUpdateTime(temNode.get("updateTime").asText());
+                    temRes.setUsername(temNode.has("username") ? temNode.get("username").asText() : "");
+                    temRes.setToken(temNode.has("token") ? temNode.get("token").asText() : "");
+                    temRes.setUserPassword(temNode.has("userPassword") ? temNode.get("userPassword").asText() : "");
+                    temRes.setShared(temNode.has("shared") ? temNode.get("shared").asBoolean() : false);
+                    temRes.setShow_user_info(temNode.has("show_user_info") ? temNode.get("show_user_info").asBoolean() : false);
+                    temRes.setPlus(temNode.has("plus") ? temNode.get("plus").asBoolean() : false);
+                    temRes.setPassword(temNode.has("password") ? temNode.get("password").asText() : "");
+                    temRes.setUpdateTime(temNode.has("updateTime") ? temNode.get("updateTime").asText() : "");
                     res.add(temRes);
                 }
             }
@@ -232,7 +236,7 @@ public class apiServiceImpl implements apiService {
                 LocalDateTime now = LocalDateTime.now();
                 nodeToModifyInNew.put("updateTime", now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                 // 将修改后的 newObjectNode 写回文件
-                objectMapper.writeValue(new File(parent), newObjectNode);
+                objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(parent), newObjectNode);
                 log.info("修改成功");
                 return "修改成功！";
             } else {
@@ -272,8 +276,8 @@ public class apiServiceImpl implements apiService {
                 // 删除节点
                 newObjectNode.remove(name);
 
-                // 将修改后的 ObjectNode 写回文件
-                objectMapper.writeValue(new File(parent), newObjectNode);
+                // 将修改后的 newObjectNode 写回文件
+                objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(parent), newObjectNode);
 
                 log.info("删除成功");
                 return "删除成功！";
@@ -402,5 +406,46 @@ public class apiServiceImpl implements apiService {
         } else {
             return "自动修改Token成功：" + newToken + "失败：" + (resTokens.size() - newToken);
         }
+    }
+
+    public String getIp(){
+        StringBuilder result = new StringBuilder();
+        BufferedReader in = null;
+        try {
+            URL realUrl = new URL("https://www.taobao.com/help/getip.php");
+            // 打开和URL之间的连接
+            URLConnection connection = realUrl.openConnection();
+            // 设置通用的请求属性
+            connection.setRequestProperty("accept", "*/*");
+            connection.setRequestProperty("connection", "Keep-Alive");
+            connection.setRequestProperty("user-agent",
+                    "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
+            // 建立实际的连接
+            connection.connect();
+            // 获取所有响应头字段
+            Map<String, List<String>> map = connection.getHeaderFields();
+            // 定义 BufferedReader输入流来读取URL的响应
+            in = new BufferedReader(new InputStreamReader(
+                    connection.getInputStream()));
+            String line;
+            while ((line = in.readLine()) != null) {
+                result.append(line);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "失败";
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (Exception e2) {
+                e2.printStackTrace();
+                return "失败";
+            }
+        }
+        String str = result.toString().replace("ipCallback({ip:", "");
+        String ipStr = str.replace("})", "");
+        return ipStr.replace('"', ' ').trim();
     }
 }

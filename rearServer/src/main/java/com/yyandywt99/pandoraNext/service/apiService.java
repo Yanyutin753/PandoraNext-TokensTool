@@ -23,4 +23,6 @@ public interface apiService {
 
     String autoUpdateToken(String s);
 
+    String getIp();
+
 }

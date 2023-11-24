@@ -46,7 +46,7 @@
           >验证PandoraNext</el-menu-item
         >
         <el-menu-item index="4-4" @click="onRequireSetting"
-          >PandoraNext参数设置</el-menu-item
+          >系统参数设置</el-menu-item
         >
         <el-menu-item index="4-5" @click="logout">退出登录</el-menu-item>
       </el-sub-menu>
@@ -223,7 +223,7 @@
           <h2>
             获取token
             <a
-              href="https://chat.OpenAI.comhttp://20.165.225.104:8081/api/auth/session"
+              href="https://chat.OpenAI.com/api/auth/session"
               >官网地址
             </a>
             <br />
@@ -518,6 +518,7 @@
       </van-form>
     </div>
   </van-dialog>
+
   <!------------------------------------------------------------------------------------------------------>
   <!-- 修改系统设置信息 主键 名称为show_3 -->
   <van-dialog
@@ -580,6 +581,20 @@
             name="验证license"
             label="验证license"
             placeholder="验证license(选填)"
+          />
+          <br />
+          <van-field
+            v-model="loginUsername"
+            name="tokensTool用户名"
+            label="tokensTool用户名"
+            placeholder="tokensTool用户名"
+          />
+          <br />
+          <van-field
+            v-model="loginPassword"
+            name="tokensTool密码"
+            label="tokensTool密码"
+            placeholder="tokensTool密码"
           />
           <br />
           <van-field
@@ -662,6 +677,8 @@ const public_share = ref(false);
 const site_password = ref("");
 const setup_password = ref("");
 const pandoraNext_License = ref("");
+const loginUsername = ref("");
+const loginPassword = ref("");
 const whitelist = ref("");
 
 /**
@@ -720,7 +737,7 @@ const headers = {
  */
 const fetchLoginToken = () => {
   axios
-    .post("http://20.165.225.104:8081/api/loginToken?token=" + token)
+    .post("/api/loginToken?token=" + token)
     .then((response) => {
       if (response.data.code == 0) {
         console.error(response.data.data);
@@ -750,7 +767,7 @@ const onSearch = (value: string) => {
 const fetchDataAndFillForm = async (value: string) => {
   try {
     const response = await axios.get(
-      `http://20.165.225.104:8081/api/seleteToken?name=${value}`,
+      `/api/seleteToken?name=${value}`,
       {
         headers,
       }
@@ -854,7 +871,7 @@ const onAddToken = () => {
     loadingInstance.close();
     return;
   }
-  fetch("http://20.165.225.104:8081/api/addToken", {
+  fetch("/api/addToken", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -910,7 +927,7 @@ const showData = (row: User) => {
  */
 const onRequireSetting = async () => {
   const response = await axios.get(
-    `http://20.165.225.104:8081/api/selectSetting`,
+    `/api/selectSetting`,
     {
       headers,
     }
@@ -923,6 +940,8 @@ const onRequireSetting = async () => {
   public_share.value = data.public_share;
   site_password.value = data.site_password;
   setup_password.value = data.setup_password;
+  loginUsername.value = data.loginUsername;
+  loginPassword.value = data.loginPassword;
   pandoraNext_License.value = data.pandoraNext_License;
   console.log(data.whitelist);
   if (data.whitelist == null) {
@@ -944,10 +963,12 @@ const RequireSetting = () => {
     site_password: site_password.value,
     setup_password: setup_password.value,
     pandoraNext_License: pandoraNext_License.value,
+    loginUsername: loginUsername.value,
+    loginPassword: loginPassword.value,
     whitelist: whitelist.value,
   };
 
-  fetch("http://20.165.225.104:8081/api/requireSetting", {
+  fetch("/api/requireSetting", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -1006,7 +1027,7 @@ const RequireToken = () => {
     plus: temPlus.value,
     password: temPassword.value,
   };
-  fetch("http://20.165.225.104:8081/api/requiredToken", {
+  fetch("/api/requiredToken", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -1050,7 +1071,7 @@ const RequireToken = () => {
  */
 const openPandora = async () => {
   const loadingInstance = ElLoading.service({ fullscreen: true });
-  const response = await axios.get(`http://20.165.225.104:8081/api/open`, {
+  const response = await axios.get(`/api/open`, {
     headers,
   });
   const data = response.data.data;
@@ -1075,7 +1096,7 @@ const openPandora = async () => {
  */
 const closePandora = async () => {
   const loadingInstance = ElLoading.service({ fullscreen: true });
-  const response = await axios.get(`http://20.165.225.104:8081/api/close`, {
+  const response = await axios.get(`/api/close`, {
     headers,
   });
   const data = response.data.data;
@@ -1100,7 +1121,7 @@ const closePandora = async () => {
  */
 const AgainPandora = async () => {
   const loadingInstance = ElLoading.service({ fullscreen: true });
-  const response = await axios.get(`http://20.165.225.104:8081/api/restart`, {
+  const response = await axios.get(`/api/restart`, {
     headers,
   });
   const data = response.data.data;
@@ -1126,7 +1147,7 @@ const AgainPandora = async () => {
  */
 const reloadPandora = async () => {
   const loadingInstance = ElLoading.service({ fullscreen: true });
-  const response = await axios.get(`http://20.165.225.104:8081/api/reload`, {
+  const response = await axios.get(`/api/reload`, {
     headers,
   });
   const data = response.data.data;
@@ -1153,7 +1174,7 @@ const reloadPandora = async () => {
  */
  const verifyPandora = async () => {
   const loadingInstance = ElLoading.service({ fullscreen: true });
-  const response = await axios.get(`http://20.165.225.104:8081/api/verify`, {
+  const response = await axios.get(`/api/verify`, {
     headers,
   });
   const data = response.data.data;
@@ -1192,7 +1213,7 @@ const reloadPandora = async () => {
     password: row.password,
   };
 
-  fetch("http://20.165.225.104:8081/api/updateToken", {
+  fetch("/api/updateToken", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -1263,7 +1284,7 @@ const deleteToken = (index: number, row: User) => {
     .then(() => {
       axios
         .put(
-          `http://20.165.225.104:8081/api/deleteToken?name=${row.name}`,
+          `/api/deleteToken?name=${row.name}`,
           null,
           {
             headers,

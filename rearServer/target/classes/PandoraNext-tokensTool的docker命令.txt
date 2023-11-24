@@ -5,16 +5,15 @@ docker run -d \
   -p 8081:8081 \
   --net=host \
   --pid=host \
-  --privileged=true\
+  --privileged=true \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  -v /var/lib/docker/volumes/6f8f5c5fbb708e9e486138111624c324b8095c6ef2346954e96fff88e2d8072a/_data:/var/lib/docker/volumes/6f8f5c5fbb708e9e486138111624c324b8095c6ef2346954e96fff88e2d8072a/_data \
-  yangclivia/tokenstool:latest \
-  --loginUsername=root \
-  --loginPassword=20030707 \
+  -v /var/lib/docker/volumes/9038ea488cedc4b1e040fc3976bdf96bc9773b41af0a2de513b1753363e22b69/_data:/var/lib/docker/volumes/9038ea488cedc4b1e040fc3976bdf96bc9773b41af0a2de513b1753363e22b69/_data \
+  yangclivia/tokenstool:v1.0 \
   --deployWay=docker \
-  --deployPosition=/var/lib/docker/volumes/6f8f5c5fbb708e9e486138111624c324b8095c6ef2346954e96fff88e2d8072a/_data
-  --hotReload=true
-  --pandoraNext_Url=http://121.37.243.173:8181
+  --deployPosition=/var/lib/docker/volumes/9038ea488cedc4b1e040fc3976bdf96bc9773b41af0a2de513b1753363e22b69/_data \
+  --hotReload=true \
+  --pandoara_Ip=121.37.243.173
+
 
 docker run -d \
   --restart=always \
@@ -26,13 +25,12 @@ docker run -d \
   --privileged=true \
   -v /www/wwwroot/PandoraNext:/www/wwwroot/PandoraNext \
   -v /usr/bin/docker:/usr/bin/docker \
-  yangclivia/tokenstool:latest \
-  --loginUsername=root \
-  --loginPassword=20030707 \
+  yangclivia/tokenstool:v1.0 \
   --deployWay=releases \
-  --deployPosition=/www/wwwroot/PandoraNext
-  --hotReload=true
-  --pandoraNext_Url=http://121.37.243.173:8181
+  --deployPosition=/www/wwwroot/PandoraNext \
+  --hotReload=true \
+  --pandoara_Ip=121.37.243.173
+
 
 
 sudo mkdir -p /etc/docker

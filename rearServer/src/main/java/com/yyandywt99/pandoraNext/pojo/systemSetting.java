@@ -46,4 +46,14 @@ public class systemSetting {
      */
     private String pandoraNext_License;
 
+    /**
+     * tokensTool登录Username
+     */
+    private String loginUsername;
+
+    /**
+     * tokensTool密码Password
+     */
+    private String loginPassword;
+
 }

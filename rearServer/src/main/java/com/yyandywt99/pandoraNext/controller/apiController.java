@@ -163,10 +163,10 @@ public class apiController {
 
     /**
      * pandoara_Ip要是填写的是default
-     * 每隔5分钟刷新一次ip,若地址发生变化并重新验证
+     * 每隔50分钟刷新一次ip,若地址发生变化并重新验证
      * 如不是则放回："Ip将采用用户设置："+pandoara_Ip
      */
-    @Scheduled(fixedRate = 300000)
+    @Scheduled(fixedRate = 3000000)
     public void autoCheckIp(){
         if(! pandoara_Ip.equals("default")){
             if(previousIPAddress != pandoara_Ip){

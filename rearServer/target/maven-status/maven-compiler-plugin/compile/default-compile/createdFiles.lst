@@ -1,6 +1,5 @@
 com\yyandywt99\pandoraNext\controller\loginColltroller.class
 com\yyandywt99\pandoraNext\service\impl\systemServiceImpl.class
-com\yyandywt99\pandoraNext\FakeApiToolApplication.class
 com\yyandywt99\pandoraNext\aop\LogAspect.class
 com\yyandywt99\pandoraNext\config\WebConfig.class
 com\yyandywt99\pandoraNext\service\systemService.class

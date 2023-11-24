@@ -72,11 +72,10 @@
           <br />
           获取token
           <a
-            href="https://chat.openai.comhttp://20.165.225.104:8081/api/auth/session"
+            href="https://chat.openai.com/api/auth/session"
             >官网地址
           </a>
           <a href="https://ai.fakeopen.com/auth">Pandora地址 </a>
-          安装One ApI<a href="https://github.com/songquanpeng/one-api"> 地址</a>
         </h3>
       </div>
     </div>
@@ -123,7 +122,7 @@ export default {
       }
       axios
         .post(
-          `http://20.165.225.104:8081/api/login?userName=${username.value}&password=${password.value}`
+          `/api/login?userName=${username.value}&password=${password.value}`
         )
         .then((response) => {
           if (response.data.code == 1) {
@@ -132,7 +131,7 @@ export default {
             localStorage.setItem("jwtToken", token);
             ElMessage("登录成功！");
             setTimeout(() => {
-              if (window.innerWidth <= 700) {
+              if (window.innerWidth <= 1000) {
                 router.replace("/iphone");
               } else router.replace("/");
             }, 1000);

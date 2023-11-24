@@ -94,11 +94,10 @@ docker inspect -f '{{range .Mounts}}{{.Destination}}: {{.Source}}{{"\n"}}{{end}}
 
 - 4.然后看下方部署指令
   
-#### 宝塔的pandoraNext的docker位置一般在存储卷里面
-<img width="1278" alt="屏幕截图 2023-11-17 203024" src="https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/96c1a9a8-5408-4575-a144-5ce913edc3d9">
 
 
 ## 一键部署PandoraNext和tokensTool(最强推荐)
+
 ```
 # 安装git
 sudo apt update
@@ -114,16 +113,21 @@ cd / && git clone https://github.com/Yanyutin753/tokenTools-sh.git
 sudo ./install.sh
 
 ```
-###### 1. 开放8081和8181端口，先访问8081,然后填写系统变量，把127.0.0.1:8181改成0.0.0.0:8181
 
-###### 2. 更改账号密码，并填写[license.token](https://dash.pandoranext.com),注意是下面括号里的内容
+##### 1. 开放8081和8181端口，先访问8081,然后填写系统变量，把127.0.0.1:8181改成0.0.0.0:8181
+
+
+##### 2. 更改账号密码，并填写[license.token](https://dash.pandoranext.com),注意是下面括号里的内容
 
 curl -fLO "https://dash.pandoranext.com/data/（uVlk_4ilqs23dfsdfdsfsdfOlgaPdNkgGDwesNmVHGoI_23M）/license.jwt"
+
 
 ###### 3.系统设置点击验证PandoraNext并重新PandoraNext即可
 
 
+
 ## java部署详情
+
 ```
 # 先拿到管理员权限
 sudo su -
@@ -214,6 +218,7 @@ docker pull yangclivia/tokenstool:latest
 
 - 记得修改你的路径，密码，账号，端口号（选填），最最重要没有括号
 
+
 #### 手动部署PandoraNext启动命令
 
 ```
@@ -252,6 +257,7 @@ docker run -d \
   --hotReload=true
   --pandoara_Ip=你的Pandoara部署的服务器外网Ip Or default
 ```
+
 
 ## Docker Compose部署详情
 
@@ -328,6 +334,7 @@ docker-compose up -d
 ### 想要二开项目的友友们，可以自行遵循相应的开源规则更改前后端项目，本人小白，项目写的不太好，还请谅解！
 
 ### 项目遵循相应的开源规则，请自行食用
+
 
 ## 强调
 

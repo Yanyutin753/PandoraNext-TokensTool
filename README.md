@@ -37,10 +37,14 @@ docker inspect -f '{{range .Mounts}}{{.Destination}}: {{.Source}}{{"\n"}}{{end}}
 
 9. **支持热重载，需要在配置文件或者在网页上添加重载密码，开启服务**
 
-10.**支持更改license.token,方便更改jwt或者动态Ip服务器部署**
+10. **支持更改license.token,方便更改jwt或者动态Ip服务器部署**
 
-11.**支持部署tokensTool，之后验证PandoaraNext，获取license**
+11. **支持部署tokensTool，之后验证PandoaraNext，获取license**
 
+12. **新增tokensTool修改登录账号和密码**
+
+13. **新增脚本文件install.sh,真一键部署PandoraNext和tokensTool双服务**
+    
 - PandoraNext的热重载改网站密码和热重载密码还是优点bug，建议修改config.json配置文件之后按重启PandoraNext服务
 
 - 现如今只支持账号密码登录，希望大佬能扩充！
@@ -77,6 +81,8 @@ docker inspect -f '{{range .Mounts}}{{.Destination}}: {{.Source}}{{"\n"}}{{end}}
 ![1f272d22383b975be2f32764ef1774a](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/bdc4bd3e-f984-4358-95ea-82cdc6e583a4)
 
 
+![image](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/47cfe354-d1e0-4766-b207-0ba00b756b05)
+
 
 ## 使用方法
 
@@ -88,10 +94,40 @@ docker inspect -f '{{range .Mounts}}{{.Destination}}: {{.Source}}{{"\n"}}{{end}}
 
 - 4.然后看下方部署指令
   
-#### 宝塔的pandoraNext的docker位置一般在存储卷里面
-<img width="1278" alt="屏幕截图 2023-11-17 203024" src="https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/96c1a9a8-5408-4575-a144-5ce913edc3d9">
+
+
+## 一键部署PandoraNext和tokensTool(最强推荐)
+
+```
+# 安装git
+sudo apt update
+sudo apt install git
+
+# 国内
+cd / && git clone https://gitee.com/yangyangEN/tokenTools-sh.git
+
+# 国外
+cd / && git clone https://github.com/Yanyutin753/tokenTools-sh.git
+
+# 运行脚本
+sudo ./install.sh
+
+```
+
+##### 1. 开放8081和8181端口，先访问8081,然后填写系统变量，把127.0.0.1:8181改成0.0.0.0:8181
+
+
+##### 2. 更改账号密码，并填写[license.token](https://dash.pandoranext.com),注意是下面括号里的内容
+
+curl -fLO "https://dash.pandoranext.com/data/（uVlk_4ilqs23dfsdfdsfsdfOlgaPdNkgGDwesNmVHGoI_23M）/license.jwt"
+
+
+###### 3.系统设置点击验证PandoraNext并重新PandoraNext即可
+
+
 
 ## java部署详情
+
 ```
 # 先拿到管理员权限
 sudo su -
@@ -112,10 +148,6 @@ cd （你的jar包的位置）
 
 ##### 环境变量
 
-- 登录密码：loginPassword=123456
-
-- 登录账号：loginUsername=root
-
 - 启动端口号：server.port=8081
 
 - PandoraNext的部署方式：--deployWay=releases/docker
@@ -134,9 +166,9 @@ cd （你的jar包的位置）
 
 - PandoraNext的部署ip  --pandoara_Ip=
   
-   * 如果你是静态IP,这填上你的PandoraNext部署的"外网IP"(格式：20.123.43.52）
+   * 如果你是静态IP,这填上你的PandoraNext部署的外网IP(格式：20.123.43.52）
      
-   * 如果你是动态IP，填上"default"，则将通过[淘宝链接](https://www.taobao.com/help/getip.php)自动获取你的外网ip
+   * 如果你是动态IP，填上default，则将通过[淘宝链接](https://www.taobao.com/help/getip.php)自动获取你的外网ip
 
 - ⭐记住路径没有/config.json
 
@@ -146,7 +178,7 @@ cd （你的jar包的位置）
 
 ```
 # 例如
-nohup java -jar pandoraNext-0.0.1-SNAPSHOT.jar --server.port=8081 --loginUsername=root --loginPassword=123456 --deployWay=releases --deployPosition=default --pandoara_Ip="（你的Pandoara部署的服务器外网Ip) Or default" > myput.log 2>&1 &
+nohup java -jar pandoraNext-0.0.1-SNAPSHOT.jar --server.port=8081 --deployWay=releases --deployPosition=default --pandoara_Ip=（你的Pandoara部署的服务器外网Ip) Or default > myput.log 2>&1 &
 
 # 等待一会 放行8081端口即可运行（自行调整）
 ```
@@ -159,10 +191,6 @@ docker pull yangclivia/tokenstool:latest
 ```
 
 #### 环境变量
-
-- 登录密码：loginPassword=123456
-
-- 登录账号：loginUsername=root
 
 - 启动端口号：server.port=8081
 
@@ -182,13 +210,14 @@ docker pull yangclivia/tokenstool:latest
 
 - PandoraNext的部署ip  --pandoara_Ip=
   
-   * 如果你是静态IP,这填上你的PandoraNext部署的"外网IP"(格式：20.123.43.52）
+   * 如果你是静态IP,这填上你的PandoraNext部署的外网IP(格式：20.123.43.52）
      
-   * 如果你是动态IP，填上"default"，则将通过[淘宝链接](https://www.taobao.com/help/getip.php)自动获取你的外网ip
+   * 如果你是动态IP，填上default，则将通过[淘宝链接](https://www.taobao.com/help/getip.php)自动获取你的外网ip
 
 - ⭐记住路径没有/config.json
 
 - 记得修改你的路径，密码，账号，端口号（选填），最最重要没有括号
+
 
 #### 手动部署PandoraNext启动命令
 
@@ -203,12 +232,10 @@ docker run -d \
   --privileged=true \
   -v （你config.json的文件目录）:（你config.json的文件目录） \
   yangclivia/tokenstool:latest \
-  --loginUsername=(你的登录账号) \
-  --loginPassword=(你的登录密码)  \
   --deployWay=releases \
   --deployPosition=（你config.json的文件目录）
   --hotReload=true
-  --pandoara_Ip="（你的Pandoara部署的服务器外网Ip) Or default"
+  --pandoara_Ip=你的Pandoara部署的服务器外网Ip Or default
 ```
 
 #### Docker部署PandoraNext启动命令
@@ -225,21 +252,16 @@ docker run -d \
   -v （你config.json的文件目录）:（你config.json的文件目录） \
   -v /var/run/docker.sock:/var/run/docker.sock \
   yangclivia/tokenstool:latest \
-  --loginUsername=(你的登录账号) \
-  --loginPassword=(你的登录密码) \
   --deployWay=docker \
   --deployPosition=（你config.json的文件目录）
   --hotReload=true
-  --pandoara_Ip="（你的Pandoara部署的服务器外网Ip) Or default"
+  --pandoara_Ip=你的Pandoara部署的服务器外网Ip Or default
 ```
+
 
 ## Docker Compose部署详情
 
 #### 环境变量
-
-- 登录密码：loginPassword=123456
-
-- 登录账号：loginUsername=root
 
 - 启动端口号：server.port=8081
 
@@ -259,9 +281,9 @@ docker run -d \
 
 - PandoraNext的部署ip  --pandoara_Ip=
   
-   * 如果你是静态IP,这填上你的PandoraNext部署的"外网IP"(格式：20.123.43.52）
+   * 如果你是静态IP,这填上你的PandoraNext部署的外网IP(格式：20.123.43.52）
      
-   * 如果你是动态IP，填上"default"，则将通过[淘宝链接](https://www.taobao.com/help/getip.php)自动获取你的外网ip
+   * 如果你是动态IP，填上default，则将通过[淘宝链接](https://www.taobao.com/help/getip.php)自动获取你的外网ip
 
 - ⭐记住路径没有/config.json
 
@@ -286,12 +308,10 @@ services:
       - （你config.json的文件目录）:（你config.json的文件目录）
       - /var/run/docker.sock:/var/run/docker.sock
     command: 
-      - --loginUsername=(你的登录账号)
-      - --loginPassword=(你的登录密码)
       - --deployWay=(部署方式看环境变量)
       - --deployPosition=（你config.json的文件目录）
       - --hotReload=true
-      - --pandoara_Ip="（你的Pandoara部署的服务器外网Ip) Or default"
+      - --pandoara_Ip=你的Pandoara部署的服务器外网Ip) Or default
 ```
 
 ##### 启动tokensTool
@@ -314,6 +334,7 @@ docker-compose up -d
 ### 想要二开项目的友友们，可以自行遵循相应的开源规则更改前后端项目，本人小白，项目写的不太好，还请谅解！
 
 ### 项目遵循相应的开源规则，请自行食用
+
 
 ## 强调
 

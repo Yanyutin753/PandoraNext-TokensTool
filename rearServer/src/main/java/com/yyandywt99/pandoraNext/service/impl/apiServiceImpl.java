@@ -63,8 +63,8 @@ public class apiServiceImpl implements apiService {
         String parent = projectRoot + File.separator + "tokens.json";
         File jsonFile = new File(parent);
         Path jsonFilePath = Paths.get(parent);
-        // 如果 JSON 文件不存在，创建一个新的 JSON 对象
-        if (!jsonFile.exists()) {
+        // 如果 JSON 文件不存在或为空，创建一个新的 JSON 对象
+        if (!jsonFile.exists() || jsonFile.length() == 0) {
             // 创建文件
             Files.createFile(jsonFilePath);
             System.out.println("tokens.json创建完成: " + jsonFilePath);
@@ -91,6 +91,7 @@ public class apiServiceImpl implements apiService {
             // 如果 JSON 文件不存在或为空，则创建一个新的 JSON 对象并写入空数组
             if (!jsonFile.exists() || jsonFile.length() == 0) {
                 Files.writeString(Paths.get(parent), "{}");
+                log.info("新建tokens.json，并初始化tokens.json成功！");
                 return res;
             }
             // 读取JSON文件并获取根节点

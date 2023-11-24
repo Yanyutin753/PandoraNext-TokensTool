@@ -1,8 +1,9 @@
 package com.yyandywt99.pandoraNext.service.impl;
 
 import com.yyandywt99.pandoraNext.service.loginService;
+import com.yyandywt99.pandoraNext.service.systemService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -12,21 +13,29 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class loginServiceImpl implements loginService {
-    @Value("${loginUsername}")
-    private String loginUsername;
 
-    @Value("${loginPassword}")
-    private String loginPassword;
+    /**
+     * systemService从这里面
+     * 拿到两个变量
+     * loginUsername
+     * loginPassword
+     * 返回登录成功！或用户名账号错误"
+     */
+    @Autowired
+    private systemService systemService;
+
 
     /**
      * 新增保存登录信息
-     * 通过jar包可以实现修改密码，修改数据
+     * 通过config.json文件可以实现修改密码，修改数据
      * @return "登录成功！"
      * "用户名账号错误"
      */
     @Override
     public String login(String userName, String password) {
         try {
+            String loginUsername = systemService.selectSetting().getLoginUsername();
+            String loginPassword = systemService.selectSetting().getLoginPassword();
             if(userName.equals(loginUsername) && password.equals(loginPassword)){
                 return "登录成功！";
             }

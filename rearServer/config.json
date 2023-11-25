@@ -2,10 +2,11 @@
   "site_password": "",
   "bind": "127.0.0.1:8181",
   "loginUsername": "root",
-  "pandoraNext_License": "",
+  "pandoraNext_License": "asdasdasdasdasdasdas",
   "setup_password": "",
   "loginPassword": "123456",
   "public_share": false,
+  "server_mode": "web",
   "proxy_url": "",
   "whitelist": null,
   "timeout": 600

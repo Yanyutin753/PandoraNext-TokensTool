@@ -116,6 +116,9 @@ public class systemServiceImpl implements systemService {
             if(tem.getLoginPassword() != null && tem.getLoginPassword().length() > 0){
                 jsonObject.put("loginPassword", tem.getLoginPassword());
             }
+            if(tem.getServer_mode() != null && tem.getServer_mode().length() > 0){
+                jsonObject.put("server_mode", tem.getServer_mode());
+            }
             // 将修改后的 JSONObject 转换为格式化的 JSON 字符串
             String updatedJson = jsonObject.toString(2);
             Files.write(Paths.get(parent), updatedJson.getBytes());
@@ -165,6 +168,13 @@ public class systemServiceImpl implements systemService {
                 jsonObject.put("pandoraNext_License", "");
                 log.info("config.json没有新增pandoraNext_License参数,现已增加！");
             }
+            try {
+                jsonObject.getString("server_mode");
+            } catch (JSONException e) {
+                jsonObject.put("server_mode", "web");
+                log.info("config.json没有新增server_mode参数,现已增加！");
+            }
+            config.setServer_mode(jsonObject.getString("server_mode"));
             config.setLoginUsername(jsonObject.getString("loginUsername"));
             config.setLoginPassword(jsonObject.getString("loginPassword"));
             config.setPandoraNext_License(jsonObject.getString("pandoraNext_License"));

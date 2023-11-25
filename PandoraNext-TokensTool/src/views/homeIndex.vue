@@ -305,7 +305,7 @@
           <br />
           <van-field
             v-model="temToken"
-            rows="5"
+            rows="8"
             label="OpenAi的Token"
             type="textarea"
             maxlength="5000"
@@ -328,7 +328,7 @@
   <!-- 添加token信息 主键 名称为show_1 -->
   <van-dialog
     v-model:show="show_1"
-    title="token信息"
+    title="添加token信息"
     width="50vw"
     :close-on-click-overlay="true"
     :show-cancel-button="false"
@@ -531,6 +531,14 @@
         <van-cell-group inset>
           <br />
           <van-field
+            v-model="server_mode"
+            name="模式"
+            label="模式"
+            placeholder="web或proxy"
+            :rules="[{ validator: customValidator }]"
+          />
+          <br />
+          <van-field
             v-model="bing"
             name="绑定IP和端口"
             label="绑定IP和端口"
@@ -576,7 +584,7 @@
             v-model="pandoraNext_License"
             name="验证license"
             label="验证license"
-            placeholder="验证license(选填)"
+            placeholder="验证license(复制github的命令)"
           />
           <br />
           <van-field
@@ -666,6 +674,7 @@ interface User {
 /**
  * 修改系统设置信息
  */
+const server_mode = ref("web");
 const bing = ref("");
 const timeout = ref("");
 const proxy_url = ref("");
@@ -676,6 +685,16 @@ const loginUsername = ref("");
 const loginPassword = ref("");
 const pandoraNext_License = ref("");
 const whitelist = ref("");
+
+
+// 自定义校验函数，直接返回错误提示
+const customValidator = (value:string) => {
+  if (['web', 'proxy'].includes(value)) {
+    return true;
+  } else {
+    return `此项只能填web或proxy`; 
+  }
+};
 
 /**
  * 查看或者修改token信息参数
@@ -919,6 +938,7 @@ const onRequireSetting = async () => {
   );
   const data = response.data.data;
   console.log(data);
+  server_mode.value = data.server_mode;
   bing.value = data.bing;
   timeout.value = data.timeout;
   proxy_url.value = data.proxy_url;
@@ -941,6 +961,7 @@ const RequireSetting = () => {
     whitelist.value = "";
   }
   const setting = {
+    server_mode: server_mode.value,
     bing: bing.value,
     timeout: timeout.value,
     proxy_url: proxy_url.value,
@@ -1401,21 +1422,26 @@ const logout = () => {
   font-size: 14px;
 }
 
-.requireDialog {
-  height: auto;
-}
-
 .requireTokenDialog {
-  height: auto;
+  height: 77.8vh;
+  overflow-y: auto;
+  /* 显示垂直滚动条 */
+  overflow-x: hidden;
 }
 .addTokenDialog {
-  height: auto;
+  height: 64.5vh;
+  overflow-y: auto;
+  /* 显示垂直滚动条 */
+  overflow-x: hidden;
 }
 .showDialog {
-  height: auto;
+  height: 77.8vh;
+  overflow-y: auto;
+  /* 显示垂直滚动条 */
+  overflow-x: hidden;
 }
 .requireSettingDialog {
-  height: 83vh;
+  height: 82vh;
   overflow-y: auto;
   /* 显示垂直滚动条 */
   overflow-x: hidden;

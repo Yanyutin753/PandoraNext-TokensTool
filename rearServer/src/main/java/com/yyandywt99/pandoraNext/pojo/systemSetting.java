@@ -13,6 +13,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class systemSetting {
     /**
+     * 模式类型
+     */
+    private String server_mode;
+    /**
      * 绑定IP和端口
      */
     private String bing;

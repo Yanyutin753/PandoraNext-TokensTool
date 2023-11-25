@@ -210,17 +210,21 @@ public class apiController {
             }
             log.info(projectRoot);
             String pandoraNext_License = systemService.selectSetting().getPandoraNext_License();
-            String verifyCommand = "cd " + projectRoot +
-                    " && curl -fLO -H 'Authorization: Bearer " + pandoraNext_License +
-                    "' 'https://dash.pandoranext.com/data/license.jwt'";
+            String verifyCommand = pandoraNext_License;
             // 执行验证PandoraNext进程的命令
             log.info("验证PandoraNext命令:"+verifyCommand);
-            Process reloadProcess = executeCommand(verifyCommand);
-            // 等待验证PandoraNext进程完成
+            Process verifyProcess = executeCommand(verifyCommand);
             try {
-                int exitCode = reloadProcess.waitFor();
-                if (exitCode != 0) {
-                    log.info("无法验证PandoraNext服务");
+                // 等待验证PandoraNext进程完成
+                int exitCode = verifyProcess.waitFor();
+                Result result = reloadContainer();
+                if (exitCode != 0 ) {
+                    log.info("无法验证PandoraNext服务或重载出现问题！");
+                    return Result.error("无法验证PandoraNext服务或重载出现问题！");
+                }
+                if(result.getCode() == 0){
+                    log.info("验证PandoraNext服务重载出现问题！");
+                    return Result.error("验证PandoraNext服务重载出现问题！");
                 }
                 return Result.success("验证PandoraNext服务成功！");
             } catch (Exception e) {
@@ -229,7 +233,7 @@ public class apiController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return Result.error("无法验证PandoraNext服务");
+        return Result.error("验证PandoraNext服务失败！");
     }
 
 

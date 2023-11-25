@@ -535,6 +535,14 @@
         <van-cell-group inset>
           <br />
           <van-field
+            v-model="server_mode"
+            name="模式"
+            label="模式"
+            placeholder="web或proxy模式"
+            :rules="[{ validator: customValidator }]"
+          />
+          <br />
+          <van-field
             v-model="bing"
             name="绑定IP和端口"
             label="绑定IP和端口"
@@ -580,7 +588,7 @@
             v-model="pandoraNext_License"
             name="验证license"
             label="验证license"
-            placeholder="验证license(选填)"
+            placeholder="验证license(复制github的命令)"
           />
           <br />
           <van-field
@@ -670,6 +678,7 @@ interface User {
 /**
  * 修改系统设置信息
  */
+const server_mode = ref("web");
 const bing = ref("");
 const timeout = ref("");
 const proxy_url = ref("");
@@ -680,6 +689,16 @@ const pandoraNext_License = ref("");
 const loginUsername = ref("");
 const loginPassword = ref("");
 const whitelist = ref("");
+
+
+// 自定义校验函数，直接返回错误提示
+const customValidator = (value:string) => {
+  if (['web', 'proxy'].includes(value)) {
+    return true;
+  } else {
+    return `此项只能填web或proxy`; 
+  }
+};
 
 /**
  * 查看或者修改token信息参数
@@ -934,6 +953,7 @@ const onRequireSetting = async () => {
   );
   const data = response.data.data;
   console.log(data);
+  server_mode.value = data.server_mode;
   bing.value = data.bing;
   timeout.value = data.timeout;
   proxy_url.value = data.proxy_url;
@@ -956,6 +976,7 @@ const RequireSetting = () => {
     whitelist.value = "";
   }
   const setting = {
+    server_mode: server_mode.value,
     bing: bing.value,
     timeout: timeout.value,
     proxy_url: proxy_url.value,

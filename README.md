@@ -44,6 +44,8 @@ docker inspect -f '{{range .Mounts}}{{.Destination}}: {{.Source}}{{"\n"}}{{end}}
 12. **新增tokensTool修改登录账号和密码**
 
 13. **新增脚本文件install.sh,真一键部署PandoraNext和tokensTool双服务**
+
+14. **新增修改PandoraNext的模式，web和proxy，修改系统变量，点击重启PandoraNext生效**
     
 - PandoraNext的热重载改网站密码和热重载密码还是优点bug，建议修改config.json配置文件之后按重启PandoraNext服务
 
@@ -117,10 +119,10 @@ cd /tokenTools-sh && sudo sh install.sh
 ##### 1. 开放8081和8181端口，先访问8081,然后填写系统变量，把127.0.0.1:8181改成0.0.0.0:8181
 
 
-##### 2. 更改账号密码，并填写[license.token](https://dash.pandoranext.com),注意是下面括号里的内容
-
-curl -fLO "https://dash.pandoranext.com/data/（uVlk_4ilqs23dfsdfdsfsdfOlgaPdNkgGDwesNmVHGoI_23M）/license.jwt"
-
+##### 2. 更改账号密码，并填写[license.token](https://dash.pandoranext.com),注意是下面类似内容
+```
+curl -fLO "https://dash.pandoranext.com/data/uVlk_4ilqs23dfsdfdsfsdfOlgaPdNkgGDwesNmVHGoI_23/license.jwt"
+```
 
 ###### 3.系统设置点击验证PandoraNext并重新PandoraNext即可
 

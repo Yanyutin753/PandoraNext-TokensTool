@@ -110,7 +110,7 @@ cd / && git clone https://gitee.com/yangyangEN/tokenTools-sh.git
 cd / && git clone https://github.com/Yanyutin753/tokenTools-sh.git
 
 # 运行脚本
-sudo ./install.sh
+cd /tokenTools-sh && sudo sh install.sh
 
 ```
 

@@ -244,7 +244,7 @@ docker run -d \
   --deployPosition=（你config.json的文件目录）
   --hotReload=true
   --server.port=8081
-  --pandoara_Ip=你的Pandoara部署的服务器外网Ip Or default
+  --pandora_Ip=你的Pandoara部署的服务器外网Ip Or default
 ```
 
 #### Docker部署PandoraNext启动命令
@@ -264,7 +264,7 @@ docker run -d \
   --deployPosition=（你config.json的文件目录）
   --hotReload=true
   --server.port=8081
-  --pandoara_Ip=你的Pandoara部署的服务器外网Ip Or default
+  --pandora_Ip=你的Pandoara部署的服务器外网Ip Or default
 ```
 
 
@@ -319,7 +319,7 @@ services:
       - --deployPosition=（你config.json的文件目录）
       - --hotReload=true
       - --server.port=8081
-      - --pandoara_Ip=你的Pandoara部署的服务器外网Ip) Or default
+      - --pandora_Ip=你的Pandoara部署的服务器外网Ip) Or default
 ```
 
 ##### 启动tokensTool

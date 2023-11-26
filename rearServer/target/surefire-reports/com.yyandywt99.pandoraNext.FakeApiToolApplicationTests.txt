@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.yyandywt99.pandoraNext.FakeApiToolApplicationTests
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.76 s - in com.yyandywt99.pandoraNext.FakeApiToolApplicationTests
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.704 s - in com.yyandywt99.pandoraNext.FakeApiToolApplicationTests

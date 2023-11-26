@@ -1,7 +1,7 @@
 package com.yyandywt99.pandoraNext.controller;
 
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.exception.DockerException;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.yyandywt99.pandoraNext.anno.Log;
 import com.yyandywt99.pandoraNext.pojo.Result;
@@ -134,7 +134,7 @@ public class apiController {
     public Result closeContainer() {
         String containerName = "PandoraNext";
         if (deployWay.contains("docker")) {
-            docker(containerName,"pause");
+            docker(containerName,"stop");
             return Result.success("暂停PandoraNext镜像成功");
         }
         else if (deployWay.equals("releases")) {
@@ -150,12 +150,18 @@ public class apiController {
         }
     }
 
-    private static boolean isContainerPaused(DockerClient dockerClient, String containerIdOrName) {
-        // 使用 Docker Java API 查询容器信息
-        InspectContainerResponse containerInfo = dockerClient.inspectContainerCmd(containerIdOrName).exec();
+    private static boolean isContainerStopped(DockerClient dockerClient, String containerIdOrName) {
+        try {
+            // 获取容器状态
+            String containerStatus = dockerClient.inspectContainerCmd(containerIdOrName).exec().getState().getStatus();
 
-        // 获取容器状态
-        return containerInfo.getState().getPaused();
+            // 判断容器状态是否为 "exited"
+            return containerStatus.equals("exited");
+        } catch (DockerException e) {
+            e.printStackTrace();
+            // 处理异常情况，例如容器不存在等
+            return false;
+        }
     }
 
     @Value("${pandoara_Ip}")
@@ -166,7 +172,7 @@ public class apiController {
      * 每隔50分钟刷新一次ip,若地址发生变化并重新验证
      * 如不是则放回："Ip将采用用户设置："+pandoara_Ip
      */
-    @Scheduled(fixedRate = 3000000)
+    @Scheduled(fixedRate = 3600000)
     public void autoCheckIp(){
         if(! pandoara_Ip.equals("default")){
             if(previousIPAddress != pandoara_Ip){
@@ -197,7 +203,6 @@ public class apiController {
      * 'https://dash.pandoranext.com/data/license.jwt'
      * 拿到license.jwt文件
      */
-    @Log
     @GetMapping("/verify")
     public Result verifyContainer(){
         try {
@@ -210,23 +215,26 @@ public class apiController {
             }
             log.info(projectRoot);
             String pandoraNext_License = systemService.selectSetting().getPandoraNext_License();
-            String verifyCommand = pandoraNext_License;
+            String verifyCommand = "cd "+ projectRoot + "&& " + pandoraNext_License;
             // 执行验证PandoraNext进程的命令
             log.info("验证PandoraNext命令:"+verifyCommand);
             Process verifyProcess = executeCommand(verifyCommand);
             try {
                 // 等待验证PandoraNext进程完成
                 int exitCode = verifyProcess.waitFor();
-                Result result = reloadContainer();
                 if (exitCode != 0 ) {
-                    log.info("无法验证PandoraNext服务或重载出现问题！");
-                    return Result.error("无法验证PandoraNext服务或重载出现问题！");
+                    log.info("验证PandoraNext出现问题！");
+                    return Result.error("验证PandoraNext服务出现问题,请过几分钟再试！");
                 }
-                if(result.getCode() == 0){
-                    log.info("验证PandoraNext服务重载出现问题！");
-                    return Result.error("验证PandoraNext服务重载出现问题！");
+                else{
+                    log.info("PandoraNext验证成功！");
+                    Result result = reloadContainer();
+                    if(result.getCode() == 0){
+                        log.info("验证PandoraNext服务重载出现问题！");
+                        return Result.error("验证PandoraNext服务重载出现问题！");
+                    }
+                    return Result.success("验证PandoraNext服务成功！");
                 }
-                return Result.success("验证PandoraNext服务成功！");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -249,15 +257,15 @@ public class apiController {
                 // Docker 客户端初始化
                 DockerClient dockerClient = DockerClientBuilder.getInstance().build();
                 // 检查容器状态
-                boolean isPaused = isContainerPaused(dockerClient, containerName);
+                boolean isPaused = isContainerStopped(dockerClient, containerName);
                 if (isPaused) {
-                    log.info("容器 " + containerName + " 已暂停。");
-                    docker(containerName,"unpause");
+                    log.info("容器 " + containerName + " 已停止。");
+                    docker(containerName,"start");
                     return Result.success("开启PandoraNext镜像成功");
                 }
                 // 关闭 Docker 客户端连接
                 dockerClient.close();
-                return Result.success("容器 " + containerName + " 未暂停,不能重复启动");
+                return Result.success("容器 " + containerName + " 未停止,不能重复启动");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

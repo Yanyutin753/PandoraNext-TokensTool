@@ -5,7 +5,7 @@
       content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0,user-scalable=no"
     />
     <div class="login-container">
-      <img :src="image" alt="Your Image" />
+      <img :src="image" alt="Your Image" size:30 />
       <h1>Pandora-TokensTool</h1>
     </div>
     <div class="container">
@@ -63,21 +63,21 @@
     </div>
     <!-- 页面结尾文字 -->
     <div class="bottom">
-      <div style="text-align: center; transform: translateY(-1vh)">
-        <h3>
-          欢迎大家来扩展
-          <a href="https://github.com/Yanyutin753/PandoraNext-TokensTool"
-            >pandoraNext-TokensTool
-          </a>
-          <br />
-          获取token
-          <a
-            href="https://chat.openai.com/api/auth/session"
-            >官网地址
-          </a>
-          <a href="https://ai.fakeopen.com/auth">Pandora地址 </a>
-        </h3>
-      </div>
+      <div style="text-align: center; transform: translateY(0vh)">
+          <h3>
+            获取token
+            <a
+              href="https://chat.OpenAI.com/api/auth/session"
+              >官网地址
+            </a>
+            <a href="https://ai.fakeopen.com/auth">Pandora地址</a>
+            <br />
+            欢迎大家来扩展
+            <a href="https://github.com/Yanyutin753/PandoraNext-TokensTool"
+              >PandoraNext-TokensTool v0.1.0
+            </a>
+          </h3>
+        </div>
     </div>
   </div>
 </template>
@@ -184,7 +184,7 @@ body {
   border-radius: 14px;
 }
 .userName {
-  font-size: 1vw;
+  font-size: 14.6px;
 }
 
 .container {
@@ -201,7 +201,7 @@ body {
 input[type="submit"] {
   width: 100%;
   padding: 14px;
-  background-color: #4caf50;
+  background-color: #0ea27e;
   color: #fff;
   border: none;
   border-radius: 14px;
@@ -210,7 +210,7 @@ input[type="submit"] {
 }
 
 input[type="submit"]:hover {
-  background-color: #0ea27e;
+  background-color: #4caf50;
 }
 
 #background {
@@ -240,12 +240,12 @@ input[type="submit"]:hover {
 }
 .login-container h1 {
   margin-right: 20px; /* 在文本和图像之间添加一些间距 */
-  font-size: 30px;
+  font-size: 35px;
 }
 
 .login-container img {
-  width: 35px;
-  height: 35px;
+  width: 40px;
+  height: 40px;
 }
 
 /* 字体 a 超链接 h3 字体大小 */
@@ -289,13 +289,19 @@ h3 {
     /* 隐藏水平滚动条 */
     flex-direction: column;
   }
+  .login-container h1 {
+    margin-right: 20px; /* 在文本和图像之间添加一些间距 */
+    font-size: 30px;
+  }
   .login-container {
     color: #fff;
     margin-top: 0vh;
     margin-bottom: 5vh;
     background-color: #0ea27e;
     padding: 17.5px;
-    border-radius: 0px;
+    border-radius: 10px;
+    border-top-left-radius: 0; /* 将上左角设置为直角 */
+    border-top-right-radius: 0; /* 将上右角设置为直角 */
     backdrop-filter: blur(7px);
     height: 5vh;
     display: flex;
@@ -303,6 +309,7 @@ h3 {
     align-items: center;
     flex-direction: row; /* 指定Flex容器的主轴方向，这里设置为水平方向 */
   }
+
   .container {
     max-width: 65vw;
     height: auto;
@@ -310,11 +317,11 @@ h3 {
     background-color: #fff;
     padding: 30px;
     transform: translateY(10vh);
-    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.2);
     border-radius: 14px;
   }
   .userName {
-    font-size: 3vw;
+    font-size: 14.6px;
   }
   .login-container h1 {
     margin-right: 7px;

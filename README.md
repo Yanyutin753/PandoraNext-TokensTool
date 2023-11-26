@@ -241,10 +241,11 @@ docker run -d \
   -v （你config.json的文件目录）:（你config.json的文件目录） \
   yangclivia/tokenstool:latest \
   --deployWay=releases \
-  --deployPosition=（你config.json的文件目录）
-  --hotReload=true
-  --server.port=8081
-  --pandora_Ip=你的Pandoara部署的服务器外网Ip Or default
+  --deployPosition=（你config.json的文件目录） \
+  --hotReload=true \
+  --server.port=8081 \
+  --pandoara_Ip=你的Pandoara部署的服务器外网Ip Or default
+
 ```
 
 #### Docker部署PandoraNext启动命令
@@ -261,10 +262,11 @@ docker run -d \
   -v /var/run/docker.sock:/var/run/docker.sock \
   yangclivia/tokenstool:latest \
   --deployWay=docker \
-  --deployPosition=（你config.json的文件目录）
-  --hotReload=true
-  --server.port=8081
-  --pandora_Ip=你的Pandoara部署的服务器外网Ip Or default
+  --deployPosition=（你config.json的文件目录） \
+  --hotReload=true \
+  --server.port=8081 \
+  --pandoara_Ip=你的Pandoara部署的服务器外网Ip Or default
+
 ```
 
 
@@ -319,7 +321,8 @@ services:
       - --deployPosition=（你config.json的文件目录）
       - --hotReload=true
       - --server.port=8081
-      - --pandora_Ip=你的Pandoara部署的服务器外网Ip) Or default
+      - --pandoara_Ip=你的Pandoara部署的服务器外网Ip Or default
+
 ```
 
 ##### 启动tokensTool

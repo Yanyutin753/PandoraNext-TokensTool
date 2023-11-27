@@ -14,41 +14,44 @@
       active-text-color="#0ea27e"
       text-color="#0ea27e"
     >
-      <el-menu-item>
-        <img
-          style="width: 30px"
-          src="../asserts/openAi.jpg"
-          alt="Element logo"
-          @click="acc"
-        />
+      <el-menu-item index="0">
+        <el-menu-item>
+          <img
+            style="width: 30px"
+            src="../asserts/openAi.jpg"
+            alt="Element logo"
+            @click="acc"
+          />
+        </el-menu-item>
       </el-menu-item>
       <div class="flex-grow" />
-      <el-menu-item index="1">
-        <a href="https://github.com/Yanyutin753/PandoraNext-TokensTool"
-          >TokensTool地址</a
-        >
-      </el-menu-item>
-      <el-sub-menu index="4">
+      <el-sub-menu index="1">
         <template #title>系统设置</template>
-        <el-menu-item index="4-1" @click="openPandora"
+        <el-menu-item index="1-1" @click="onRequireSetting(pandoraNext)"
+          >PandoraNext设置</el-menu-item
+        >
+        <el-menu-item index="1-2" @click="onRequireSetting(tokensTool)"
+          >tokensTool设置</el-menu-item
+        >
+        <el-menu-item index="1-3" @click="onRequireSetting(validation)"
+          >验证码信息设置</el-menu-item
+        >
+      </el-sub-menu>
+      <el-sub-menu index="2">
+        <template #title>系统状态</template>
+        <el-menu-item index="2-1" @click="openPandora"
           >开启PandoraNext</el-menu-item
         >
-        <el-menu-item index="4-2" @click="closePandora"
+        <el-menu-item index="2-2" @click="closePandora"
           >暂停PandoraNext</el-menu-item
         >
-        <el-menu-item index="4-3" @click="AgainPandora"
+        <el-menu-item index="2-3" @click="AgainPandora"
           >重启PandoraNext</el-menu-item
         >
-        <el-menu-item index="4-3" @click="reloadPandora"
+        <el-menu-item index="2-4" @click="reloadPandora"
           >重载PandoraNext</el-menu-item
         >
-        <el-menu-item index="4-2" @click="verifyPandora"
-          >验证PandoraNext</el-menu-item
-        >
-        <el-menu-item index="4-4" @click="onRequireSetting"
-          >系统参数设置</el-menu-item
-        >
-        <el-menu-item index="4-5" @click="logout">退出登录</el-menu-item>
+        <el-menu-item index="2-5" @click="logout">退出登录</el-menu-item>
       </el-sub-menu>
     </el-menu>
     <div style="display: block; transform: translate(5vw, 2.5vh); width=95vw;">
@@ -523,7 +526,7 @@
   <!-- 修改系统设置信息 主键 名称为show_3 -->
   <van-dialog
     v-model:show="show_3"
-    title="修改系统设置信息"
+    title="PandoraNext设置信息"
     width="90vw"
     :close-on-click-overlay="true"
     :show-cancel-button="false"
@@ -531,14 +534,14 @@
     class="requireSettingDialog"
   >
     <div style="display: block">
-      <van-form @submit="RequireSetting">
+      <van-form @submit="RequireSetting(PandoraNext)">
         <van-cell-group inset>
           <br />
           <van-field
             v-model="server_mode"
             name="模式"
             label="模式"
-            placeholder="web或proxy模式"
+            placeholder="web或proxy"
             :rules="[{ validator: customValidator }]"
           />
           <br />
@@ -585,27 +588,6 @@
           />
           <br />
           <van-field
-            v-model="pandoraNext_License"
-            name="验证license"
-            label="验证license"
-            placeholder="验证license(复制github的命令)"
-          />
-          <br />
-          <van-field
-            v-model="loginUsername"
-            name="tokensTool用户名"
-            label="tokensTool用户名"
-            placeholder="tokensTool用户名"
-          />
-          <br />
-          <van-field
-            v-model="loginPassword"
-            name="tokensTool密码"
-            label="tokensTool密码"
-            placeholder="tokensTool密码"
-          />
-          <br />
-          <van-field
             v-model="whitelist"
             name="白名单"
             label="白名单"
@@ -623,6 +605,132 @@
     <br />
   </van-dialog>
   <!------------------------------------------------------------------------------------------------------>
+
+  <!-- 修改tokensTool系统设置信息 主键 名称为show_4 -->
+  <van-dialog
+    v-model:show="show_4"
+    title="tokensTool设置信息"
+    width="90vw"
+    :close-on-click-overlay="true"
+    :show-cancel-button="false"
+    :show-confirm-button="false"
+    class="requireSettingDialog"
+  >
+    <div style="display: block">
+      <van-form @submit="RequireSetting(tokensTool)">
+        <van-cell-group inset>
+          <br />
+          <van-field
+            v-model="loginUsername"
+            name="tokensTool用户名"
+            label="tokensTool用户名"
+            placeholder="tokensTool用户名"
+          />
+          <br />
+          <van-field
+            v-model="loginPassword"
+            name="tokensTool密码"
+            label="tokensTool密码"
+            placeholder="tokensTool密码"
+          />
+          <br />
+          <van-field
+            rows="3"
+            type="textarea"
+            maxlength="500"
+            show-word-limit
+            v-model="license_id"
+            name="验证license"
+            label="验证license"
+            placeholder="验证licenseId(复制github的命令)"
+          />
+          <br />
+        </van-cell-group>
+        <div style="margin: 5.2px">
+          <van-button round block color="#0ea27e" native-type="submit">
+            提交
+          </van-button>
+        </div>
+      </van-form>
+    </div>
+    <br />
+  </van-dialog>
+
+  <!------------------------------------------------------------------------------------------------------>
+
+  <!------------------------------------------------------------------------------------------------------>
+
+  <!-- 修改tokensTool系统设置信息 主键 名称为show_5 -->
+  <van-dialog
+    v-model:show="show_5"
+    title="PandoraNext验证信息"
+    width="90vw"
+    :close-on-click-overlay="true"
+    :show-cancel-button="false"
+    :show-confirm-button="false"
+    class="requireSettingDialog"
+  >
+    <div style="display: block">
+      <van-form @submit="RequireSetting(validation)">
+        <van-cell-group inset>
+          <br />
+          <van-field
+            v-model="provider"
+            name="验证码提供商"
+            label="验证码提供商"
+            placeholder="验证码提供商"
+          />
+          <br />
+          <van-field
+            v-model="site_key"
+            name="验证码网站参数"
+            label="验证码网站参数"
+            placeholder="验证码网站参数"
+          />
+          <br />
+          <van-field
+            v-model="site_secret"
+            name="验证码API Key"
+            label="验证码API Key"
+            placeholder="验证码API Key"
+          />
+          <br />
+          <van-field name="switch" label="是否全站密码登录页面显示">
+            <template #right-icon>
+              <van-switch active-color="#0ea27e" v-model="site_login" />
+            </template>
+          </van-field>
+          <br />
+          <van-field name="switch" label="是否在设置登录页面显示">
+            <template #right-icon>
+              <van-switch active-color="#0ea27e" v-model="setup_login" />
+            </template>
+          </van-field>
+          <br />
+          <van-field name="switch" label="是否在输入用户名页面显示">
+            <template #right-icon>
+              <van-switch active-color="#0ea27e" v-model="oai_username" />
+            </template>
+          </van-field>
+          <br />
+          <van-field name="switch" label="是否在输入密码页面显示">
+            <template #right-icon>
+              <van-switch active-color="#0ea27e" v-model="oai_password" />
+            </template>
+          </van-field>
+          <br />
+        </van-cell-group>
+        <div style="margin: 5.2px">
+          <van-button round block color="#0ea27e" native-type="submit">
+            提交
+          </van-button>
+        </div>
+      </van-form>
+    </div>
+    <br />
+  </van-dialog>
+
+  <!------------------------------------------------------------------------------------------------------>
 </template>
 
 
@@ -638,6 +746,13 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import { differenceInDays, parseISO } from "date-fns";
 import { ElLoading } from "element-plus";
 
+//pandoraNext 为 0
+const pandoraNext = 0;
+//tokensTool 为 0
+const tokensTool = 1;
+//验证信息
+const validation = 2;
+
 const loading = ref(true);
 //加载状态
 const fullscreenLoading = ref(false);
@@ -651,6 +766,8 @@ const show = ref(false);
 const show_1 = ref(false);
 const show_2 = ref(false);
 const show_3 = ref(false);
+const show_4 = ref(false);
+const show_5 = ref(false);
 
 //页头图片 image
 const image = png;
@@ -679,24 +796,33 @@ interface User {
  * 修改系统设置信息
  */
 const server_mode = ref("web");
+const verify_time = ref(60);
+const verifyEnabled = ref(true);
 const bing = ref("");
 const timeout = ref("");
 const proxy_url = ref("");
 const public_share = ref(false);
 const site_password = ref("");
 const setup_password = ref("");
-const pandoraNext_License = ref("");
+const license_id = ref("");
 const loginUsername = ref("");
 const loginPassword = ref("");
 const whitelist = ref("");
 
+const provider = ref("");
+const site_key = ref("");
+const site_secret = ref("");
+const site_login = ref(false);
+const setup_login = ref(false);
+const oai_username = ref(false);
+const oai_password = ref(false);
 
 // 自定义校验函数，直接返回错误提示
-const customValidator = (value:string) => {
-  if (['web', 'proxy'].includes(value)) {
+const customValidator = (value: string) => {
+  if (["web", "proxy"].includes(value)) {
     return true;
   } else {
-    return `此项只能填web或proxy`; 
+    return `此项只能填web或proxy`;
   }
 };
 
@@ -944,13 +1070,10 @@ const showData = (row: User) => {
 /**
  * 修改系统设置函数
  */
-const onRequireSetting = async () => {
-  const response = await axios.get(
-    `/api/selectSetting`,
-    {
-      headers,
-    }
-  );
+const onRequireSetting = async (value: any) => {
+  const response = await axios.get(`/api/selectSetting`, {
+    headers,
+  });
   const data = response.data.data;
   console.log(data);
   server_mode.value = data.server_mode;
@@ -960,33 +1083,61 @@ const onRequireSetting = async () => {
   public_share.value = data.public_share;
   site_password.value = data.site_password;
   setup_password.value = data.setup_password;
-  loginUsername.value = data.loginUsername;
-  loginPassword.value = data.loginPassword;
-  pandoraNext_License.value = data.pandoraNext_License;
   console.log(data.whitelist);
   if (data.whitelist == null) {
     whitelist.value = "null";
   } else whitelist.value = data.whitelist;
-  show_3.value = true;
+  verify_time.value = data.verify_time;
+  verifyEnabled.value = data.verifyEnabled;
+  loginUsername.value = data.loginUsername;
+  loginPassword.value = data.loginPassword;
+  license_id.value = data.license_id;
+  provider.value = data.validation.provider;
+  site_key.value = data.validation.site_key;
+  site_secret.value = data.validation.site_secret;
+  site_login.value = data.validation.site_login;
+  setup_login.value = data.validation.setup_login;
+  oai_username.value = data.validation.oai_username;
+  oai_password.value = data.validation.oai_password;
+
+  if (value == 0) {
+    show_3.value = true;
+  } else if (value == 1) {
+    show_4.value = true;
+  } else if (value == 2) {
+    show_5.value = true;
+  }
 };
 
-const RequireSetting = () => {
+const RequireSetting = (value: any) => {
   const loadingInstance = ElLoading.service({ fullscreen: true });
   if (whitelist.value == null || whitelist.value == "null") {
     whitelist.value = "";
   }
+  const validation = {
+    provider: provider.value,
+    site_key: site_key.value,
+    site_secret: site_secret.value,
+    site_login: site_login.value,
+    setup_login: setup_login.value,
+    oai_username: oai_username.value,
+    oai_password: oai_password.value,
+  };
   const setting = {
     server_mode: server_mode.value,
+    verify_time: verify_time.value,
+    verifyEnabled: verifyEnabled.value,
     bing: bing.value,
     timeout: timeout.value,
     proxy_url: proxy_url.value,
     public_share: public_share.value,
     site_password: site_password.value,
     setup_password: setup_password.value,
-    pandoraNext_License: pandoraNext_License.value,
     loginUsername: loginUsername.value,
     loginPassword: loginPassword.value,
+    license_id: license_id.value,
     whitelist: whitelist.value,
+    validation: validation,
   };
 
   fetch("/api/requireSetting", {
@@ -1009,7 +1160,13 @@ const RequireSetting = () => {
       console.error("请求requireSetting接口失败", error);
       ElMessage("修改失败！");
     });
-  show_3.value = false;
+  if (value == 0) {
+    show_3.value = false;
+  } else if (value == 1) {
+    show_4.value = false;
+  } else if (value == 2) {
+    show_5.value = false;
+  }
   loadingInstance.close();
 };
 
@@ -1033,8 +1190,7 @@ const RequireToken = () => {
   if (temPassword.value != "" && temShared.value === false) {
     temPlus.value = false;
     temShow_user_info.value = false;
-  }
-  else if(temShared.value === true || temPassword.value == ""){
+  } else if (temShared.value === true || temPassword.value == "") {
     temPassword.value = "";
     temShared.value = true;
   }
@@ -1189,11 +1345,10 @@ const reloadPandora = async () => {
   loadingInstance.close();
 };
 
-
 /**
  * 验证pandora函数
  */
- const verifyPandora = async () => {
+const verifyPandora = async () => {
   const loadingInstance = ElLoading.service({ fullscreen: true });
   const response = await axios.get(`/api/verify`, {
     headers,
@@ -1219,7 +1374,7 @@ const reloadPandora = async () => {
 /**
  * 刷新Token函数
  */
- const reNew = (row: User) => {
+const reNew = (row: User) => {
   const loadingInstance = ElLoading.service({ fullscreen: true });
   console.log(row);
   console.log(row.token);
@@ -1304,13 +1459,9 @@ const deleteToken = (index: number, row: User) => {
   )
     .then(() => {
       axios
-        .put(
-          `/api/deleteToken?name=${row.name}`,
-          null,
-          {
-            headers,
-          }
-        )
+        .put(`/api/deleteToken?name=${row.name}`, null, {
+          headers,
+        })
         .then((response) => {
           msg = "删除成功！";
           // 从数组中移除商品项
@@ -1468,8 +1619,8 @@ const logout = () => {
   /* 显示垂直滚动条 */
   overflow-x: hidden;
 }
-.requireSettingDialog{
-  height: 60vh;
+.requireSettingDialog {
+  height: 65vh;
   overflow-y: auto;
   /* 显示垂直滚动条 */
   overflow-x: hidden;
@@ -1561,5 +1712,14 @@ h2 {
   color: var(--el-message-text-color);
   overflow-wrap: anywhere;
   width: 41vw;
+}
+
+.el-menu--popup {
+  z-index: 100;
+  min-width: auto;
+  border: none;
+  padding: 5px 0;
+  border-radius: var(--el-border-radius-small);
+  box-shadow: var(--el-box-shadow-light);
 }
 </style>

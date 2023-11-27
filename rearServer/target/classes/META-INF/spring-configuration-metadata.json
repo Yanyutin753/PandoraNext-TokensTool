@@ -1,0 +1,17 @@
+{
+  "groups": [
+    {
+      "name": "verify-time",
+      "type": "com.yyandywt99.pandoraNext.config.verifyTimeBean",
+      "sourceType": "com.yyandywt99.pandoraNext.config.verifyTimeBean"
+    }
+  ],
+  "properties": [
+    {
+      "name": "verify-time.verify-time",
+      "type": "java.lang.Integer",
+      "sourceType": "com.yyandywt99.pandoraNext.config.verifyTimeBean"
+    }
+  ],
+  "hints": []
+}

@@ -9,9 +9,14 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 /**
  * @author YANGYANG
  */
-//定时注解2
+
+/**
+ * 定时注解
+ */
 @Import(TaskSchedulerConfig.class)
-//定时注解
+/**
+ * 定时注解
+ */
 @EnableScheduling
 @SpringBootApplication
 public class tokensToolApplication {

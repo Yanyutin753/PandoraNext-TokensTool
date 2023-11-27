@@ -46,9 +46,9 @@ public class systemSetting {
     private String whitelist;
 
     /**
-     * pandoraNext验证license
+     * pandoraNext验证license_id
      */
-    private String pandoraNext_License;
+    private String license_id;
 
     /**
      * tokensTool登录Username
@@ -60,4 +60,16 @@ public class systemSetting {
      */
     private String loginPassword;
 
+
+    private validation validation;
+
+//    /**
+//     * tokensTool是否自动验证PandoraNext
+//     */
+//    private Boolean verifyEnabled;
+//
+//    /**
+//     * tokensTool自动验证时间
+//     */
+//    private Integer verify_time;
 }

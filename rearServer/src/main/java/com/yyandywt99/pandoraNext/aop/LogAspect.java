@@ -20,8 +20,12 @@ public class LogAspect {
     /**
      * @拿到controller里的reload()方法
      */
-    @Autowired
     private apiController controller;
+
+    @Autowired
+    public void setController(apiController controller) {
+        this.controller = controller;
+    }
 
     /**
      * @是否开启热重载

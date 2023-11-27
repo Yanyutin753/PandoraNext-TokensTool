@@ -5,7 +5,9 @@ import com.github.dockerjava.api.exception.DockerException;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.yyandywt99.pandoraNext.anno.Log;
 import com.yyandywt99.pandoraNext.pojo.Result;
+import com.yyandywt99.pandoraNext.pojo.systemSetting;
 import com.yyandywt99.pandoraNext.pojo.token;
+import com.yyandywt99.pandoraNext.service.apiService;
 import com.yyandywt99.pandoraNext.service.systemService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +25,24 @@ import java.util.List;
 @RestController()
 @RequestMapping("/api")
 public class apiController {
+    private systemService systemService;
+
     @Autowired
-    private com.yyandywt99.pandoraNext.service.apiService apiService;
+    public void setSystemService(systemService systemService) {
+        this.systemService = systemService;
+    }
 
     @Value("${deployPosition}")
     private String deployPosition;
 
     public String deploy = "default";
 
+    private apiService apiService;
+
+    @Autowired
+    public void setSystemService(apiService apiService) {
+        this.apiService = apiService;
+    }
     /**
      * 主机先前IP
      */
@@ -154,7 +166,6 @@ public class apiController {
         try {
             // 获取容器状态
             String containerStatus = dockerClient.inspectContainerCmd(containerIdOrName).exec().getState().getStatus();
-
             // 判断容器状态是否为 "exited"
             return containerStatus.equals("exited");
         } catch (DockerException e) {
@@ -169,7 +180,7 @@ public class apiController {
 
     /**
      * pandoara_Ip要是填写的是default
-     * 每隔50分钟刷新一次ip,若地址发生变化并重新验证
+     * 每隔60分钟刷新一次ip,若地址发生变化并重新验证
      * 如不是则放回："Ip将采用用户设置："+pandoara_Ip
      */
     @Scheduled(fixedRate = 3600000)
@@ -189,60 +200,75 @@ public class apiController {
         if (!currentIPAddress.equals(previousIPAddress)) {
             log.info("IP地址已变化，新的IP地址是：" + currentIPAddress);
             previousIPAddress = currentIPAddress;
-            String res = verifyContainer().toString();
-            log.info(res);
+//            String res = verifyContainer().toString();
+//            log.info(res);
         } else {
              log.info("IP地址未发生变化。");
         }
     }
-    /**
-     * 验证PandoraNext
-     * 通过config.json里的pandoraNext_License
-     * 通过执行
-     * curl -fLO -H 'Authorization: Bearer 指令'
-     * 'https://dash.pandoranext.com/data/license.jwt'
-     * 拿到license.jwt文件
-     */
-    @GetMapping("/verify")
-    public Result verifyContainer(){
-        try {
-            String projectRoot;
-            if(deploy.equals(deployPosition)){
-                projectRoot = System.getProperty("user.dir");
-            }
-            else{
-                projectRoot = deployPosition;
-            }
-            log.info(projectRoot);
-            String pandoraNext_License = systemService.selectSetting().getPandoraNext_License();
-            String verifyCommand = "cd "+ projectRoot + "&& " + pandoraNext_License;
-            // 执行验证PandoraNext进程的命令
-            log.info("验证PandoraNext命令:"+verifyCommand);
-            Process verifyProcess = executeCommand(verifyCommand);
-            try {
-                // 等待验证PandoraNext进程完成
-                int exitCode = verifyProcess.waitFor();
-                if (exitCode != 0 ) {
-                    log.info("验证PandoraNext出现问题！");
-                    return Result.error("验证PandoraNext服务出现问题,请过几分钟再试！");
-                }
-                else{
-                    log.info("PandoraNext验证成功！");
-                    Result result = reloadContainer();
-                    if(result.getCode() == 0){
-                        log.info("验证PandoraNext服务重载出现问题！");
-                        return Result.error("验证PandoraNext服务重载出现问题！");
-                    }
-                    return Result.success("验证PandoraNext服务成功！");
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return Result.error("验证PandoraNext服务失败！");
-    }
+
+//    /**
+//     * verifyTimeBean.getVerify_time() * 60000
+//     * 每隔自定义时间重新验证
+//     */
+//    @Scheduled(fixedRateString = "#{apiController.verify_time * 60000}")
+//    public void autoVerify(){
+//      if (isEnabled) {
+//            log.info("自动刷新任务执行中...");
+//            Result result = verifyContainer();
+//            log.info(result.toString());
+//        }
+//    }
+
+
+//    /**
+//     * 验证PandoraNext
+//     * 通过config.json里的pandoraNext_License
+//     * 通过执行
+//     * curl -fLO -H 'Authorization: Bearer 指令'
+//     * 'https://dash.pandoranext.com/data/license.jwt'
+//     * 拿到license.jwt文件
+//     */
+//    @GetMapping("/verify")
+//    public Result verifyContainer(){
+//        try {
+//            String projectRoot;
+//            if(deploy.equals(deployPosition)){
+//                projectRoot = System.getProperty("user.dir");
+//            }
+//            else{
+//                projectRoot = deployPosition;
+//            }
+//            log.info(projectRoot);
+//            String pandoraNext_License = systemService.selectSetting().getLicense_id();
+//            String verifyCommand = "cd "+ projectRoot + "&& " + pandoraNext_License;
+//            // 执行验证PandoraNext进程的命令
+//            log.info("验证PandoraNext命令:"+verifyCommand);
+//            Process verifyProcess = executeCommand(verifyCommand);
+//            try {
+//                // 等待验证PandoraNext进程完成
+//                int exitCode = verifyProcess.waitFor();
+//                if (exitCode != 0 ) {
+//                    log.info("验证PandoraNext出现问题！");
+//                    return Result.error("验证PandoraNext服务出现问题,请过几分钟再试！");
+//                }
+//                else{
+//                    log.info("PandoraNext验证成功！");
+//                    Result result = reloadContainer();
+//                    if(result.getCode() == 0){
+//                        log.info("验证PandoraNext服务重载出现问题！");
+//                        return Result.error("验证PandoraNext服务重载出现问题！");
+//                    }
+//                    return Result.success("验证PandoraNext服务成功！");
+//                }
+//            } catch (Exception e) {
+//                throw new RuntimeException(e);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return Result.error("验证PandoraNext服务失败！");
+//    }
 
 
     /**
@@ -283,9 +309,6 @@ public class apiController {
         }
     }
 
-    @Autowired
-    private systemService systemService;
-
 
     /**
      * @return 通过访问open，重载PandoraNext服务
@@ -294,14 +317,15 @@ public class apiController {
     public Result reloadContainer(){
         try {
             String externalIP = previousIPAddress;
-            String bingUrl = systemService.selectSetting().getBing();
+            systemSetting systemSetting = systemService.selectSetting();
+            String bingUrl = systemSetting.getBing();
             String[] parts = bingUrl.split(":");
             String baseUrlWithoutPath = "http://" + externalIP + ":" + parts[1];
             if (parts.length != 2) {
                 return Result.error("bind填写有误，无法提取port");
             }
             log.info("重载的PandoraNext服务Url:"+baseUrlWithoutPath);
-            String setup_password = systemService.selectSetting().getSetup_password();
+            String setup_password = systemSetting.getSetup_password();
             String reloadCommand = "curl -H \"Authorization: Bearer "
                     + setup_password + "\" -X POST \"" + baseUrlWithoutPath + "/setup/reload\"";
             // 执行重载进程的命令
@@ -450,5 +474,4 @@ public class apiController {
             throw new RuntimeException();
         }
     }
-
 }

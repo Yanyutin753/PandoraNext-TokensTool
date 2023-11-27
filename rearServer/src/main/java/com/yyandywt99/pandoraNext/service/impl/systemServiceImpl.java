@@ -1,6 +1,7 @@
 package com.yyandywt99.pandoraNext.service.impl;
 
 import com.yyandywt99.pandoraNext.pojo.systemSetting;
+import com.yyandywt99.pandoraNext.pojo.validation;
 import com.yyandywt99.pandoraNext.service.systemService;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
@@ -67,37 +68,15 @@ public class systemServiceImpl implements systemService {
             String jsonContent = new String(Files.readAllBytes(Paths.get(parent)));
 
             JSONObject jsonObject = new JSONObject(jsonContent);
-            if(tem.getBing() != null && tem.getBing().length() > 0){
-                jsonObject.put("bind", tem.getBing());
-            }
-            if(tem.getTimeout() != null && tem.getTimeout().toString().length() > 0){
-                jsonObject.put("timeout", tem.getTimeout());
-            }
-            if (tem.getProxy_url() != null && tem.getProxy_url().length() > 0) {
-                jsonObject.put("proxy_url", tem.getProxy_url());
-            }
-            else {
-                jsonObject.put("proxy_url", "");
-            }
-            if (tem.getPublic_share() != null && tem.getPublic_share().toString().length() > 0) {
-                jsonObject.put("public_share", tem.getPublic_share());
-            }
-            if (tem.getSite_password() != null && tem.getSite_password().length() > 0) {
-                jsonObject.put("site_password", tem.getSite_password());
-            }
-            else {
-                jsonObject.put("site_password", "");
-            }
-            if (tem.getSetup_password() != null && tem.getSetup_password().length() > 0) {
-                jsonObject.put("setup_password", tem.getSetup_password());
-            }
-            else {
-                jsonObject.put("setup_password", "");
-            }
+            updateJsonValue(jsonObject,"bind",tem.getBing());
+            updateJsonValue(jsonObject,"timeout",tem.getTimeout());
+            updateJsonValue(jsonObject,"proxy_url",tem.getProxy_url());
+            updateJsonValue(jsonObject,"public_share",tem.getPublic_share());
+            updateJsonValue(jsonObject,"site_password",tem.getSite_password());
+            updateJsonValue(jsonObject,"setup_password",tem.getSetup_password());
             JSONArray jsonArray = null;
             if (tem.getWhitelist() != null && tem.getWhitelist().length() > 0 && tem.getWhitelist() != "null") {
                 String numbersString = tem.getWhitelist().replaceAll("[\\[\\]]", "");
-                // 使用逗号分割字符串得到数组
                 String[] numbersArray = numbersString.split(",");
                 // 将数组转换为 List<String>
                 List<String> numbersList = new ArrayList<>(Arrays.asList(numbersArray));
@@ -107,18 +86,20 @@ public class systemServiceImpl implements systemService {
             else {
                 jsonObject.put("whitelist", JSONObject.NULL);
             }
-            if(tem.getPandoraNext_License() != null && tem.getPandoraNext_License().length() > 0){
-                jsonObject.put("pandoraNext_License", tem.getPandoraNext_License());
-            }
-            if(tem.getLoginUsername() != null && tem.getLoginUsername().length() > 0){
-                jsonObject.put("loginUsername", tem.getLoginUsername());
-            }
-            if(tem.getLoginPassword() != null && tem.getLoginPassword().length() > 0){
-                jsonObject.put("loginPassword", tem.getLoginPassword());
-            }
-            if(tem.getServer_mode() != null && tem.getServer_mode().length() > 0){
-                jsonObject.put("server_mode", tem.getServer_mode());
-            }
+            updateJsonValue(jsonObject,"license_id",tem.getLicense_id());
+            updateJsonValue(jsonObject,"loginUsername",tem.getLoginUsername());
+            updateJsonValue(jsonObject,"loginPassword",tem.getLoginPassword());
+            updateJsonValue(jsonObject,"server_mode",tem.getServer_mode());
+            
+            validation validation = tem.getValidation();
+            JSONObject captchaJson = jsonObject.getJSONObject("captcha");
+            updateJsonValue(captchaJson, "provider", validation.getProvider());
+            updateJsonValue(captchaJson, "site_key", validation.getSite_key());
+            updateJsonValue(captchaJson, "site_secret", validation.getSite_secret());
+            updateJsonValue(captchaJson, "site_login", validation.isSite_login());
+            updateJsonValue(captchaJson, "setup_login", validation.isSetup_login());
+            updateJsonValue(captchaJson, "oai_username", validation.isOai_username());
+            updateJsonValue(captchaJson, "oai_password", validation.isOai_password());
             // 将修改后的 JSONObject 转换为格式化的 JSON 字符串
             String updatedJson = jsonObject.toString(2);
             Files.write(Paths.get(parent), updatedJson.getBytes());
@@ -129,6 +110,17 @@ public class systemServiceImpl implements systemService {
         return "修改config.json失败";
     }
 
+    private void updateJsonValue(JSONObject jsonObject, String key, Object value) {
+        try {
+            if (value != null && value.toString().length() > 0) {
+                jsonObject.put(key, value);
+            } else {
+                jsonObject.put(key, "");
+            }
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
     /**
      * 查询config.json里的系统值
      * @return systemSettings类
@@ -163,10 +155,10 @@ public class systemServiceImpl implements systemService {
                 log.info("config.json没有新增loginPassword参数,现已增加！");
             }
             try {
-                jsonObject.getString("pandoraNext_License");
+                jsonObject.getString("license_id");
             } catch (JSONException e) {
-                jsonObject.put("pandoraNext_License", "");
-                log.info("config.json没有新增pandoraNext_License参数,现已增加！");
+                jsonObject.put("license_id", "");
+                log.info("config.json没有新增license_id参数,现已增加！");
             }
             try {
                 jsonObject.getString("server_mode");
@@ -177,8 +169,60 @@ public class systemServiceImpl implements systemService {
             config.setServer_mode(jsonObject.getString("server_mode"));
             config.setLoginUsername(jsonObject.getString("loginUsername"));
             config.setLoginPassword(jsonObject.getString("loginPassword"));
-            config.setPandoraNext_License(jsonObject.getString("pandoraNext_License"));
+            config.setLicense_id(jsonObject.getString("license_id"));
             // 将修改后的 JSONObject 转换为格式化的 JSON 字符串
+            // 获取 captcha 相关属性
+            JSONObject captchaJson = null;
+            try {
+                captchaJson = jsonObject.getJSONObject("captcha");
+                validation captchaSetting = new validation();
+                if (captchaJson != null) {
+                    captchaSetting.setProvider(captchaJson.optString("provider"));
+                    captchaSetting.setSite_key(captchaJson.optString("site_key"));
+                    captchaSetting.setSite_secret(captchaJson.optString("site_secret"));
+                    captchaSetting.setSite_login(captchaJson.optBoolean("site_login"));
+                    captchaSetting.setSetup_login(captchaJson.optBoolean("setup_login"));
+                    captchaSetting.setOai_username(captchaJson.optBoolean("oai_username"));
+                    captchaSetting.setOai_password(captchaJson.optBoolean("oai_password"));
+                    config.setValidation(captchaSetting);
+                }
+                else {
+                    // 如果 captchaJson 不存在，设置默认值
+                    validation defaultCaptchaSetting = new validation();
+                    defaultCaptchaSetting.setProvider("");
+                    defaultCaptchaSetting.setSite_key("");
+                    defaultCaptchaSetting.setSite_secret("");
+                    defaultCaptchaSetting.setSite_login(false);
+                    defaultCaptchaSetting.setSetup_login(false);
+                    defaultCaptchaSetting.setOai_username(false);
+                    defaultCaptchaSetting.setOai_password(false);
+                    JSONObject newJson = new JSONObject();
+                    newJson.put("provider", defaultCaptchaSetting.getProvider());
+                    newJson.put("site_key", defaultCaptchaSetting.getSite_key());
+                    newJson.put("site_secret", defaultCaptchaSetting.getSite_secret());
+                    newJson.put("site_login", defaultCaptchaSetting.isSite_login());
+                    newJson.put("setup_login", defaultCaptchaSetting.isSetup_login());
+                    newJson.put("oai_username", defaultCaptchaSetting.isOai_username());
+                    newJson.put("oai_password", defaultCaptchaSetting.isOai_password());
+                    jsonObject.put("captcha", newJson);
+                    config.setValidation(defaultCaptchaSetting);
+                }
+            } catch (JSONException e) {
+                // 获取captchaJson，如果不存在则创建一个默认的JSONObject
+                captchaJson = jsonObject.optJSONObject("captcha");
+                if (captchaJson == null) {
+                    captchaJson = new JSONObject();
+                }
+                // 如果某个属性不存在，设置默认值
+                captchaJson.put("provider", captchaJson.optString("provider", ""));
+                captchaJson.put("site_key", captchaJson.optString("site_key", ""));
+                captchaJson.put("site_secret", captchaJson.optString("site_secret", ""));
+                captchaJson.put("site_login", captchaJson.optBoolean("site_login", false));
+                captchaJson.put("setup_login", captchaJson.optBoolean("setup_login", false));
+                captchaJson.put("oai_username", captchaJson.optBoolean("oai_username", false));
+                captchaJson.put("oai_password", captchaJson.optBoolean("oai_password", false));
+                jsonObject.put("captcha", captchaJson);
+            }
             String updatedJson = jsonObject.toString(2);
             Files.write(Paths.get(parent), updatedJson.getBytes());
             return config;

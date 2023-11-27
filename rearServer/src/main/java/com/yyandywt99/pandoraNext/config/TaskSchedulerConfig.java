@@ -13,8 +13,10 @@ public class TaskSchedulerConfig {
     @Bean
     public ThreadPoolTaskScheduler taskScheduler() {
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
-        taskScheduler.setPoolSize(10); // 设置线程池大小
-        taskScheduler.setThreadNamePrefix("TaskScheduler-Thread-"); // 设置线程名称前缀
+        // 设置线程池大小
+        taskScheduler.setPoolSize(10);
+        // 设置线程名称前缀
+        taskScheduler.setThreadNamePrefix("TaskScheduler-Thread-");
         return taskScheduler;
     }
 

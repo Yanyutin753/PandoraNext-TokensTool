@@ -47,6 +47,8 @@ public class apiServiceImpl implements apiService {
 
     private String deploy = "default";
 
+
+
     /**
      * 通过判断是否需要自定义查询tokens.json文件位置
      * @return tokens.json文件位置
@@ -449,4 +451,5 @@ public class apiServiceImpl implements apiService {
         String ipStr = str.replace("})", "");
         return ipStr.replace('"', ' ').trim();
     }
+
 }

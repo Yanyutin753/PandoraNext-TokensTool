@@ -102,6 +102,8 @@ docker inspect -f '{{range .Mounts}}{{.Destination}}: {{.Source}}{{"\n"}}{{end}}
 
 ## 一键部署PandoraNext和tokensTool(最强推荐)
 
+### 将直接拉取最新版本的PandoraNext和tokensTool
+
 ```
 # 安装git
 sudo apt update

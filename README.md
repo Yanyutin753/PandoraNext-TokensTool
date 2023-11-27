@@ -23,9 +23,9 @@ docker inspect -f '{{range .Mounts}}{{.Destination}}: {{.Source}}{{"\n"}}{{end}}
 
 2. **自动添加删除修改token：** 工具能够自动在 tokens.josn 中添加删除刷新token，简化配置过程。
 
-3. **每五天自动通过openAI账号密码刷新token,更新渠道：** 工具会每五天自动通过openAI账号密码刷新tokens,重启PandoraNext，方便使用。
+3. **每五天自动通过openAI账号密码刷新token,更新渠道：** （登录接口暂不能使用）工具会每五天自动通过openAI账号密码刷新tokens,重启PandoraNext，方便使用。
 
-4. **通过账号密码添加token** ，避免查找繁琐的token
+4. **通过账号密码添加token**（登录接口暂不能使用） ，避免查找繁琐的token
 
 5. **一键重启PandoraNext** ，使得修改token效率更高
 
@@ -37,7 +37,7 @@ docker inspect -f '{{range .Mounts}}{{.Destination}}: {{.Source}}{{"\n"}}{{end}}
 
 9. **支持热重载，需要在配置文件或者在网页上添加重载密码，开启服务**
 
-10. **支持更改license.token,方便更改jwt或者动态Ip服务器部署**
+10. **支持更改license_ip,方便更改jwt或者多license部署服务器**(更新到3.1的，该功能不需要了)
 
 11. **支持部署tokensTool，之后验证PandoaraNext，获取license**
 
@@ -82,10 +82,8 @@ docker inspect -f '{{range .Mounts}}{{.Destination}}: {{.Source}}{{"\n"}}{{end}}
 
 ### 在线修改系统设置，启动，重启，暂停PandoraNext操作
 
-![1f272d22383b975be2f32764ef1774a](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/bdc4bd3e-f984-4358-95ea-82cdc6e583a4)
+![9f04e44841c765f8d066fbdda395e5f](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/c3d3a252-c936-4156-886e-2a17ccd540db)
 
-
-![image](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/47cfe354-d1e0-4766-b207-0ba00b756b05)
 
 
 ## 使用方法
@@ -132,8 +130,7 @@ cd /tokenTools-sh && sudo sh update.sh
 curl -fLO "https://dash.pandoranext.com/data/ (uVlk_4ilqs23dfsdfdsfsdfOlgaPdNkgGDwesNmVHGoI_23) /license.jwt"
 ```
 
-##### 3.系统设置点击验证PandoraNext，验证成功之后重新启动PandoraNext即可（热重载需要在容器启动之后才能进行）
-
+##### 3.设置好了之后，点击重启PandoraNext，期间如遇打不开PandoraNext,请耐心等待一会，再重启PandoraNext即可（热重载需要在容器启动之后才能进行）
 
 
 
@@ -359,6 +356,7 @@ docker-compose up -d
 
 ### 请给我一个免费的⭐吧！！！
 
-![star-history-20231122](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/13003607-b7c9-4c82-a569-a9ed88c88d3d)
+![star-history-20231127 (2)](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/4e2bfde1-bc20-44c9-8d2e-db23d87a8311)
+
 
 

@@ -23,9 +23,9 @@ docker inspect -f '{{range .Mounts}}{{.Destination}}: {{.Source}}{{"\n"}}{{end}}
 
 2. **自动添加删除修改token：** 工具能够自动在 tokens.josn 中添加删除刷新token，简化配置过程。
 
-3. **每五天自动通过openAI账号密码刷新token,更新渠道：** （登录接口暂不能使用）工具会每五天自动通过openAI账号密码刷新tokens,重启PandoraNext，方便使用。
+3. **每五天自动通过openAI账号密码刷新token,更新渠道：** （该功能暂定）工具会每五天自动通过openAI账号密码刷新tokens,重启PandoraNext，方便使用。
 
-4. **通过账号密码添加token**（登录接口暂不能使用） ，避免查找繁琐的token
+4. **通过账号密码添加token**该功能如今恢复正常 ，避免查找繁琐的token
 
 5. **一键重启PandoraNext** ，使得修改token效率更高
 

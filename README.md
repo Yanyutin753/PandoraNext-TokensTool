@@ -126,10 +126,10 @@ cd /tokenTools-sh && sudo sh update.sh
 ##### 1. 开放8081和8181端口，先访问8081,然后填写系统变量，把127.0.0.1:8181改成0.0.0.0:8181
 
 
-##### 2. 在8081页面的系统变量设置更改账号密码，并填写[license.token](https://dash.pandoranext.com),注意是下面类似内容
+##### 2. 在8081页面的系统变量里的tokentool设置更改账号密码，并填写[license_ip](https://dash.pandoranext.com),注意是下面类似括号里的内容
 
 ```
-curl -fLO "https://dash.pandoranext.com/data/uVlk_4ilqs23dfsdfdsfsdfOlgaPdNkgGDwesNmVHGoI_23/license.jwt"
+curl -fLO "https://dash.pandoranext.com/data/ (uVlk_4ilqs23dfsdfdsfsdfOlgaPdNkgGDwesNmVHGoI_23) /license.jwt"
 ```
 
 ##### 3.系统设置点击验证PandoraNext，验证成功之后重新启动PandoraNext即可（热重载需要在容器启动之后才能进行）

@@ -29,10 +29,7 @@
         >
       </el-menu-item>
       <el-menu-item index="2">
-        <a
-          href="https://chat.openai.com/api/auth/session"
-          >OpenAI官网</a
-        >
+        <a href="https://chat.openai.com/api/auth/session">OpenAI官网</a>
       </el-menu-item>
       <el-menu-item index="3">
         <a href="https://ai.fakeopen.com/auth">Pandora地址</a>
@@ -179,11 +176,7 @@
                     <div>注册时间：{{ scope.row.updateTime }}</div>
                   </template>
                   <template #reference>
-                    <el-tag
-                      >距离过期还有：{{
-                        formatDate(scope.row.updateTime)
-                      }}</el-tag
-                    >
+                    <el-tag>距离过期还有：{{ formatDate(scope.row) }}</el-tag>
                   </template>
                 </el-popover>
               </template>
@@ -231,7 +224,7 @@
           <h2>
             欢迎大家来扩展
             <a href="https://github.com/Yanyutin753/PandoraNext-TokensTool"
-              >pandoraNext-TokensTool v0.1.0
+              >pandoraNext-TokensTool v0.3.1
             </a>
             获取token
             <a href="https://chat.openai.com/auth/session">官网地址 </a>
@@ -643,21 +636,21 @@
             label="验证licenseId"
             placeholder="验证licenseId(复制github的命令)"
           />
-          <!-- <br />
-          <van-field name="switch" label="是否自动验证PandoraNext">
-            <template #right-icon>
-              <van-switch active-color="#0ea27e" v-model="verifyEnabled" />
-            </template>
-          </van-field>
-          <div v-if="verifyEnabled == true">
-            <br />
-            <van-field
-              v-model="verify_time"
-              name="自动验证时间（min）"
-              label="自动验证时间（min）"
-              placeholder="不少于10分钟（单位分钟）"
-            />
-          </div> -->
+          <br />
+          <van-field
+            v-model="autoToken_url"
+            name="刷新token的网址"
+            label="刷新token的网址"
+            placeholder="填default默认本地地址"
+          />
+          <br />
+          <van-field
+            v-model="tokenKind"
+            name="获取token类型"
+            label="获取token类型"
+            placeholder="access_token或session_token"
+            :rules="[{ validator: tokenValidator }]"
+          />
           <br />
         </van-cell-group>
         <div style="margin: 5.2px">
@@ -820,6 +813,8 @@ const setup_password = ref("");
 const loginUsername = ref("");
 const loginPassword = ref("");
 const license_id = ref("");
+const tokenKind = ref("access_token");
+const autoToken_url = ref("default");
 const whitelist = ref("");
 
 const provider = ref("");
@@ -839,6 +834,14 @@ const customValidator = (value: string) => {
   }
 };
 
+// 自定义校验函数，直接返回错误提示
+const tokenValidator = (value: string) => {
+  if (["access_token", "session_token"].includes(value)) {
+    return true;
+  } else {
+    return `此项只能填access_token或session_token`;
+  }
+};
 /**
  * 查看或者修改token信息参数
  */
@@ -924,18 +927,15 @@ const onSearch = (value: string) => {
  */
 const fetchDataAndFillForm = async (value: string) => {
   try {
-    const response = await axios.get(
-      `/api/seleteToken?name=${value}`,
-      {
-        headers,
-      }
-    );
-    const data = response.data.data;
-    console.log(data);
+    const response = await axios.get(`/api/seleteToken?name=${value}`, {
+      headers,
+    });
+    const data_token = response.data.data;
+    console.log(data_token);
 
     // 如果服务器返回的数据是一个数组，你可以遍历数据并将每个对象转化为User类型
-    if (Array.isArray(data)) {
-      const resUsers: User[] = data.map((item: User) => ({
+    if (Array.isArray(data_token)) {
+      const resUsers: User[] = data_token.map((item: User) => ({
         name: item.name,
         username: item.username,
         userPassword: item.userPassword,
@@ -949,6 +949,37 @@ const fetchDataAndFillForm = async (value: string) => {
 
       // 将用户数据添加到tableData
       tableData.value = resUsers;
+
+      const response = await axios.get(`/api/selectSetting`, {
+        headers,
+      });
+      const data = response.data.data;
+      console.log(data);
+      server_mode.value = data.server_mode;
+      bing.value = data.bing;
+      timeout.value = data.timeout;
+      proxy_url.value = data.proxy_url;
+      public_share.value = data.public_share;
+      site_password.value = data.site_password;
+      setup_password.value = data.setup_password;
+      console.log(data.whitelist);
+      if (data.whitelist == null) {
+        whitelist.value = "null";
+      } else whitelist.value = data.whitelist;
+      verify_time.value = data.verify_time;
+      verifyEnabled.value = data.verifyEnabled;
+      loginUsername.value = data.loginUsername;
+      loginPassword.value = data.loginPassword;
+      license_id.value = data.license_id;
+      tokenKind.value = data.tokenKind;
+      autoToken_url.value = data.autoToken_url;
+      provider.value = data.validation.provider;
+      site_key.value = data.validation.site_key;
+      site_secret.value = data.validation.site_secret;
+      site_login.value = data.validation.site_login;
+      setup_login.value = data.validation.setup_login;
+      oai_username.value = data.validation.oai_username;
+      oai_password.value = data.validation.oai_password;
     }
   } catch (error) {
     console.error("获取数据失败", error);
@@ -966,6 +997,8 @@ onMounted(() => {
  * 用于用户信息设置
  */
 const activeIndex = ref("-1");
+
+let temRequireToken = "";
 const handleSelect = (key: string, keyPath: string[]) => {
   console.log(key, keyPath);
 };
@@ -976,6 +1009,8 @@ const handleEdit = (index: number, row: User) => {
   temUsername.value = row.username;
   temUserPassword.value = row.userPassword;
   temToken.value = row.token;
+  //用来判断token是否更改
+  temRequireToken = row.token;
   temShared.value = row.shared;
   temShow_user_info.value = row.show_user_info;
   temPlus.value = row.plus;
@@ -1040,7 +1075,7 @@ const onAddToken = () => {
           ElMessage("添加成功！已为你自动装填token");
         }
         tableData.value.unshift(api);
-        ElMessage(data.data);
+        // ElMessage(data.data);
       } else {
         ElMessage(data.msg);
       }
@@ -1073,37 +1108,39 @@ const showData = (row: User) => {
  * 修改系统设置函数
  */
 const onRequireSetting = async (value: any) => {
-  const response = await axios.get(
-    `/api/selectSetting`,
-    {
-      headers,
-    }
-  );
-  const data = response.data.data;
-  console.log(data);
-  server_mode.value = data.server_mode;
-  bing.value = data.bing;
-  timeout.value = data.timeout;
-  proxy_url.value = data.proxy_url;
-  public_share.value = data.public_share;
-  site_password.value = data.site_password;
-  setup_password.value = data.setup_password;
-  console.log(data.whitelist);
-  if (data.whitelist == null) {
-    whitelist.value = "null";
-  } else whitelist.value = data.whitelist;
-  verify_time.value = data.verify_time;
-  verifyEnabled.value = data.verifyEnabled;
-  loginUsername.value = data.loginUsername;
-  loginPassword.value = data.loginPassword;
-  license_id.value = data.license_id;
-  provider.value = data.validation.provider;
-  site_key.value = data.validation.site_key;
-  site_secret.value = data.validation.site_secret;
-  site_login.value = data.validation.site_login;
-  setup_login.value = data.validation.setup_login;
-  oai_username.value = data.validation.oai_username;
-  oai_password.value = data.validation.oai_password;
+  // const response = await axios.get(
+  //   `/api/selectSetting`,
+  //   {
+  //     headers,
+  //   }
+  // );
+  // const data = response.data.data;
+  // console.log(data);
+  // server_mode.value = data.server_mode;
+  // bing.value = data.bing;
+  // timeout.value = data.timeout;
+  // proxy_url.value = data.proxy_url;
+  // public_share.value = data.public_share;
+  // site_password.value = data.site_password;
+  // setup_password.value = data.setup_password;
+  // console.log(data.whitelist);
+  // if (data.whitelist == null) {
+  //   whitelist.value = "null";
+  // } else whitelist.value = data.whitelist;
+  // verify_time.value = data.verify_time;
+  // verifyEnabled.value = data.verifyEnabled;
+  // loginUsername.value = data.loginUsername;
+  // loginPassword.value = data.loginPassword;
+  // license_id.value = data.license_id;
+  // tokenKind.value = data.tokenKind;
+  // autoToken_url.value = data.autoToken_url;
+  // provider.value = data.validation.provider;
+  // site_key.value = data.validation.site_key;
+  // site_secret.value = data.validation.site_secret;
+  // site_login.value = data.validation.site_login;
+  // setup_login.value = data.validation.setup_login;
+  // oai_username.value = data.validation.oai_username;
+  // oai_password.value = data.validation.oai_password;
 
   if (value == 0) {
     show_3.value = true;
@@ -1141,6 +1178,8 @@ const RequireSetting = (value: any) => {
     loginUsername: loginUsername.value,
     loginPassword: loginPassword.value,
     license_id: license_id.value,
+    tokenKind: tokenKind.value,
+    autoToken_url: autoToken_url.value,
     whitelist: whitelist.value,
     validation: validation,
   };
@@ -1168,8 +1207,7 @@ const RequireSetting = (value: any) => {
   console.log(value);
   if (value == 0) {
     show_3.value = false;
-  } 
-  else if (value == 1) {
+  } else if (value == 1) {
     show_4.value = false;
   } else if (value == 2) {
     show_5.value = false;
@@ -1182,16 +1220,19 @@ const RequireSetting = (value: any) => {
  */
 const RequireToken = () => {
   const loadingInstance = ElLoading.service({ fullscreen: true });
-  const now: Date = new Date();
-  const formattedTime = `${now.getFullYear()}-${(now.getMonth() + 1)
-    .toString()
-    .padStart(2, "0")}-${now.getDate().toString().padStart(2, "0")} ${now
-    .getHours()
-    .toString()
-    .padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}:${now
-    .getSeconds()
-    .toString()
-    .padStart(2, "0")}`;
+  let formattedTime = "";
+  if (temRequireToken != temToken.value) {
+    const now: Date = new Date();
+    formattedTime = `${now.getFullYear()}-${(now.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}-${now.getDate().toString().padStart(2, "0")} ${now
+      .getHours()
+      .toString()
+      .padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}:${now
+      .getSeconds()
+      .toString()
+      .padStart(2, "0")}`;
+  }
   if (temPassword.value != "" && temShared.value === false) {
     temPlus.value = false;
     temShow_user_info.value = false;
@@ -1234,7 +1275,9 @@ const RequireToken = () => {
             tableData.value[i].show_user_info = api.show_user_info;
             tableData.value[i].plus = api.plus;
             tableData.value[i].password = api.password;
-            tableData.value[i].updateTime = formattedTime;
+            if (temRequireToken != temToken.value) {
+              tableData.value[i].updateTime = formattedTime;
+            }
             break; // 找到匹配的元素后跳出循环
           }
         }
@@ -1467,13 +1510,9 @@ const deleteToken = (index: number, row: User) => {
   )
     .then(() => {
       axios
-        .put(
-          `/api/deleteToken?name=${row.name}`,
-          null,
-          {
-            headers,
-          }
-        )
+        .put(`/api/deleteToken?name=${row.name}`, null, {
+          headers,
+        })
         .then((response) => {
           msg = "删除成功！";
           // 从数组中移除商品项
@@ -1501,15 +1540,22 @@ const deleteToken = (index: number, row: User) => {
 /**
  * 获取token的过期时间
  */
-const formatDate = (value: string) => {
+const formatDate = (value: User) => {
   if (!value) return "";
   var nowDay = new Date();
-  const timeDay = parseISO(value);
+  const timeDay = parseISO(value.updateTime);
   const daysDiff = differenceInDays(nowDay, timeDay);
-  return daysDiff >= 10
-    ? "已经过去了至少10天"
-    : Math.ceil(10 - daysDiff) + "天";
+  if (value.token.length <= 2000) {
+    return daysDiff >= 10
+      ? "已经过去了至少10天"
+      : Math.ceil(10 - daysDiff) + "天";
+  } else {
+    return daysDiff >= 80
+      ? "已经过去了至少80天"
+      : Math.ceil(80 - daysDiff) + "天";
+  }
 };
+
 /**
  * 更改Token显示操作
  */

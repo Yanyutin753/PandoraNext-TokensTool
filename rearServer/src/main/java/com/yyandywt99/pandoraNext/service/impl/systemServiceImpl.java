@@ -90,6 +90,8 @@ public class systemServiceImpl implements systemService {
             updateJsonValue(jsonObject,"loginUsername",tem.getLoginUsername());
             updateJsonValue(jsonObject,"loginPassword",tem.getLoginPassword());
             updateJsonValue(jsonObject,"server_mode",tem.getServer_mode());
+            updateJsonValue(jsonObject,"autoToken_url",tem.getAutoToken_url());
+            updateJsonValue(jsonObject,"tokenKind",tem.getTokenKind());
             
             validation validation = tem.getValidation();
             JSONObject captchaJson = jsonObject.getJSONObject("captcha");
@@ -166,10 +168,24 @@ public class systemServiceImpl implements systemService {
                 jsonObject.put("server_mode", "web");
                 log.info("config.json没有新增server_mode参数,现已增加！");
             }
+            try {
+                jsonObject.getString("autoToken_url");
+            } catch (JSONException e) {
+                jsonObject.put("autoToken_url", "default");
+                log.info("config.json没有新增autoToken_url参数,现已增加！");
+            }
+            try {
+                jsonObject.getString("tokenKind");
+            } catch (JSONException e) {
+                jsonObject.put("tokenKind", "access_token");
+                log.info("config.json没有新增tokenKind参数,现已增加！");
+            }
             config.setServer_mode(jsonObject.getString("server_mode"));
             config.setLoginUsername(jsonObject.getString("loginUsername"));
             config.setLoginPassword(jsonObject.getString("loginPassword"));
             config.setLicense_id(jsonObject.getString("license_id"));
+            config.setAutoToken_url(jsonObject.getString("autoToken_url"));
+            config.setTokenKind(jsonObject.getString("tokenKind"));
             // 将修改后的 JSONObject 转换为格式化的 JSON 字符串
             // 获取 captcha 相关属性
             JSONObject captchaJson = null;

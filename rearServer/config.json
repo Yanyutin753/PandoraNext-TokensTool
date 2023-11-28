@@ -1,11 +1,13 @@
 {
   "loginUsername": "root",
   "verifyEnabled": false,
+  "tokenKind": "session_token",
   "public_share": false,
   "whitelist": null,
   "server_tokens": true,
   "verify_time": 6000,
   "timeout": 600,
+  "autoToken_url": "default",
   "site_password": "",
   "bind": "127.0.0.1:8181",
   "pandoraNext_License": "",

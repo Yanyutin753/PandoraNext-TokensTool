@@ -74,7 +74,7 @@
             <br />
             欢迎大家来扩展
             <a href="https://github.com/Yanyutin753/PandoraNext-TokensTool"
-              >PandoraNext-TokensTool v0.1.0
+              >PandoraNext-TokensTool v0.3.1
             </a>
           </h3>
         </div>

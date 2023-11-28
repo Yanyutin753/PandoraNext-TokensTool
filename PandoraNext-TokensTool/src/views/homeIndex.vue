@@ -47,7 +47,7 @@
         >
       </el-sub-menu>
       <el-sub-menu index="5">
-        <template #title>系统设置</template>
+        <template #title>系统状态</template>
         <el-menu-item index="4-1" @click="openPandora"
           >开启PandoraNext</el-menu-item
         >

@@ -48,6 +48,8 @@ docker inspect -f '{{range .Mounts}}{{.Destination}}: {{.Source}}{{"\n"}}{{end}}
 14. **新增修改PandoraNext的模式，web和proxy，修改系统变量，点击重启PandoraNext生效**
 
 15. **新增一键更新最新版本的PandoraNext和tokensTool**
+
+16. **自动根据token类型，显示不同的时间** 
     
 - PandoraNext的热重载改网站密码和热重载密码还是优点bug，建议修改config.json配置文件之后按重启PandoraNext服务
 

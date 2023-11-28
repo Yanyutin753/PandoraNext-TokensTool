@@ -61,8 +61,24 @@ public class systemSetting {
     private String loginPassword;
 
 
+    /**
+     * tokensTool 验证信息
+     */
     private validation validation;
 
+    /**
+     * tokensTool 更新token网址
+     * 为"default"则调用本机的，不为“default"则自定义
+     */
+    private String autoToken_url;
+
+
+    /**
+     * tokensTool 更新token的类型
+     * 为"access_token"则拿access_token，为“session_token"则拿session_token
+     * 默认拿access_token
+     */
+    private String tokenKind;
 //    /**
 //     * tokensTool是否自动验证PandoraNext
 //     */

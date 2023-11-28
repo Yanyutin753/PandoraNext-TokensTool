@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.yyandywt99.pandoraNext.pojo.systemSetting;
 import com.yyandywt99.pandoraNext.pojo.token;
 import com.yyandywt99.pandoraNext.service.apiService;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -222,6 +224,8 @@ public class apiServiceImpl implements apiService {
                 // 获取要修改的节点
                 ObjectNode nodeToModifyInNew = newObjectNode.with(nodeNameToModify);
 
+                // 获取之前的节点值
+                String previousToken = nodeToModifyInNew.has("token") ? nodeToModifyInNew.get("token").asText() : null;
                 // 修改节点的值
                 nodeToModifyInNew.put("token", tem.getToken());
                 nodeToModifyInNew.put("username", tem.getUsername());
@@ -236,14 +240,16 @@ public class apiServiceImpl implements apiService {
                 } else {
                     nodeToModifyInNew.put("password", "");
                 }
-                LocalDateTime now = LocalDateTime.now();
-                nodeToModifyInNew.put("updateTime", now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                if(! previousToken.equals(tem.getToken())){
+                    LocalDateTime now = LocalDateTime.now();
+                    nodeToModifyInNew.put("updateTime", now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                }
                 // 将修改后的 newObjectNode 写回文件
                 objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(parent), newObjectNode);
                 log.info("修改成功");
                 return "修改成功！";
             } else {
-                System.out.println("Node not found or not an object: " + nodeNameToModify);
+                System.out.println("节点未找到或不是对象,请检查tokens.json！ " + nodeNameToModify);
                 return "节点未找到或不是对象！";
             }
         } catch (IOException e) {
@@ -295,6 +301,8 @@ public class apiServiceImpl implements apiService {
     }
 
 
+    @Autowired
+    private systemServiceImpl systemService;
     /**
      * 自动更新Token方法
      * 通过https://ai.fakeopen.com/auth/login拿到token
@@ -303,7 +311,17 @@ public class apiServiceImpl implements apiService {
      * 密码为token.getUserPassword()
      */
     public String updateToken(token token) {
-        String url = "https://ai.fakeopen.com/auth/login";
+        String url;
+        systemSetting systemSetting = systemService.selectSetting();
+        if(systemSetting.getAutoToken_url().equals("default")){
+            String bingUrl = systemSetting.getBing();
+            String[] parts = bingUrl.split(":");
+            url = "http://" + getIp() + ":" + parts[1] + "/api/auth/login";
+        }
+        else{
+            url = systemSetting.getAutoToken_url();
+        }
+        log.info("将通过这个网址请求登录信息："+url);
         try {
             // 创建HttpClient实例
             CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -329,22 +347,22 @@ public class apiServiceImpl implements apiService {
             // 获得响应数据
             String responseContent = EntityUtils.toString(response.getEntity());
             // 处理响应数据
-            String access_token = null;
+            String resToken = null;
             try {
                 JSONObject jsonResponse = new JSONObject(responseContent);
                 // 提取返回的数据
                 log.info(jsonResponse.toString());
-                access_token = jsonResponse.getString("access_token");
+                resToken = jsonResponse.getString(systemSetting.getTokenKind());
                 httpClient.close();
             } catch (JSONException e) {
                 e.printStackTrace();
                 httpClient.close();
             }
             //关闭进程
-            if (statusCode == 200 && access_token.length() > 400) {
-                log.info("Request was successful");
+            if (statusCode == 200 && resToken.length() > 400) {
                 //用来防止请求的token出现问题，回退token值
-                return access_token;
+                log.info("Request was successful");
+                return resToken;
             }
         } catch (Exception e) {
             e.printStackTrace();

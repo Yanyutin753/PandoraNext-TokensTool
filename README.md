@@ -49,7 +49,9 @@ docker inspect -f '{{range .Mounts}}{{.Destination}}: {{.Source}}{{"\n"}}{{end}}
 
 15. **新增一键更新最新版本的PandoraNext和tokensTool**
 
-16. **自动根据token类型，显示不同的时间** 
+16. **自动根据token类型，显示不同的时间**
+
+17. **新增特性，只有更新token，才会改token有效期**
     
 - PandoraNext的热重载改网站密码和热重载密码还是优点bug，建议修改config.json配置文件之后按重启PandoraNext服务
 

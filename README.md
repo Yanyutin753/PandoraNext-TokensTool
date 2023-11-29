@@ -1,5 +1,8 @@
 # PandoraNext-TokensTool
+
 ## 不准白嫖，请给我免费的star⭐吧，十分感谢！
+
+#### [双开两个PandoraNext的教程](https://github.com/Yanyutin753/two-PandoraNext/tree/main)
 
 ## 简介
 
@@ -49,9 +52,11 @@ docker inspect -f '{{range .Mounts}}{{.Destination}}: {{.Source}}{{"\n"}}{{end}}
 
 15. **新增一键更新最新版本的PandoraNext和tokensTool**
 
-16. **自动根据token类型，显示不同的时间**
+16. **自动根据token类型，显示不同的时间**（×）
 
 17. **新增特性，只有更新token，才会改token有效期**
+
+18.**新增获取share_token和access_token，并支持修改PandoraNext的证书配置** 
     
 - PandoraNext的热重载改网站密码和热重载密码还是优点bug，建议修改config.json配置文件之后按重启PandoraNext服务
 
@@ -346,6 +351,24 @@ docker-compose up -d
 ```
 
 ### 想要二开项目的友友们，可以自行遵循相应的开源规则更改前后端项目，本人小白，项目写的不太好，还请谅解！
+
+
+## 接口
+
+1. 目前写了一个/shared_token接口，可以通过config.json里面的getTokenPassword拿到（默认密码为123456）
+   * 请求方式为get
+   * 示例网址：http://ip:8081/shared_token?password=123456
+   * 返回
+    ```
+     {
+    "code": 1,
+    "msg": "success",
+    "data": [
+              "fk-Yasdasdasdasdasdasd",
+              "fk-ssadasdd asdasdasdasM"
+          ]
+      }
+     ```
 
 ### 项目遵循相应的开源规则，请自行食用
 

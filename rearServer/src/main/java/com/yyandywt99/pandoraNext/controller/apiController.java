@@ -132,7 +132,7 @@ public class apiController {
     @GetMapping("/restart")
     public Result restartContainer() {
         try {
-            restartContainer("PandoraNext");
+            restartContainer(systemService.selectSetting().getContainerName());
             return Result.success("重启PandoraNext镜像成功");
         } catch (Exception e) {
             log.error("重启PandoraNext镜像失败！", e);
@@ -144,21 +144,26 @@ public class apiController {
      */
     @GetMapping("/close")
     public Result closeContainer() {
-        String containerName = "PandoraNext";
+        String containerName = systemService.selectSetting().getContainerName();
         if (deployWay.contains("docker")) {
-            docker(containerName,"stop");
-            return Result.success("暂停PandoraNext镜像成功");
+            try {
+                docker(containerName,"stop");
+                return Result.success("暂停PandoraNext镜像成功");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return Result.error("暂停PandoraNext镜像失败");
         }
         else if (deployWay.equals("releases")) {
             try {
                 closeRelease(containerName);
-                return Result.success("暂停PandoraNext镜像成功");
+                return Result.success("暂停PandoraNext应用成功");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
         else {
-            return Result.success("jar用错名称");
+            return Result.error("jar用错名称");
         }
     }
 
@@ -175,101 +180,6 @@ public class apiController {
         }
     }
 
-    @Value("${pandoara_Ip}")
-    private String pandoara_Ip;
-
-    /**
-     * pandoara_Ip要是填写的是default
-     * 每隔60分钟刷新一次ip,若地址发生变化并重新验证
-     * 如不是则放回："Ip将采用用户设置："+pandoara_Ip
-     */
-    @Scheduled(fixedRate = 3600000)
-    public void autoCheckIp(){
-        if(! pandoara_Ip.equals("default")){
-            if(previousIPAddress != pandoara_Ip){
-                previousIPAddress = pandoara_Ip;
-            }
-            log.info("Ip将采用用户设置："+pandoara_Ip);
-            return;
-        }
-        String currentIPAddress = apiService.getIp();
-        if(currentIPAddress == "失败"){
-            log.info("获取IP失败！");
-            return;
-        }
-        if (!currentIPAddress.equals(previousIPAddress)) {
-            log.info("IP地址已变化，新的IP地址是：" + currentIPAddress);
-            previousIPAddress = currentIPAddress;
-//            String res = verifyContainer().toString();
-//            log.info(res);
-        } else {
-             log.info("IP地址未发生变化。");
-        }
-    }
-
-//    /**
-//     * verifyTimeBean.getVerify_time() * 60000
-//     * 每隔自定义时间重新验证
-//     */
-//    @Scheduled(fixedRateString = "#{apiController.verify_time * 60000}")
-//    public void autoVerify(){
-//      if (isEnabled) {
-//            log.info("自动刷新任务执行中...");
-//            Result result = verifyContainer();
-//            log.info(result.toString());
-//        }
-//    }
-
-
-//    /**
-//     * 验证PandoraNext
-//     * 通过config.json里的pandoraNext_License
-//     * 通过执行
-//     * curl -fLO -H 'Authorization: Bearer 指令'
-//     * 'https://dash.pandoranext.com/data/license.jwt'
-//     * 拿到license.jwt文件
-//     */
-//    @GetMapping("/verify")
-//    public Result verifyContainer(){
-//        try {
-//            String projectRoot;
-//            if(deploy.equals(deployPosition)){
-//                projectRoot = System.getProperty("user.dir");
-//            }
-//            else{
-//                projectRoot = deployPosition;
-//            }
-//            log.info(projectRoot);
-//            String pandoraNext_License = systemService.selectSetting().getLicense_id();
-//            String verifyCommand = "cd "+ projectRoot + "&& " + pandoraNext_License;
-//            // 执行验证PandoraNext进程的命令
-//            log.info("验证PandoraNext命令:"+verifyCommand);
-//            Process verifyProcess = executeCommand(verifyCommand);
-//            try {
-//                // 等待验证PandoraNext进程完成
-//                int exitCode = verifyProcess.waitFor();
-//                if (exitCode != 0 ) {
-//                    log.info("验证PandoraNext出现问题！");
-//                    return Result.error("验证PandoraNext服务出现问题,请过几分钟再试！");
-//                }
-//                else{
-//                    log.info("PandoraNext验证成功！");
-//                    Result result = reloadContainer();
-//                    if(result.getCode() == 0){
-//                        log.info("验证PandoraNext服务重载出现问题！");
-//                        return Result.error("验证PandoraNext服务重载出现问题！");
-//                    }
-//                    return Result.success("验证PandoraNext服务成功！");
-//                }
-//            } catch (Exception e) {
-//                throw new RuntimeException(e);
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return Result.error("验证PandoraNext服务失败！");
-//    }
-
 
     /**
      * @return 通过访问open，开启PandoraNext服务
@@ -277,7 +187,7 @@ public class apiController {
     @GetMapping("/open")
     public Result openContainer(){
         // 要检查的容器ID或名称
-        String containerName = "PandoraNext";
+        String containerName = systemService.selectSetting().getContainerName();
         if (deployWay.contains("docker")) {
             try {
                 // Docker 客户端初始化
@@ -445,7 +355,7 @@ public class apiController {
     /**
      * docker命令
      * containeeName：容器名
-     * way:命令方法（启动：start 暂停：pause 重启：restart）
+     * way:命令方法（启动：start 暂停：stop 重启：restart）
      */
     public void docker(String containerName,String way){
         try {
@@ -461,6 +371,7 @@ public class apiController {
             throw new RuntimeException();
         }
     }
+
     /**
      * release 命令函数
      * command：命令
@@ -472,6 +383,36 @@ public class apiController {
             return processBuilder.start();
         } catch (Exception e) {
             throw new RuntimeException();
+        }
+    }
+
+    @Value("${pandoara_Ip}")
+    private String pandoara_Ip;
+
+    /**
+     * pandoara_Ip要是填写的是default
+     * 每隔60分钟刷新一次ip,若地址发生变化并重新验证
+     * 如不是则放回："Ip将采用用户设置："+pandoara_Ip
+     */
+    @Scheduled(fixedRate = 3600000)
+    public void autoCheckIp(){
+        if(! pandoara_Ip.equals("default")){
+            if(previousIPAddress != pandoara_Ip){
+                previousIPAddress = pandoara_Ip;
+            }
+            log.info("Ip将采用用户设置："+pandoara_Ip);
+            return;
+        }
+        String currentIPAddress = apiService.getIp();
+        if(currentIPAddress == "失败"){
+            log.info("获取IP失败！");
+            return;
+        }
+        if (!currentIPAddress.equals(previousIPAddress)) {
+            log.info("IP地址已变化，新的IP地址是：" + currentIPAddress);
+            previousIPAddress = currentIPAddress;
+        } else {
+            log.info("IP地址未发生变化。");
         }
     }
 }

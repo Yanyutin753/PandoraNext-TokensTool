@@ -25,7 +25,7 @@ public class autoTokenController {
     private apiController apiColltroller;
 
     /**
-     * 自动更新Token
+     * 自动更新access_Token和share_token
      * 更换tokens.json里存储的Tokens
      * 自动重启
      * @return "更新成功" or "更新失败"
@@ -38,7 +38,6 @@ public class autoTokenController {
             String res = apiService.autoUpdateToken("");
             if(res.contains("修改Token成功")){
                 try {
-                    apiColltroller.restartContainer("PandoraNext");
                     return Result.success(res);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -51,7 +50,7 @@ public class autoTokenController {
     }
 
     /**
-     * 自动更新指定用户名的Token
+     * 自动更新指定用户名的access_token和share_token
      * @return "更新成功" or "刷新Token失败,请尝重新刷新！”
      * @throws Exception
      */
@@ -59,13 +58,37 @@ public class autoTokenController {
     @PostMapping ("updateToken")
     public Result toUpdateToken(@RequestBody token token){
         try {
-            String res = apiService.autoUpdateSimpleToken(token);
-            if(res != null && res.length() > 300){
+            token res = apiService.autoUpdateSimpleToken(token);
+            if(res != null){
                 return Result.success(res);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return Result.error("刷新Token失败,请尝重新刷新！");
+        return Result.error("生成access_token和share_token失败,请请确保填写token为session_token！");
     }
+
+    /**
+     * 自动更新指定用户名的session
+     * @return "更新成功" or "刷新Token失败,请尝重新刷新！”
+     * @throws Exception
+     */
+    @Log
+    @PostMapping ("updateSessionToken")
+    public Result toUpdateSessionToken(@RequestBody token token){
+        try {
+            String res = apiService.autoUpdateSessionToken(token);
+            if(res != null && res.length() > 300){
+                token.setToken(res);
+                Result update = toUpdateToken(token);
+                if(update.getCode() == 1){
+                    return Result.success(res);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Result.error("刷新session_token失败,请尝重新刷新！");
+    }
+
 }

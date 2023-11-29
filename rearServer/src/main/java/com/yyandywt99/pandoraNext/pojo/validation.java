@@ -8,6 +8,8 @@ package com.yyandywt99.pandoraNext.pojo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * 用户验证码验证的配置类。
@@ -47,5 +49,17 @@ public class validation {
      */
     private boolean oai_password;
 
+
+    public JSONObject toJSONObject() throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("provider", this.getProvider());
+        json.put("site_key", this.getSite_key());
+        json.put("site_secret", this.getSite_secret());
+        json.put("site_login", this.isSite_login());
+        json.put("setup_login", this.isSetup_login());
+        json.put("oai_username", this.isOai_username());
+        json.put("oai_password", this.isOai_password());
+        return json;
+    }
 }
 

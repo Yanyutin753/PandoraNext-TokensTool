@@ -74,18 +74,23 @@ public class systemSetting {
 
 
     /**
-     * tokensTool 更新token的类型
-     * 为"access_token"则拿access_token，为“session_token"则拿session_token
-     * 默认拿access_token
+     * tokensTool 拿到getTokenPassword
+     * 为"getTokenPassword" 默认：123456
+     * 默认拿getTokenPassword
      */
-    private String tokenKind;
-//    /**
-//     * tokensTool是否自动验证PandoraNext
-//     */
-//    private Boolean verifyEnabled;
-//
-//    /**
-//     * tokensTool自动验证时间
-//     */
-//    private Integer verify_time;
+    private String getTokenPassword;
+
+    /**
+     * tokensTool 更新containerName(容器名)
+     * 通过容器名实现开启，关闭，重新启动容器
+     */
+    private String containerName;
+
+
+    /**
+     * PandoraNext tls证书
+     */
+
+    private tls tls;
+
 }

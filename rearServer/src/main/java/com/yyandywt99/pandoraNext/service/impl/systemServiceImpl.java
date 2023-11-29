@@ -1,6 +1,7 @@
 package com.yyandywt99.pandoraNext.service.impl;
 
 import com.yyandywt99.pandoraNext.pojo.systemSetting;
+import com.yyandywt99.pandoraNext.pojo.tls;
 import com.yyandywt99.pandoraNext.pojo.validation;
 import com.yyandywt99.pandoraNext.service.systemService;
 import lombok.extern.slf4j.Slf4j;
@@ -91,8 +92,10 @@ public class systemServiceImpl implements systemService {
             updateJsonValue(jsonObject,"loginPassword",tem.getLoginPassword());
             updateJsonValue(jsonObject,"server_mode",tem.getServer_mode());
             updateJsonValue(jsonObject,"autoToken_url",tem.getAutoToken_url());
-            updateJsonValue(jsonObject,"tokenKind",tem.getTokenKind());
-            
+            updateJsonValue(jsonObject,"getTokenPassword",tem.getGetTokenPassword());
+            updateJsonValue(jsonObject,"containerName",tem.getContainerName());
+
+            // validation
             validation validation = tem.getValidation();
             JSONObject captchaJson = jsonObject.getJSONObject("captcha");
             updateJsonValue(captchaJson, "provider", validation.getProvider());
@@ -102,6 +105,14 @@ public class systemServiceImpl implements systemService {
             updateJsonValue(captchaJson, "setup_login", validation.isSetup_login());
             updateJsonValue(captchaJson, "oai_username", validation.isOai_username());
             updateJsonValue(captchaJson, "oai_password", validation.isOai_password());
+
+            // tls
+            tls tls = tem.getTls();
+            JSONObject tlsJson = jsonObject.getJSONObject("tls");
+            updateJsonValue(tlsJson, "enabled", tls.isEnabled());
+            updateJsonValue(tlsJson, "cert_file", tls.getCert_file());
+            updateJsonValue(tlsJson, "key_file", tls.getKey_file());
+
             // 将修改后的 JSONObject 转换为格式化的 JSON 字符串
             String updatedJson = jsonObject.toString(2);
             Files.write(Paths.get(parent), updatedJson.getBytes());
@@ -175,72 +186,70 @@ public class systemServiceImpl implements systemService {
                 log.info("config.json没有新增autoToken_url参数,现已增加！");
             }
             try {
-                jsonObject.getString("tokenKind");
+                jsonObject.getString("getTokenPassword");
             } catch (JSONException e) {
-                jsonObject.put("tokenKind", "access_token");
-                log.info("config.json没有新增tokenKind参数,现已增加！");
+                jsonObject.put("getTokenPassword", "123456");
+                log.info("config.json没有新增getTokenPassword参数,现已增加！");
             }
+
+            try {
+                jsonObject.getString("containerName");
+            } catch (JSONException e) {
+                jsonObject.put("containerName", "PandoraNext");
+                log.info("config.json没有新增containerName参数,现已增加！");
+            }
+
             config.setServer_mode(jsonObject.getString("server_mode"));
             config.setLoginUsername(jsonObject.getString("loginUsername"));
             config.setLoginPassword(jsonObject.getString("loginPassword"));
             config.setLicense_id(jsonObject.getString("license_id"));
             config.setAutoToken_url(jsonObject.getString("autoToken_url"));
-            config.setTokenKind(jsonObject.getString("tokenKind"));
-            // 将修改后的 JSONObject 转换为格式化的 JSON 字符串
+            config.setGetTokenPassword(jsonObject.getString("getTokenPassword"));
+            config.setContainerName(jsonObject.getString("containerName"));
+
+            boolean validationExist = true;
             // 获取 captcha 相关属性
-            JSONObject captchaJson = null;
-            try {
-                captchaJson = jsonObject.getJSONObject("captcha");
-                validation captchaSetting = new validation();
-                if (captchaJson != null) {
-                    captchaSetting.setProvider(captchaJson.optString("provider"));
-                    captchaSetting.setSite_key(captchaJson.optString("site_key"));
-                    captchaSetting.setSite_secret(captchaJson.optString("site_secret"));
-                    captchaSetting.setSite_login(captchaJson.optBoolean("site_login"));
-                    captchaSetting.setSetup_login(captchaJson.optBoolean("setup_login"));
-                    captchaSetting.setOai_username(captchaJson.optBoolean("oai_username"));
-                    captchaSetting.setOai_password(captchaJson.optBoolean("oai_password"));
-                    config.setValidation(captchaSetting);
-                }
-                else {
-                    // 如果 captchaJson 不存在，设置默认值
-                    validation defaultCaptchaSetting = new validation();
-                    defaultCaptchaSetting.setProvider("");
-                    defaultCaptchaSetting.setSite_key("");
-                    defaultCaptchaSetting.setSite_secret("");
-                    defaultCaptchaSetting.setSite_login(false);
-                    defaultCaptchaSetting.setSetup_login(false);
-                    defaultCaptchaSetting.setOai_username(false);
-                    defaultCaptchaSetting.setOai_password(false);
-                    JSONObject newJson = new JSONObject();
-                    newJson.put("provider", defaultCaptchaSetting.getProvider());
-                    newJson.put("site_key", defaultCaptchaSetting.getSite_key());
-                    newJson.put("site_secret", defaultCaptchaSetting.getSite_secret());
-                    newJson.put("site_login", defaultCaptchaSetting.isSite_login());
-                    newJson.put("setup_login", defaultCaptchaSetting.isSetup_login());
-                    newJson.put("oai_username", defaultCaptchaSetting.isOai_username());
-                    newJson.put("oai_password", defaultCaptchaSetting.isOai_password());
-                    jsonObject.put("captcha", newJson);
-                    config.setValidation(defaultCaptchaSetting);
-                }
-            } catch (JSONException e) {
-                // 获取captchaJson，如果不存在则创建一个默认的JSONObject
-                captchaJson = jsonObject.optJSONObject("captcha");
-                if (captchaJson == null) {
-                    captchaJson = new JSONObject();
-                }
-                // 如果某个属性不存在，设置默认值
-                captchaJson.put("provider", captchaJson.optString("provider", ""));
-                captchaJson.put("site_key", captchaJson.optString("site_key", ""));
-                captchaJson.put("site_secret", captchaJson.optString("site_secret", ""));
-                captchaJson.put("site_login", captchaJson.optBoolean("site_login", false));
-                captchaJson.put("setup_login", captchaJson.optBoolean("setup_login", false));
-                captchaJson.put("oai_username", captchaJson.optBoolean("oai_username", false));
-                captchaJson.put("oai_password", captchaJson.optBoolean("oai_password", false));
-                jsonObject.put("captcha", captchaJson);
+            JSONObject captchaJson = jsonObject.optJSONObject("captcha");
+            if (captchaJson == null ) {
+                captchaJson = new JSONObject();
+                validationExist = false;
             }
-            String updatedJson = jsonObject.toString(2);
-            Files.write(Paths.get(parent), updatedJson.getBytes());
+            validation captchaSetting = new validation(
+                    captchaJson.optString("provider", ""),
+                    captchaJson.optString("site_key", ""),
+                    captchaJson.optString("site_secret", ""),
+                    captchaJson.optBoolean("site_login", false),
+                    captchaJson.optBoolean("setup_login", false),
+                    captchaJson.optBoolean("oai_username", false),
+                    captchaJson.optBoolean("oai_password", false)
+            );
+            if(validationExist == false){
+                jsonObject.put("captcha", captchaSetting.toJSONObject());
+                // 将修改后的 JSONObject 转换为格式化的 JSON 字符串
+                String updatedJson = jsonObject.toString(2);
+                Files.write(Paths.get(parent), updatedJson.getBytes());
+            }
+            config.setValidation(captchaSetting);
+
+            // 获取 tls 相关属性
+            boolean tlsExist = true;
+            JSONObject tlsJson = jsonObject.optJSONObject("tls");
+            if (tlsJson == null ) {
+                tlsJson = new JSONObject();
+                tlsExist = false;
+            }
+            tls tlsSetting = new tls(
+                    tlsJson.optBoolean("enabled", false),
+                    tlsJson.optString("cert_file", ""),
+                    tlsJson.optString("key_file", "")
+            );
+            if(tlsExist == false){
+                jsonObject.put("tls", tlsSetting.toJSONObject());
+                // 将修改后的 JSONObject 转换为格式化的 JSON 字符串
+                String updatedJson = jsonObject.toString(2);
+                Files.write(Paths.get(parent), updatedJson.getBytes());
+            }
+            config.setTls(tlsSetting);
             return config;
         } catch (Exception e) {
             e.printStackTrace();

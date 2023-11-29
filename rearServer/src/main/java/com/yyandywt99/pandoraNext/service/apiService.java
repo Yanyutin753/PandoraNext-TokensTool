@@ -19,10 +19,11 @@ public interface apiService {
 
     String deleteToken(String name);
 
-    String autoUpdateSimpleToken(token token);
+    token autoUpdateSimpleToken(token token);
 
     String autoUpdateToken(String s);
 
     String getIp();
 
+    String autoUpdateSessionToken(token token);
 }

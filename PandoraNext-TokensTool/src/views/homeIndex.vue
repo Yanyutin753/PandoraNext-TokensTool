@@ -49,16 +49,16 @@
       <el-sub-menu index="5">
         <template #title>系统状态</template>
         <el-menu-item index="4-1" @click="openPandora"
-          >开启PandoraNext</el-menu-item
+          >开启{{ containerName }}</el-menu-item
         >
         <el-menu-item index="4-2" @click="closePandora"
-          >暂停PandoraNext</el-menu-item
+          >暂停{{ containerName }}</el-menu-item
         >
         <el-menu-item index="4-3" @click="AgainPandora"
-          >重启PandoraNext</el-menu-item
+          >重启{{ containerName }}</el-menu-item
         >
         <el-menu-item index="4-4" @click="reloadPandora"
-          >重载PandoraNext</el-menu-item
+          >重载{{ containerName }}</el-menu-item
         >
         <el-menu-item index="4-9" @click="logout">退出登录</el-menu-item>
       </el-sub-menu>
@@ -144,7 +144,7 @@
             </el-table-column>
 
             <!-- token值表 宽480 -->
-            <el-table-column label="Token值" width="318">
+            <el-table-column label="Token值" width="258">
               <template #default="scope">
                 <el-popover
                   effect="light"
@@ -183,7 +183,7 @@
             </el-table-column>
 
             <!-- 操作方法表 宽300 方法handleEdit-->
-            <el-table-column label="操作方法" width="268">
+            <el-table-column label="操作方法" width="315">
               <!-- 编辑操作按钮 -->
               <template #default="scope">
                 <el-button
@@ -212,6 +212,14 @@
                 <el-button size="small" type="success" @click="reNew(scope.row)"
                   >刷新</el-button
                 >
+
+                <!-- 刷新操作按钮 方法reNew-->
+                <el-button
+                  size="small"
+                  type="warning"
+                  @click="review(scope.row)"
+                  >生成</el-button
+                >
               </template>
             </el-table-column>
           </el-table>
@@ -224,7 +232,7 @@
           <h2>
             欢迎大家来扩展
             <a href="https://github.com/Yanyutin753/PandoraNext-TokensTool"
-              >pandoraNext-TokensTool v0.3.1
+              >pandoraNext-TokensTool v0.3.2
             </a>
             获取token
             <a href="https://chat.openai.com/auth/session">官网地址 </a>
@@ -501,10 +509,31 @@
           <van-field
             v-model="temToken"
             rows="5"
-            label="OpenAi的Token"
+            label="session_token"
             type="textarea"
             maxlength="5000"
             placeholder="请填写OpenAi的Token"
+            show-word-limit
+            :readonly="true"
+          />
+          <br />
+          <van-field
+            v-model="temAccessToken"
+            rows="4"
+            label="access_token"
+            type="textarea"
+            maxlength="5000"
+            placeholder="请填写OpenAi的access_token"
+            show-word-limit
+            :readonly="true"
+          />
+          <br />
+          <van-field
+            v-model="temShareToken"
+            label="share_token"
+            type="textarea"
+            maxlength="5000"
+            placeholder="请填写OpenAi的share_token"
             show-word-limit
             :readonly="true"
           />
@@ -523,7 +552,7 @@
     :close-on-click-overlay="true"
     :show-cancel-button="false"
     :show-confirm-button="false"
-    class="requireSettingDialog"
+    class="requirePandora"
   >
     <div style="display: block">
       <van-form @submit="RequireSetting(pandoraNext)">
@@ -557,9 +586,30 @@
             </template>
           </van-field>
           <br />
+          <van-field name="switch" label="是否配置证书">
+            <template #right-icon>
+              <van-switch active-color="#0ea27e" v-model="enabled" />
+            </template>
+          </van-field>
+          <div v-if="enabled == true">
+            <br />
+            <van-field
+              v-model="cert_file"
+              name="证书文件"
+              label="证书文件"
+              placeholder="证书文件"
+            />
+            <br />
+            <van-field
+              v-model="key_file"
+              name="密钥文件"
+              label="密钥文件"
+              placeholder="密钥文件"
+            />
+          </div>
+          <br />
           <van-field
             v-model="proxy_url"
-            type="temPassword"
             name="代理服务URL"
             label="代理服务URL"
             placeholder="代理服务URL(选填)"
@@ -645,11 +695,18 @@
           />
           <br />
           <van-field
-            v-model="tokenKind"
-            name="获取token类型"
-            label="获取token类型"
-            placeholder="access_token或session_token"
-            :rules="[{ validator: tokenValidator }]"
+            v-model="getTokenPassword"
+            name="获取token的密码"
+            label="获取token密码"
+            placeholder="默认123456"
+          />
+          <br />
+          <van-field
+            v-model="containerName"
+            name="监管的容器名"
+            label="监管的容器名"
+            placeholder="默认为PandoraNext"
+            :rules="[{ required: true, message: '请填写监管的容器名' }]"
           />
           <br />
         </van-cell-group>
@@ -666,7 +723,7 @@
   <!------------------------------------------------------------------------------------------------------>
   <!------------------------------------------------------------------------------------------------------>
 
-  <!-- 修改tokensTool系统设置信息 主键 名称为show_5 -->
+  <!-- 修改andoraNext验证信息信息 主键 名称为show_5 -->
   <van-dialog
     v-model:show="show_5"
     title="PandoraNext验证信息"
@@ -789,6 +846,8 @@ const image = png;
 interface User {
   name: string;
   token: string;
+  access_token: string;
+  share_token: string;
   username: string;
   userPassword: string;
   shared: boolean;
@@ -808,12 +867,18 @@ const bing = ref("");
 const timeout = ref("");
 const proxy_url = ref("");
 const public_share = ref(false);
+
+const enabled = ref(false);
+const cert_file = ref("");
+const key_file = ref("")
+
 const site_password = ref("");
 const setup_password = ref("");
 const loginUsername = ref("");
 const loginPassword = ref("");
 const license_id = ref("");
-const tokenKind = ref("access_token");
+const getTokenPassword = ref("123456");
+const containerName = ref("PandoraNext");
 const autoToken_url = ref("default");
 const whitelist = ref("");
 
@@ -834,19 +899,13 @@ const customValidator = (value: string) => {
   }
 };
 
-// 自定义校验函数，直接返回错误提示
-const tokenValidator = (value: string) => {
-  if (["access_token", "session_token"].includes(value)) {
-    return true;
-  } else {
-    return `此项只能填access_token或session_token`;
-  }
-};
 /**
  * 查看或者修改token信息参数
  */
 const temName = ref("");
 const temToken = ref("");
+const temAccessToken = ref("");
+const temShareToken = ref("");
 const temUsername = ref("");
 const temUserPassword = ref("");
 const temShared = ref(false);
@@ -940,6 +999,8 @@ const fetchDataAndFillForm = async (value: string) => {
         username: item.username,
         userPassword: item.userPassword,
         token: item.token,
+        access_token: item.access_token,
+        share_token: item.share_token,
         shared: item.shared,
         show_user_info: item.show_user_info,
         password: item.password,
@@ -960,6 +1021,11 @@ const fetchDataAndFillForm = async (value: string) => {
       timeout.value = data.timeout;
       proxy_url.value = data.proxy_url;
       public_share.value = data.public_share;
+
+      enabled.value = data.tls.enabled;
+      cert_file.value = data.tls.cert_file;
+      key_file.value = data.tls.key_file;
+
       site_password.value = data.site_password;
       setup_password.value = data.setup_password;
       console.log(data.whitelist);
@@ -971,7 +1037,8 @@ const fetchDataAndFillForm = async (value: string) => {
       loginUsername.value = data.loginUsername;
       loginPassword.value = data.loginPassword;
       license_id.value = data.license_id;
-      tokenKind.value = data.tokenKind;
+      getTokenPassword.value = data.getTokenPassword;
+      containerName.value = data.containerName;
       autoToken_url.value = data.autoToken_url;
       provider.value = data.validation.provider;
       site_key.value = data.validation.site_key;
@@ -1008,8 +1075,8 @@ const handleEdit = (index: number, row: User) => {
   console.log(temName.value);
   temUsername.value = row.username;
   temUserPassword.value = row.userPassword;
-  temToken.value = row.token;
   //用来判断token是否更改
+  temToken.value = row.token;
   temRequireToken = row.token;
   temShared.value = row.shared;
   temShow_user_info.value = row.show_user_info;
@@ -1072,6 +1139,7 @@ const onAddToken = () => {
         console.log(data.data);
         if (api.token == "") {
           api.token = data.data as string;
+          onSearch("");
           ElMessage("添加成功！已为你自动装填token");
         }
         tableData.value.unshift(api);
@@ -1097,7 +1165,9 @@ const showData = (row: User) => {
   temUsername.value = row.username;
   temUserPassword.value = row.userPassword;
   temToken.value = row.token;
-  temShared.value = row.shared;
+  (temAccessToken.value = row.access_token),
+    (temShareToken.value = row.share_token),
+    (temShared.value = row.shared);
   temShow_user_info.value = row.show_user_info;
   temPlus.value = row.plus;
   temPassword.value = row.password;
@@ -1108,40 +1178,6 @@ const showData = (row: User) => {
  * 修改系统设置函数
  */
 const onRequireSetting = async (value: any) => {
-  // const response = await axios.get(
-  //   `/api/selectSetting`,
-  //   {
-  //     headers,
-  //   }
-  // );
-  // const data = response.data.data;
-  // console.log(data);
-  // server_mode.value = data.server_mode;
-  // bing.value = data.bing;
-  // timeout.value = data.timeout;
-  // proxy_url.value = data.proxy_url;
-  // public_share.value = data.public_share;
-  // site_password.value = data.site_password;
-  // setup_password.value = data.setup_password;
-  // console.log(data.whitelist);
-  // if (data.whitelist == null) {
-  //   whitelist.value = "null";
-  // } else whitelist.value = data.whitelist;
-  // verify_time.value = data.verify_time;
-  // verifyEnabled.value = data.verifyEnabled;
-  // loginUsername.value = data.loginUsername;
-  // loginPassword.value = data.loginPassword;
-  // license_id.value = data.license_id;
-  // tokenKind.value = data.tokenKind;
-  // autoToken_url.value = data.autoToken_url;
-  // provider.value = data.validation.provider;
-  // site_key.value = data.validation.site_key;
-  // site_secret.value = data.validation.site_secret;
-  // site_login.value = data.validation.site_login;
-  // setup_login.value = data.validation.setup_login;
-  // oai_username.value = data.validation.oai_username;
-  // oai_password.value = data.validation.oai_password;
-
   if (value == 0) {
     show_3.value = true;
   } else if (value == 1) {
@@ -1156,6 +1192,15 @@ const RequireSetting = (value: any) => {
   if (whitelist.value == null || whitelist.value == "null") {
     whitelist.value = "";
   }
+  if(enabled.value == false){
+    cert_file.value = "";
+    key_file.value = "";
+  }
+  const tls = {
+    enabled: enabled.value,
+    cert_file: cert_file.value,
+    key_file: key_file.value,
+  };
   const validation = {
     provider: provider.value,
     site_key: site_key.value,
@@ -1178,10 +1223,12 @@ const RequireSetting = (value: any) => {
     loginUsername: loginUsername.value,
     loginPassword: loginPassword.value,
     license_id: license_id.value,
-    tokenKind: tokenKind.value,
+    getTokenPassword: getTokenPassword.value,
+    containerName: containerName.value,
     autoToken_url: autoToken_url.value,
     whitelist: whitelist.value,
     validation: validation,
+    tls: tls,
   };
 
   fetch("/api/requireSetting", {
@@ -1439,11 +1486,12 @@ const reNew = (row: User) => {
     password: row.password,
   };
 
-  fetch("/api/updateToken", {
+  fetch("/api/updateSessionToken", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`, // 确保 token 变量已定义
+      // 确保 token 变量已定义
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(api),
   })
@@ -1457,21 +1505,7 @@ const reNew = (row: User) => {
       if (data != null && data != "") {
         if (data.data != null) {
           row.token = data.data;
-          const now: Date = new Date();
-          const formattedTime = `${now.getFullYear()}-${(now.getMonth() + 1)
-            .toString()
-            .padStart(2, "0")}-${now
-            .getDate()
-            .toString()
-            .padStart(2, "0")} ${now
-            .getHours()
-            .toString()
-            .padStart(2, "0")}:${now
-            .getMinutes()
-            .toString()
-            .padStart(2, "0")}:${now.getSeconds().toString().padStart(2, "0")}`;
-
-          row.updateTime = formattedTime;
+          onSearch("");
           ElMessageBox.alert("更新成功!", "温馨提醒", {
             confirmButtonText: "OK",
             callback: () => {
@@ -1492,6 +1526,61 @@ const reNew = (row: User) => {
   loadingInstance.close();
 };
 
+const review = (row: User) => {
+  const loadingInstance = ElLoading.service({ fullscreen: true });
+  console.log(row);
+  console.log(row.token);
+  const api = {
+    name: row.name,
+    token: row.token,
+    username: row.username,
+    userPassword: row.userPassword,
+    shared: row.shared,
+    show_user_info: row.show_user_info,
+    plus: row.plus,
+    password: row.password,
+  };
+
+  fetch("/api/updateToken", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      // 确保 token 变量已定义
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(api),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      if (data != null && data != "") {
+        if (data.data != null) {
+          row.share_token = data.data.share_token;
+          row.access_token = data.data.access_token;
+          onSearch("");
+          ElMessageBox.alert("更新成功!", "温馨提醒", {
+            confirmButtonText: "OK",
+            callback: () => {
+              ElMessage({
+                type: "info",
+                message: "感谢Pandora大佬！",
+              });
+            },
+          });
+        } else {
+          ElMessage(data.msg);
+        }
+      }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+  loadingInstance.close();
+};
 /**
  * 删除Token函数
  * 参数 user
@@ -1560,7 +1649,7 @@ const formatDate = (value: User) => {
  * 更改Token显示操作
  */
 const dataToken = (value: string) => {
-  return value.substring(0, 40) + "...";
+  return value.substring(0, 30) + "...";
 };
 
 /**
@@ -1660,6 +1749,12 @@ const logout = () => {
   overflow-x: hidden;
 }
 .showDialog {
+  height: 77.8vh;
+  overflow-y: auto;
+  /* 显示垂直滚动条 */
+  overflow-x: hidden;
+}
+.requirePandora{
   height: 77.8vh;
   overflow-y: auto;
   /* 显示垂直滚动条 */

@@ -39,6 +39,17 @@ public class apiController {
 
     private apiService apiService;
 
+    /**
+     * 部署方法
+     */
+    @Value("${deployWay}")
+    private String deployWay;
+
+    /**
+     * 重载接口
+     */
+    private final static String reloadUrl = "/setup/api/reload";
+
     @Autowired
     public void setSystemService(apiService apiService) {
         this.apiService = apiService;
@@ -59,6 +70,22 @@ public class apiController {
         } catch (Exception e) {
             e.printStackTrace();
             return Result.error("获取失败");
+        }
+    }
+
+    @GetMapping("seletePoolToken")
+    public Result seleteToken(){
+        try {
+            String res = autoTokenController.getPoolToken();
+            if(res != null){
+                return Result.success(res);
+            }
+            else{
+                return Result.error("获取pool_token失败，请检查是否生成!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error("获取pool_token失败");
         }
     }
 
@@ -124,8 +151,12 @@ public class apiController {
             return Result.error("删除失败");
         }
     }
-    @Value("${deployWay}")
-    private String deployWay;
+
+
+
+
+
+
     /**
      * @return 通过访问restart，重启PandoraNext服务
      */
@@ -237,7 +268,7 @@ public class apiController {
             log.info("重载的PandoraNext服务Url:"+baseUrlWithoutPath);
             String setup_password = systemSetting.getSetup_password();
             String reloadCommand = "curl -H \"Authorization: Bearer "
-                    + setup_password + "\" -X POST \"" + baseUrlWithoutPath + "/setup/reload\"";
+                    + setup_password + "\" -X POST \"" + baseUrlWithoutPath + reloadUrl + "\"";
             // 执行重载进程的命令
             Process reloadProcess = executeCommand(reloadCommand);
             log.info("重载命令:"+reloadCommand);

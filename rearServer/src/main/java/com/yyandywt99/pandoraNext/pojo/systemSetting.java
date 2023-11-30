@@ -13,10 +13,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class systemSetting {
     /**
-     * 模式类型
-     */
-    private String server_mode;
-    /**
      * 绑定IP和端口
      */
     private String bing;
@@ -90,7 +86,21 @@ public class systemSetting {
     /**
      * PandoraNext tls证书
      */
-
     private tls tls;
+
+    /**
+     * PandoraNext config.json位置
+     */
+    private String configPosition;
+
+    /**
+     * PandoraNext 接口地址添加前缀
+     */
+    private String isolated_conv_title;
+
+    /**
+     * PandoraNext 会话标题
+     */
+    private String proxy_api_prefix;
 
 }

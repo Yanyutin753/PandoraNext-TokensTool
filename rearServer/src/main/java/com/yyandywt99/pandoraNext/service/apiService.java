@@ -26,4 +26,6 @@ public interface apiService {
     String getIp();
 
     String autoUpdateSessionToken(token token);
+
+    String toUpdatePoolToken(String poolToken);
 }

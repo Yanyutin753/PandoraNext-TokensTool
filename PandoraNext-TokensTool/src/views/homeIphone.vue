@@ -51,6 +51,12 @@
         <el-menu-item index="2-4" @click="reloadPandora"
           >重载{{ containerName }}</el-menu-item
         >
+        <el-menu-item index="2-4" @click="updateAllShareToken"
+          >全部生成share_token</el-menu-item
+        >
+        <el-menu-item index="2-4" @click="updatePoolToken"
+          >更新pool_token</el-menu-item
+        >
         <el-menu-item index="2-5" @click="logout">退出登录</el-menu-item>
       </el-sub-menu>
     </el-menu>
@@ -181,7 +187,7 @@
             </el-table-column>
 
             <!-- 操作方法表 宽300 方法handleEdit-->
-            <el-table-column label="操作方法" width="315">
+            <el-table-column label="操作方法" width="335">
               <!-- 编辑操作按钮 -->
               <template #default="scope">
                 <el-button
@@ -237,7 +243,7 @@
             <a href="https://ai.fakeopen.com/auth">Pandora地址</a>
             欢迎大家来扩展
             <a href="https://github.com/Yanyutin753/PandoraNext-TokensTool"
-              >pandoraNext-TokensTool v0.3.2
+              >pandoraNext-TokensTool v0.4.4
             </a>
           </h2>
         </div>
@@ -542,6 +548,16 @@
             :readonly="true"
           />
           <br />
+          <van-field
+            v-model="temPoolToken"
+            label="pool_token"
+            type="textarea"
+            maxlength="200"
+            placeholder="请填写OpenAi的pool_token"
+            show-word-limit
+            :readonly="true"
+          />
+          <br />
         </van-cell-group>
         <br />
       </van-form>
@@ -564,11 +580,18 @@
         <van-cell-group inset>
           <br />
           <van-field
-            v-model="server_mode"
-            name="模式"
-            label="模式"
-            placeholder="web或proxy"
+            v-model="proxy_api_prefix"
+            name="接口前缀"
+            label="接口前缀"
+            placeholder="不少于8位，且同时包含数字和字母"
             :rules="[{ validator: customValidator }]"
+          />
+          <br />
+          <van-field
+            v-model="isolated_conv_title"
+            name="对话标题"
+            label="对话标题"
+            placeholder="隔离对话设置标题"
           />
           <br />
           <van-field
@@ -868,9 +891,8 @@ interface User {
 /**
  * 修改系统设置信息
  */
-const server_mode = ref("web");
-const verify_time = ref(60);
-const verifyEnabled = ref(true);
+const proxy_api_prefix = ref("tokensTool01");
+const isolated_conv_title = ref("*");
 const bing = ref("");
 const timeout = ref("");
 const proxy_url = ref("");
@@ -900,11 +922,14 @@ const oai_password = ref(false);
 
 // 自定义校验函数，直接返回错误提示
 const customValidator = (value: string) => {
-  if (["web", "proxy"].includes(value)) {
-    return true;
-  } else {
-    return `此项只能填web或proxy`;
-  }
+    // 至少8位，包含数字和字母
+    const regex = /^(?=.*\d)(?=.*[a-zA-Z]).{8,}$/;
+
+    if (regex.test(value)) {
+        return true;
+    } else {
+        return "此项至少要包含8位且必须包含数字和字母";
+    }
 };
 
 /**
@@ -914,6 +939,7 @@ const temName = ref("");
 const temToken = ref("");
 const temAccessToken = ref("");
 const temShareToken = ref("");
+const temPoolToken = ref("");
 const temUsername = ref("");
 const temUserPassword = ref("");
 const temShared = ref(false);
@@ -1022,6 +1048,14 @@ const fetchDataAndFillForm = async (value: string) => {
       // 将用户数据添加到tableData
       tableData.value = resUsers;
 
+      const response_pool = await axios.get(
+        `/api/seletePoolToken`,
+        {
+          headers,
+        }
+      );
+      temPoolToken.value = response_pool.data.data;
+
       const response = await axios.get(
         `/api/selectSetting`,
         {
@@ -1030,24 +1064,23 @@ const fetchDataAndFillForm = async (value: string) => {
       );
       const data = response.data.data;
       console.log(data);
-      server_mode.value = data.server_mode;
+      proxy_api_prefix.value = data.proxy_api_prefix;
+      isolated_conv_title.value = data.isolated_conv_title;
       bing.value = data.bing;
       timeout.value = data.timeout;
       proxy_url.value = data.proxy_url;
       public_share.value = data.public_share;
-      
+
       enabled.value = data.tls.enabled;
       cert_file.value = data.tls.cert_file;
       key_file.value = data.tls.key_file;
-      
+
       site_password.value = data.site_password;
       setup_password.value = data.setup_password;
       console.log(data.whitelist);
       if (data.whitelist == null) {
         whitelist.value = "null";
       } else whitelist.value = data.whitelist;
-      verify_time.value = data.verify_time;
-      verifyEnabled.value = data.verifyEnabled;
       loginUsername.value = data.loginUsername;
       loginPassword.value = data.loginPassword;
       license_id.value = data.license_id;
@@ -1179,9 +1212,9 @@ const showData = (row: User) => {
   temUsername.value = row.username;
   temUserPassword.value = row.userPassword;
   temToken.value = row.token;
-  (temAccessToken.value = row.access_token),
-    (temShareToken.value = row.share_token),
-    (temShared.value = row.shared);
+  temAccessToken.value = row.access_token;
+  temShareToken.value = row.share_token;
+  temShared.value = row.shared;
   temShow_user_info.value = row.show_user_info;
   temPlus.value = row.plus;
   temPassword.value = row.password;
@@ -1225,9 +1258,8 @@ const RequireSetting = (value: any) => {
     oai_password: oai_password.value,
   };
   const setting = {
-    server_mode: server_mode.value,
-    verify_time: verify_time.value,
-    verifyEnabled: verifyEnabled.value,
+    proxy_api_prefix: proxy_api_prefix.value,
+    isolated_conv_title: isolated_conv_title.value,
     bing: bing.value,
     timeout: timeout.value,
     proxy_url: proxy_url.value,
@@ -1457,17 +1489,47 @@ const reloadPandora = async () => {
 };
 
 /**
- * 验证pandora函数
+ * 更新pool_token
  */
-const verifyPandora = async () => {
+const updatePoolToken = async () => {
   const loadingInstance = ElLoading.service({ fullscreen: true });
-  const response = await axios.get(`/api/verify`, {
+  const response = await axios.get(`/api/updatePoolToken`, {
     headers,
   });
   const data = response.data.data;
+  temPoolToken.value = data;
   console.log(data);
   if (data != null && data != "") {
-    ElMessageBox.alert(data, "温馨提醒", {
+    ElMessageBox.alert("更新pool_token成功", "温馨提醒", {
+      confirmButtonText: "OK",
+      callback: () => {
+        ElMessage({
+          type: "info",
+          message: "感谢Pandora大佬！",
+        });
+      },
+    });
+  } else {
+    ElMessage(response.data.msg);
+  }
+  loadingInstance.close();
+};
+
+
+/**
+ * 一键全生成
+ */
+ const updateAllShareToken = async () => {
+  const loadingInstance = ElLoading.service({ fullscreen: true });
+  const response = await axios.get(`/api/updateAllToken`, {
+    headers,
+  });
+  const data = response.data.data;
+  temPoolToken.value = data;
+  console.log(data);
+  if (data != null && data != "") {
+    onSearch("");
+    ElMessageBox.alert("data", "温馨提醒", {
       confirmButtonText: "OK",
       callback: () => {
         ElMessage({
@@ -1539,6 +1601,8 @@ const reNew = (row: User) => {
     });
   loadingInstance.close();
 };
+
+
 
 const review = (row: User) => {
   const loadingInstance = ElLoading.service({ fullscreen: true });

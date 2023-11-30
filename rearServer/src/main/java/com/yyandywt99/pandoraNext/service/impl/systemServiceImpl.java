@@ -31,6 +31,7 @@ public class systemServiceImpl implements systemService {
     private String deployPosition;
     private String deploy = "default";
 
+
     public String selectFile(){
         String projectRoot;
         if(deploy.equals(deployPosition)){
@@ -90,10 +91,12 @@ public class systemServiceImpl implements systemService {
             updateJsonValue(jsonObject,"license_id",tem.getLicense_id());
             updateJsonValue(jsonObject,"loginUsername",tem.getLoginUsername());
             updateJsonValue(jsonObject,"loginPassword",tem.getLoginPassword());
-            updateJsonValue(jsonObject,"server_mode",tem.getServer_mode());
             updateJsonValue(jsonObject,"autoToken_url",tem.getAutoToken_url());
             updateJsonValue(jsonObject,"getTokenPassword",tem.getGetTokenPassword());
             updateJsonValue(jsonObject,"containerName",tem.getContainerName());
+
+            updateJsonValue(jsonObject,"isolated_conv_title",tem.getIsolated_conv_title());
+            updateJsonValue(jsonObject,"proxy_api_prefix",tem.getProxy_api_prefix());
 
             // validation
             validation validation = tem.getValidation();
@@ -139,6 +142,7 @@ public class systemServiceImpl implements systemService {
      * @return systemSettings类
      */
     public systemSetting selectSetting(){
+        boolean exist = true;
         String parent = selectFile();
         try {
             // 读取 JSON 文件内容
@@ -160,36 +164,36 @@ public class systemServiceImpl implements systemService {
             } catch (JSONException e) {
                 jsonObject.put("loginUsername", "root");
                 log.info("config.json没有新增loginUsername参数,现已增加！");
+                exist = false;
             }
             try {
                 jsonObject.getString("loginPassword");
             } catch (JSONException e) {
                 jsonObject.put("loginPassword", "123456");
                 log.info("config.json没有新增loginPassword参数,现已增加！");
+                exist = false;
             }
             try {
                 jsonObject.getString("license_id");
             } catch (JSONException e) {
                 jsonObject.put("license_id", "");
                 log.info("config.json没有新增license_id参数,现已增加！");
+                exist = false;
             }
-            try {
-                jsonObject.getString("server_mode");
-            } catch (JSONException e) {
-                jsonObject.put("server_mode", "web");
-                log.info("config.json没有新增server_mode参数,现已增加！");
-            }
+
             try {
                 jsonObject.getString("autoToken_url");
             } catch (JSONException e) {
                 jsonObject.put("autoToken_url", "default");
                 log.info("config.json没有新增autoToken_url参数,现已增加！");
+                exist = false;
             }
             try {
                 jsonObject.getString("getTokenPassword");
             } catch (JSONException e) {
                 jsonObject.put("getTokenPassword", "123456");
                 log.info("config.json没有新增getTokenPassword参数,现已增加！");
+                exist = false;
             }
 
             try {
@@ -197,9 +201,25 @@ public class systemServiceImpl implements systemService {
             } catch (JSONException e) {
                 jsonObject.put("containerName", "PandoraNext");
                 log.info("config.json没有新增containerName参数,现已增加！");
+                exist = false;
             }
 
-            config.setServer_mode(jsonObject.getString("server_mode"));
+            try {
+                jsonObject.getString("isolated_conv_title");
+            } catch (JSONException e) {
+                jsonObject.put("isolated_conv_title", "*");
+                log.info("config.json没有新增isolated_conv_title参数,现已增加！");
+                exist = false;
+            }
+
+            try {
+                jsonObject.getString("proxy_api_prefix");
+            } catch (JSONException e) {
+                jsonObject.put("proxy_api_prefix", "tokensTool01");
+                log.info("config.json没有新增proxy_api_prefix参数,现已增加！");
+                exist = false;
+            }
+
             config.setLoginUsername(jsonObject.getString("loginUsername"));
             config.setLoginPassword(jsonObject.getString("loginPassword"));
             config.setLicense_id(jsonObject.getString("license_id"));
@@ -207,12 +227,15 @@ public class systemServiceImpl implements systemService {
             config.setGetTokenPassword(jsonObject.getString("getTokenPassword"));
             config.setContainerName(jsonObject.getString("containerName"));
 
+            // 4.0
+            config.setIsolated_conv_title(jsonObject.getString("isolated_conv_title"));
+            config.setProxy_api_prefix(jsonObject.getString("proxy_api_prefix"));
+
             boolean validationExist = true;
             // 获取 captcha 相关属性
             JSONObject captchaJson = jsonObject.optJSONObject("captcha");
             if (captchaJson == null ) {
                 captchaJson = new JSONObject();
-                validationExist = false;
             }
             validation captchaSetting = new validation(
                     captchaJson.optString("provider", ""),
@@ -223,12 +246,6 @@ public class systemServiceImpl implements systemService {
                     captchaJson.optBoolean("oai_username", false),
                     captchaJson.optBoolean("oai_password", false)
             );
-            if(validationExist == false){
-                jsonObject.put("captcha", captchaSetting.toJSONObject());
-                // 将修改后的 JSONObject 转换为格式化的 JSON 字符串
-                String updatedJson = jsonObject.toString(2);
-                Files.write(Paths.get(parent), updatedJson.getBytes());
-            }
             config.setValidation(captchaSetting);
 
             // 获取 tls 相关属性
@@ -243,13 +260,22 @@ public class systemServiceImpl implements systemService {
                     tlsJson.optString("cert_file", ""),
                     tlsJson.optString("key_file", "")
             );
+            config.setTls(tlsSetting);
+
+
             if(tlsExist == false){
                 jsonObject.put("tls", tlsSetting.toJSONObject());
+                exist = false;
+            }
+            if(validationExist == false){
+                jsonObject.put("captcha", captchaSetting.toJSONObject());
+                exist = false;
+            }
+            if(exist == false){
                 // 将修改后的 JSONObject 转换为格式化的 JSON 字符串
                 String updatedJson = jsonObject.toString(2);
                 Files.write(Paths.get(parent), updatedJson.getBytes());
             }
-            config.setTls(tlsSetting);
             return config;
         } catch (Exception e) {
             e.printStackTrace();

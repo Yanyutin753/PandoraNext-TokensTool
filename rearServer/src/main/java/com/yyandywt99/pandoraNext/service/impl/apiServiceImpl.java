@@ -28,10 +28,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Yangyang
@@ -61,7 +58,7 @@ public class apiServiceImpl implements apiService {
     /**
      * 把share_token转化成pool_token
      */
-    private final String poolToken = "";
+    private final String poolToken = "/api/pool/update";
 
     /**
      * 部署路径为默认的话，自动识别jar包路径下的文件
@@ -374,7 +371,7 @@ public class apiServiceImpl implements apiService {
         if(systemSetting.getAutoToken_url().equals("default")){
             String bingUrl = systemSetting.getBing();
             String[] parts = bingUrl.split(":");
-            url = "http://" + getIp() + ":" + parts[1] + loginToken;
+            url = "http://" + getIp() + ":" + parts[1] +"/" + systemSetting.getProxy_api_prefix() +loginToken;
         }
         else{
             url = systemSetting.getAutoToken_url() + loginToken;
@@ -434,7 +431,7 @@ public class apiServiceImpl implements apiService {
         if(systemSetting.getAutoToken_url().equals("default")){
             String bingUrl = systemSetting.getBing();
             String[] parts = bingUrl.split(":");
-            url = "http://" + getIp() + ":" + parts[1] + accessToken;
+            url = "http://" + getIp() + ":" + parts[1] + "/" + systemSetting.getProxy_api_prefix() + accessToken;
         }
         else{
             url = systemSetting.getAutoToken_url() + accessToken;
@@ -490,7 +487,7 @@ public class apiServiceImpl implements apiService {
         if (systemSetting.getAutoToken_url().equals("default")) {
             String bingUrl = systemSetting.getBing();
             String[] parts = bingUrl.split(":");
-            url = "http://" + getIp() + ":" + parts[1] + shareToken;
+            url = "http://" + getIp() + ":" + parts[1] + "/" + systemSetting.getProxy_api_prefix() + shareToken;
         } else {
             url = systemSetting.getAutoToken_url() + shareToken;
         }
@@ -544,6 +541,69 @@ public class apiServiceImpl implements apiService {
             if (shareToken.matches("^(fk-|pk-).*")) {
                 log.info("open_ai_api_key 被更新为: " + shareToken);
                 return shareToken;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public String getPoolToken(String pool_token) {
+        String url;
+        systemSetting systemSetting = systemService.selectSetting();
+        if(systemSetting.getAutoToken_url().equals("default")){
+            String bingUrl = systemSetting.getBing();
+            String[] parts = bingUrl.split(":");
+            url = "http://" + getIp() + ":" + parts[1] + "/" + systemSetting.getProxy_api_prefix() + poolToken;
+        }
+        else{
+            url = systemSetting.getAutoToken_url() + poolToken;
+        }
+        log.info("将通过这个网址请求登录信息："+url);
+        try {
+            // 创建HttpClient实例
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            // 创建HttpPost请求
+            HttpPost httpPost = new HttpPost(url);
+
+            // 使用MultipartEntityBuilder构建表单数据
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            List<token> tokens = seleteToken("");
+            StringBuffer resToken = new StringBuffer();
+            for(token token : tokens){
+                if(token.getShare_token() != null ){
+                    resToken.append(token.getShare_token()+"\n");
+                }
+            }
+            log.info("更新之前pool_token为："+pool_token);
+            builder.addTextBody("share_tokens", resToken.toString(), ContentType.TEXT_PLAIN);
+            builder.addTextBody("pool_token",pool_token, ContentType.TEXT_PLAIN);
+            // 设置请求实体
+            httpPost.setEntity(builder.build());
+            // 执行HTTP请求
+            HttpResponse response = httpClient.execute(httpPost);
+            log.info(response.toString());
+            int statusCode = response.getStatusLine().getStatusCode();
+            // 获得响应数据
+            String responseContent = EntityUtils.toString(response.getEntity());
+            // 处理响应数据
+            String resPoolToken = null;
+            try {
+                JSONObject jsonResponse = new JSONObject(responseContent);
+                // 提取返回的数据
+                log.info(jsonResponse.toString());
+                resPoolToken = jsonResponse.getString("pool_token");
+                log.info("pool_token更新为："+resPoolToken);
+                httpClient.close();
+            } catch (JSONException e) {
+                e.printStackTrace();
+                httpClient.close();
+            }
+            //关闭进程
+            if (statusCode == 200 && resPoolToken.contains("pk")) {
+                //用来防止请求的token出现问题，回退token值
+                log.info("请求pool_token成功，Url的路径为："+url);
+                return resPoolToken;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -658,6 +718,20 @@ public class apiServiceImpl implements apiService {
             String sessionToken = updateSessionToken(token);
             if(sessionToken != null){
                 return sessionToken;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public String toUpdatePoolToken(String poolToken) {
+        String res;
+        try {
+            res = getPoolToken(poolToken);
+            if(poolToken != null){
+                return res;
             }
         } catch (Exception e) {
             e.printStackTrace();

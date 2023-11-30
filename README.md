@@ -367,6 +367,30 @@ docker-compose up -d
           ]
       }
      ```
+    
+2./pool_token
+   * 请求方式为get
+   * 示例网址：http://ip:8081/pool_token?password=123456
+   * 返回
+     ```
+      {
+          "code": 1,
+          "msg": "success",
+          "data": "pk-L25JirYw2mWiyRqasdasdSCYrnovbHkmXIA7jDUs-Zpug"
+      }
+     ```
+    
+3./token/shared_token
+   * 请求方式为get
+   * 示例网址：http://ip:8081/token/shared_token?password=123456?tokenName=tokenstool
+   * 返回
+     ```
+     {
+       "code": 1,
+       "msg": "success",
+       "data": "fk-I2hsq9weY_NnBm0Fgcsadsasdasdasg9_OFwn7A"
+      }
+     ```
 
 ### 项目遵循相应的开源规则，请自行食用
 

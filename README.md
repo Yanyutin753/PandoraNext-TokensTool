@@ -2,8 +2,6 @@
 
 ## 不准白嫖，请给我免费的star⭐吧，十分感谢！
 
-#### [双开两个PandoraNext的教程](https://github.com/Yanyutin753/two-PandoraNext/tree/main)
-
 ## 简介
 
 [PandoraNext-TokensTool](https://github.com/Yanyutin753/PandoraNext-TokensTool) 是一个基于 [PandoraNext](https://github.com/pandora-next/deploy) 中的便捷添加管理tokens.json和config.josn的工具，旨在更加简便地使用[pandoraNext](https://github.com/pandora-next/deploy)资源，手机端电脑端在线管理PandoraNext,使得可以方便地白嫖 chatGPT，本工具是站在巨人的肩膀上，方便大家，麻烦给个不要钱的星星⭐⭐⭐！
@@ -26,7 +24,7 @@ docker inspect -f '{{range .Mounts}}{{.Destination}}: {{.Source}}{{"\n"}}{{end}}
 
 2. **自动添加删除修改token：** 工具能够自动在 tokens.josn 中添加删除刷新token，简化配置过程。
 
-3. **每五天自动通过openAI账号密码刷新token,更新渠道：** （该功能暂定）工具会每五天自动通过openAI账号密码刷新tokens,重启PandoraNext，方便使用。
+3. **每五天自动通过openAI账号密码刷新share_token,access_token,pool_token** tokensTool工具会每五天自动通过openAI账号密码刷新tokens,重启PandoraNext，方便使用。
 
 4. **通过账号密码添加token**该功能如今恢复正常 ，避免查找繁琐的token
 

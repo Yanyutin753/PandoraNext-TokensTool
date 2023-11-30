@@ -1,4 +1,5 @@
 # PandoraNext-TokensTool
+
 ## 不准白嫖，请给我免费的star⭐吧，十分感谢！
 
 ## 简介
@@ -23,7 +24,7 @@ docker inspect -f '{{range .Mounts}}{{.Destination}}: {{.Source}}{{"\n"}}{{end}}
 
 2. **自动添加删除修改token：** 工具能够自动在 tokens.josn 中添加删除刷新token，简化配置过程。
 
-3. **每五天自动通过openAI账号密码刷新token,更新渠道：** （该功能暂定）工具会每五天自动通过openAI账号密码刷新tokens,重启PandoraNext，方便使用。
+3. **每五天自动通过openAI账号密码刷新share_token,access_token,pool_token** tokensTool工具会每五天自动通过openAI账号密码刷新tokens,重启PandoraNext，方便使用。
 
 4. **通过账号密码添加token**该功能如今恢复正常 ，避免查找繁琐的token
 
@@ -49,9 +50,11 @@ docker inspect -f '{{range .Mounts}}{{.Destination}}: {{.Source}}{{"\n"}}{{end}}
 
 15. **新增一键更新最新版本的PandoraNext和tokensTool**
 
-16. **自动根据token类型，显示不同的时间**
+16. **自动根据token类型，显示不同的时间**（×）
 
 17. **新增特性，只有更新token，才会改token有效期**
+
+18.**新增获取share_token和access_token，并支持修改PandoraNext的证书配置** 
     
 - PandoraNext的热重载改网站密码和热重载密码还是优点bug，建议修改config.json配置文件之后按重启PandoraNext服务
 
@@ -347,6 +350,48 @@ docker-compose up -d
 
 ### 想要二开项目的友友们，可以自行遵循相应的开源规则更改前后端项目，本人小白，项目写的不太好，还请谅解！
 
+
+## 接口
+
+1. 目前写了一个/shared_token接口，可以通过config.json里面的getTokenPassword拿到（默认密码为123456）
+   * 请求方式为get
+   * 示例网址：http://ip:8081/shared_token?password=123456
+   * 返回
+    ```
+     {
+    "code": 1,
+    "msg": "success",
+    "data": [
+              "fk-Yasdasdasdasdasdasd",
+              "fk-ssadasdd asdasdasdasM"
+          ]
+      }
+     ```
+    
+2./pool_token
+   * 请求方式为get
+   * 示例网址：http://ip:8081/pool_token?password=123456
+   * 返回
+     ```
+      {
+          "code": 1,
+          "msg": "success",
+          "data": "pk-L25JirYw2mWiyRqasdasdSCYrnovbHkmXIA7jDUs-Zpug"
+      }
+     ```
+    
+3./token/shared_token
+   * 请求方式为get
+   * 示例网址：http://ip:8081/token/shared_token?password=123456?tokenName=tokenstool
+   * 返回
+     ```
+     {
+       "code": 1,
+       "msg": "success",
+       "data": "fk-I2hsq9weY_NnBm0Fgcsadsasdasdasg9_OFwn7A"
+      }
+     ```
+
 ### 项目遵循相应的开源规则，请自行食用
 
 
@@ -355,7 +400,9 @@ docker-compose up -d
 本项目是站在巨人的肩膀上的，感谢[Pandora](https://github.com/pandora-next/deploy)超级无敌始皇!，欢迎各位来帮助修改本项目，使得本项目变得更方便，更简单！
 
 ## 新增群聊，点了⭐️可以进群讨论部署，无广，广子踢掉
-![5323c0e5136a67e7844fdc70cc54016](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/a298d46d-5fd2-45d8-9e7b-0e4e99d8e289)
+
+![b5c8df8d7121836cc7cb4b957acd3bd](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/fe714766-eed5-4016-a143-518d2ef95cc6)
+
 
 
 ### 请给我一个免费的⭐吧！！！

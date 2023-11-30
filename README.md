@@ -378,7 +378,9 @@ docker-compose up -d
 本项目是站在巨人的肩膀上的，感谢[Pandora](https://github.com/pandora-next/deploy)超级无敌始皇!，欢迎各位来帮助修改本项目，使得本项目变得更方便，更简单！
 
 ## 新增群聊，点了⭐️可以进群讨论部署，无广，广子踢掉
-![5323c0e5136a67e7844fdc70cc54016](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/a298d46d-5fd2-45d8-9e7b-0e4e99d8e289)
+
+![b5c8df8d7121836cc7cb4b957acd3bd](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/fe714766-eed5-4016-a143-518d2ef95cc6)
+
 
 
 ### 请给我一个免费的⭐吧！！！

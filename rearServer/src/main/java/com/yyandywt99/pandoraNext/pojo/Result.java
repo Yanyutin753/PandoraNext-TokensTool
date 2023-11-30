@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Result {
+
     /**
      * 响应码，1 代表成功; 0 代表失败
-
      */
 
     private Integer code;

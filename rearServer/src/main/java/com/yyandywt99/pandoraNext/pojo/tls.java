@@ -15,11 +15,21 @@ import org.json.JSONObject;
 @NoArgsConstructor
 public class tls {
 
+    /**
+     * 是否开启证书
+     */
     private boolean enabled;
 
+    /**
+     * 是否证书文件
+     */
     private String cert_file;
 
+    /**
+     * 是否密钥文件
+     */
     private String key_file;
+
     public JSONObject toJSONObject() throws JSONException {
         JSONObject json = new JSONObject();
         json.put("enabled", this.enabled);

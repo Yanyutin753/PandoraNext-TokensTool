@@ -18,7 +18,6 @@ com\yyandywt99\pandoraNext\service\impl\apiServiceImpl.class
 com\yyandywt99\pandoraNext\service\apiService.class
 com\yyandywt99\pandoraNext\config\TimerScheduleTask.class
 com\yyandywt99\pandoraNext\service\impl\loginServiceImpl.class
-com\yyandywt99\pandoraNext\pojo\addKeyPojo.class
 com\yyandywt99\pandoraNext\pojo\Result.class
 com\yyandywt99\pandoraNext\controller\systemColltroller.class
 com\yyandywt99\pandoraNext\util\JwtUtils.class

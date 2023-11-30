@@ -24,7 +24,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class tokensToolApplication {
 
     public static void main(String[] args) {
-        log.info("PandoraNext-tokensTool v 0.3.2 版本，感谢您的使用！");
+        log.info("PandoraNext-tokensTool v 0.4.4 版本，感谢您的使用！");
         SpringApplication.run(tokensToolApplication.class, args);
     }
 

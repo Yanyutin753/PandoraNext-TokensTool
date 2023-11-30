@@ -1,35 +1,32 @@
 {
   "loginUsername": "root",
-  "verifyEnabled": false,
-  "tokenKind": "session_token",
+  "isolated_conv_title": "*",
   "public_share": false,
   "whitelist": null,
   "server_tokens": true,
-  "verify_time": 6000,
   "timeout": 600,
-  "autoToken_url": "http:\/\/40.121.58.85:8082",
+  "autoToken_url": "default",
   "site_password": "",
-  "bind": "127.0.0.1:8181",
-  "pandoraNext_License": "",
+  "bind": "0.0.0.0:8181",
   "setup_password": "",
   "captcha": {
-    "oai_username": true,
+    "oai_username": false,
     "site_key": "",
     "provider": "",
     "site_secret": "",
-    "setup_login": true,
-    "site_login": true,
-    "oai_password": true
+    "setup_login": false,
+    "site_login": false,
+    "oai_password": false
   },
   "license_id": "",
   "containerName": "PandoraNext",
   "loginPassword": "123456",
-  "server_mode": "web",
   "tls": {
     "key_file": "",
     "cert_file": "",
     "enabled": false
   },
   "proxy_url": "",
+  "proxy_api_prefix": "tokensTool01",
   "getTokenPassword": "123456"
 }

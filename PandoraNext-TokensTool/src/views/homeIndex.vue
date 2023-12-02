@@ -29,10 +29,7 @@
         >
       </el-menu-item>
       <el-menu-item index="2">
-        <a
-          href="https://chat.openai.com/api/auth/session"
-          >OpenAI官网</a
-        >
+        <a href="https://chat.openai.com/api/auth/session">OpenAI官网</a>
       </el-menu-item>
       <el-menu-item index="3">
         <a href="https://ai.fakeopen.com/auth">Pandora地址</a>
@@ -249,12 +246,8 @@
         >
           <h2>
             获取token
-            <a
-              href="https://chat.OpenAI.com/api/auth/session"
-              >官网地址
-            </a>
+            <a href="https://chat.OpenAI.com/api/auth/session">官网地址 </a>
             <a href="https://ai.fakeopen.com/auth">Pandora地址</a>
-            <br />
             欢迎大家来扩展
             <a href="https://github.com/Yanyutin753/PandoraNext-TokensTool"
               >PandoraNext-TokensTool v0.4.6
@@ -533,7 +526,11 @@
           <br />
           <van-field name="switch" label="是否合成poolToken">
             <template #right-icon>
-              <van-switch disabled active-color="#0ea27e" v-model="setPoolToken" />
+              <van-switch
+                disabled
+                active-color="#0ea27e"
+                v-model="setPoolToken"
+              />
             </template>
           </van-field>
           <br />
@@ -1006,8 +1003,9 @@ const addPassword = ref("");
  * 单位%
  */
 
-var y = window.innerHeight * 0.1;
-var x = window.innerWidth * 0.852;
+ var y = window.innerHeight * 0.11;
+var x = window.innerWidth * 0.842;
+
 
 const iconSize = ref(window.innerHeight * 0.1);
 console.log(window.innerHeight.toString());
@@ -1059,7 +1057,7 @@ const onSearch = (value: string) => {
  * 获取数据操作，并把数据返回到tableData
  * 用于展示
  */
- const fetchDataAndFillForm = async (value: string) => {
+const fetchDataAndFillForm = async (value: string) => {
   try {
     const response = await axios.get(`/api/seleteToken?name=${value}`, {
       headers,

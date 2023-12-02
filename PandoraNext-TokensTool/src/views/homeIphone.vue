@@ -55,7 +55,10 @@
           >全部生成share_token</el-menu-item
         >
         <el-menu-item index="2-4" @click="updatePoolToken"
-          >更新pool_token</el-menu-item
+          >刷新pool_token</el-menu-item
+        >
+        <el-menu-item index="2-4" @click="ChangePoolToken"
+          >更换pool_token</el-menu-item
         >
         <el-menu-item index="2-5" @click="logout">退出登录</el-menu-item>
       </el-sub-menu>
@@ -235,15 +238,12 @@
         <div style="text-align: center; transform: translateY(0vh)">
           <h2>
             获取token
-            <a
-              href="https://chat.OpenAI.com/api/auth/session"
-              >官网地址
-            </a>
-            <br />
+            <a href="https://chat.OpenAI.com/api/auth/session">官网地址 </a>
             <a href="https://ai.fakeopen.com/auth">Pandora地址</a>
+            <br />
             欢迎大家来扩展
             <a href="https://github.com/Yanyutin753/PandoraNext-TokensTool"
-              >pandoraNext-TokensTool v0.4.4
+              >PandoraNext-TokensTool v0.4.6
             </a>
           </h2>
         </div>
@@ -305,11 +305,17 @@
               </template>
             </van-field>
           </div>
+          <br />
+          <van-field name="switch" label="是否合成poolToken">
+            <template #right-icon>
+              <van-switch active-color="#0ea27e" v-model="setPoolToken" />
+            </template>
+          </van-field>
           <div v-if="temShared == false">
             <br />
             <van-field
               v-model="temPassword"
-              type="temPassword"
+              type="password"
               name="进入Token的密码"
               label="进入Token的密码"
               placeholder="填了将不会分享给他人！"
@@ -413,11 +419,17 @@
               </van-field>
             </div>
           </div>
+          <br />
+          <van-field name="switch" label="是否合成poolToken">
+            <template #right-icon>
+              <van-switch active-color="#0ea27e" v-model="addSetPoolToken" />
+            </template>
+          </van-field>
           <div v-if="addShared == ''">
             <br />
             <van-field
               v-model="addPassword"
-              type="temPassword"
+              type="password"
               name="进入Token的密码"
               label="进入Token的密码"
               placeholder="填了将不会分享给他人！"
@@ -506,9 +518,18 @@
             </template>
           </van-field>
           <br />
+          <van-field name="switch" label="是否合成poolToken">
+            <template #right-icon>
+              <van-switch
+                disabled
+                active-color="#0ea27e"
+                v-model="setPoolToken"
+              />
+            </template>
+          </van-field>
+          <br />
           <van-field
             v-model="temPassword"
-            type="temPassword"
             name="进入Token的密码"
             label="进入Token的密码"
             placeholder="进入Token的密码"
@@ -635,10 +656,9 @@
               placeholder="密钥文件"
             />
           </div>
-          <br>
+          <br />
           <van-field
             v-model="proxy_url"
-            type="temPassword"
             name="代理服务URL"
             label="代理服务URL"
             placeholder="代理服务URL(选填)"
@@ -648,14 +668,15 @@
             v-model="site_password"
             name="访问网站密码"
             label="访问网站密码"
-            placeholder="访问网站密码(选填)"
+            placeholder="开启proxy失效"
           />
           <br />
           <van-field
             v-model="setup_password"
             name="重载服务密码密码"
             label="重载服务密码密码"
-            placeholder="重载服务密码密码(选填)"
+            placeholder="不少于8位，且同时包含数字和字母"
+            :rules="[{ validator: customValidator }]"
           />
           <br />
           <van-field
@@ -702,7 +723,8 @@
             v-model="loginPassword"
             name="tokensTool密码"
             label="tokensTool密码"
-            placeholder="tokensTool密码"
+            placeholder="不少于8位，且同时包含数字和字母"
+            :rules="[{ validator: customValidator }]"
           />
           <br />
           <van-field
@@ -727,7 +749,8 @@
             v-model="getTokenPassword"
             name="获取token的密码"
             label="获取token的密码"
-            placeholder="默认为123456"
+            placeholder="不少于8位，且同时包含数字和字母"
+            :rules="[{ validator: customValidator }]"
           />
           <br />
           <van-field
@@ -736,6 +759,16 @@
             label="监管的容器名"
             placeholder="默认为PandoraNext"
             :rules="[{ required: true, message: '请填写监管的容器名' }]"
+          />
+          <br />
+          <!-- 4.6 -->
+          <van-field
+            v-model="cookiesSetupPassword"
+            rows="2"
+            type="textarea"
+            name="重载session密码"
+            label="重载session密码"
+            placeholder="_Secure-next-auth.setup-password"
           />
           <br />
         </van-cell-group>
@@ -822,8 +855,6 @@
     </div>
     <br />
   </van-dialog>
-
-  <!------------------------------------------------------------------------------------------------------>
 </template>
 
 
@@ -884,6 +915,7 @@ interface User {
   shared: boolean;
   show_user_info: boolean;
   plus: boolean;
+  setPoolToken: boolean;
   password: string;
   updateTime: string;
 }
@@ -891,7 +923,7 @@ interface User {
 /**
  * 修改系统设置信息
  */
-const proxy_api_prefix = ref("tokensTool01");
+const proxy_api_prefix = ref("");
 const isolated_conv_title = ref("*");
 const bing = ref("");
 const timeout = ref("");
@@ -900,15 +932,16 @@ const public_share = ref(false);
 
 const enabled = ref(false);
 const cert_file = ref("");
-const key_file = ref("")
+const key_file = ref("");
 
 const site_password = ref("");
 const setup_password = ref("");
 const loginUsername = ref("");
 const loginPassword = ref("");
 const license_id = ref("");
-const getTokenPassword = ref("123456");
+const getTokenPassword = ref("");
 const containerName = ref("PandoraNext");
+const cookiesSetupPassword = ref("");
 const autoToken_url = ref("default");
 const whitelist = ref("");
 
@@ -922,14 +955,14 @@ const oai_password = ref(false);
 
 // 自定义校验函数，直接返回错误提示
 const customValidator = (value: string) => {
-    // 至少8位，包含数字和字母
-    const regex = /^(?=.*\d)(?=.*[a-zA-Z]).{8,}$/;
+  // 至少8位，包含数字和字母
+  const regex = /^(?=.*\d)(?=.*[a-zA-Z]).{8,}$/;
 
-    if (regex.test(value)) {
-        return true;
-    } else {
-        return "此项至少要包含8位且必须包含数字和字母";
-    }
+  if (regex.test(value)) {
+    return true;
+  } else {
+    return "此项至少要包含8位且必须包含数字和字母";
+  }
 };
 
 /**
@@ -945,7 +978,8 @@ const temUserPassword = ref("");
 const temShared = ref(false);
 const temShow_user_info = ref(false);
 const temPlus = ref(false);
-const temPassword = ref();
+const temPassword = ref("");
+const setPoolToken = ref(false);
 const tableData = ref<User[]>([]);
 
 /**
@@ -958,6 +992,7 @@ const addTokenValue = ref("");
 const addShared = ref(false);
 const addShow_user_info = ref(false);
 const addPlus = ref(false);
+const addSetPoolToken = ref(false);
 const addPassword = ref("");
 
 /**
@@ -1020,12 +1055,9 @@ const onSearch = (value: string) => {
  */
 const fetchDataAndFillForm = async (value: string) => {
   try {
-    const response = await axios.get(
-      `/api/seleteToken?name=${value}`,
-      {
-        headers,
-      }
-    );
+    const response = await axios.get(`/api/seleteToken?name=${value}`, {
+      headers,
+    });
     const data_token = response.data.data;
     console.log(data_token);
 
@@ -1042,26 +1074,21 @@ const fetchDataAndFillForm = async (value: string) => {
         show_user_info: item.show_user_info,
         password: item.password,
         plus: item.plus,
+        setPoolToken: item.setPoolToken,
         updateTime: item.updateTime,
       }));
 
       // 将用户数据添加到tableData
       tableData.value = resUsers;
 
-      const response_pool = await axios.get(
-        `/api/seletePoolToken`,
-        {
-          headers,
-        }
-      );
+      const response_pool = await axios.get(`/api/seletePoolToken`, {
+        headers,
+      });
       temPoolToken.value = response_pool.data.data;
 
-      const response = await axios.get(
-        `/api/selectSetting`,
-        {
-          headers,
-        }
-      );
+      const response = await axios.get(`/api/selectSetting`, {
+        headers,
+      });
       const data = response.data.data;
       console.log(data);
       proxy_api_prefix.value = data.proxy_api_prefix;
@@ -1086,6 +1113,7 @@ const fetchDataAndFillForm = async (value: string) => {
       license_id.value = data.license_id;
       getTokenPassword.value = data.getTokenPassword;
       containerName.value = data.containerName;
+      cookiesSetupPassword.value = data.cookiesSetupPassword;
       autoToken_url.value = data.autoToken_url;
       provider.value = data.validation.provider;
       site_key.value = data.validation.site_key;
@@ -1098,6 +1126,24 @@ const fetchDataAndFillForm = async (value: string) => {
   } catch (error) {
     console.error("获取数据失败", error);
     ElMessage("获取数据失败");
+  }
+  if (loginPassword.value == "123456" && loginUsername.value == "root") {
+    ElMessageBox.alert(
+      "请先修改默认的初始账号和密码，并填写相应的信息，具体可参考网站文档！",
+      "温馨提醒",
+      {
+        confirmButtonText: "OK",
+        callback: () => {
+          ElMessage({
+            type: "info",
+            message: "感谢Pandora大佬！",
+          });
+        },
+      }
+    );
+    loginPassword.value = "";
+    loginUsername.value = "";
+    show_4.value = true;
   }
 };
 
@@ -1129,6 +1175,7 @@ const handleEdit = (index: number, row: User) => {
   temShow_user_info.value = row.show_user_info;
   temPlus.value = row.plus;
   temPassword.value = row.password;
+  setPoolToken.value = row.setPoolToken;
   show.value = true;
 };
 
@@ -1169,6 +1216,7 @@ const onAddToken = () => {
     shared: addShared.value,
     show_user_info: addShow_user_info.value,
     plus: addPlus.value,
+    setPoolToken: addSetPoolToken.value,
     password: addPassword.value,
     updateTime: formattedTime,
   };
@@ -1218,6 +1266,10 @@ const showData = (row: User) => {
   temShow_user_info.value = row.show_user_info;
   temPlus.value = row.plus;
   temPassword.value = row.password;
+  setPoolToken.value = row.setPoolToken;
+  console.log(row.setPoolToken);
+
+  console.log("asdasdsadsadsadasd");
   show_2.value = true;
 };
 
@@ -1239,7 +1291,7 @@ const RequireSetting = (value: any) => {
   if (whitelist.value == null || whitelist.value == "null") {
     whitelist.value = "";
   }
-  if(enabled.value == false){
+  if (enabled.value == false) {
     cert_file.value = "";
     key_file.value = "";
   }
@@ -1271,6 +1323,7 @@ const RequireSetting = (value: any) => {
     license_id: license_id.value,
     getTokenPassword: getTokenPassword.value,
     containerName: containerName.value,
+    cookiesSetupPassword: cookiesSetupPassword.value,
     autoToken_url: autoToken_url.value,
     whitelist: whitelist.value,
     validation: validation,
@@ -1341,6 +1394,7 @@ const RequireToken = () => {
     shared: temShared.value,
     show_user_info: temShow_user_info.value,
     plus: temPlus.value,
+    setPoolToken: setPoolToken.value,
     password: temPassword.value,
   };
   fetch("/api/requiredToken", {
@@ -1367,6 +1421,7 @@ const RequireToken = () => {
             tableData.value[i].shared = api.shared;
             tableData.value[i].show_user_info = api.show_user_info;
             tableData.value[i].plus = api.plus;
+            tableData.value[i].setPoolToken = api.setPoolToken;
             tableData.value[i].password = api.password;
             if (temRequireToken != temToken.value) {
               tableData.value[i].updateTime = formattedTime;
@@ -1515,11 +1570,37 @@ const updatePoolToken = async () => {
   loadingInstance.close();
 };
 
+/**
+ * 更换pool_token
+ */
+const ChangePoolToken = async () => {
+  const loadingInstance = ElLoading.service({ fullscreen: true });
+  const response = await axios.get(`/api/ChangePoolToken`, {
+    headers,
+  });
+  const data = response.data.data;
+  temPoolToken.value = data;
+  console.log(data);
+  if (data != null && data != "") {
+    ElMessageBox.alert("更换pool_token成功", "温馨提醒", {
+      confirmButtonText: "OK",
+      callback: () => {
+        ElMessage({
+          type: "info",
+          message: "感谢Pandora大佬！",
+        });
+      },
+    });
+  } else {
+    ElMessage(response.data.msg);
+  }
+  loadingInstance.close();
+};
 
 /**
  * 一键全生成
  */
- const updateAllShareToken = async () => {
+const updateAllShareToken = async () => {
   const loadingInstance = ElLoading.service({ fullscreen: true });
   const response = await axios.get(`/api/updateAllToken`, {
     headers,
@@ -1601,8 +1682,6 @@ const reNew = (row: User) => {
     });
   loadingInstance.close();
 };
-
-
 
 const review = (row: User) => {
   const loadingInstance = ElLoading.service({ fullscreen: true });

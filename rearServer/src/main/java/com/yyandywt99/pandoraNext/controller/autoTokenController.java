@@ -3,6 +3,7 @@ package com.yyandywt99.pandoraNext.controller;
 import com.yyandywt99.pandoraNext.anno.Log;
 import com.yyandywt99.pandoraNext.pojo.Result;
 import com.yyandywt99.pandoraNext.pojo.token;
+import com.yyandywt99.pandoraNext.service.systemService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,6 +24,8 @@ public class autoTokenController {
     @Autowired
     private com.yyandywt99.pandoraNext.service.apiService apiService;
 
+    @Autowired
+    private systemService systemService;
 
     public static String getPoolToken() {
         return poolToken;
@@ -129,6 +132,22 @@ public class autoTokenController {
             e.printStackTrace();
         }
         return Result.error("刷新pool_token失败,请尝重新刷新！");
+    }
+
+    @GetMapping("changePoolToken")
+    public Result toChangePoolToken(){
+        try {
+            String temPoolToken = "";
+            String res = apiService.toUpdatePoolToken(temPoolToken);
+            if(! res.equals(temPoolToken)){
+                setPoolToken(res);
+                log.info(poolToken);
+            }
+            return Result.success(res);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Result.error("更换pool_token失败,请尝重新更换！");
     }
 
     @Scheduled(cron = "0 4 0 */5 * ?")

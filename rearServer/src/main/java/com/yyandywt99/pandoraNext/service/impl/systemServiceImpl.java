@@ -95,6 +95,10 @@ public class systemServiceImpl implements systemService {
             updateJsonValue(jsonObject,"getTokenPassword",tem.getGetTokenPassword());
             updateJsonValue(jsonObject,"containerName",tem.getContainerName());
 
+            //4.5
+            //重载cookies密码
+            updateJsonValue(jsonObject,"cookiesSetupPassword",tem.getCookiesSetupPassword());
+
             updateJsonValue(jsonObject,"isolated_conv_title",tem.getIsolated_conv_title());
             updateJsonValue(jsonObject,"proxy_api_prefix",tem.getProxy_api_prefix());
 
@@ -191,7 +195,7 @@ public class systemServiceImpl implements systemService {
             try {
                 jsonObject.getString("getTokenPassword");
             } catch (JSONException e) {
-                jsonObject.put("getTokenPassword", "123456");
+                jsonObject.put("getTokenPassword", "");
                 log.info("config.json没有新增getTokenPassword参数,现已增加！");
                 exist = false;
             }
@@ -201,6 +205,15 @@ public class systemServiceImpl implements systemService {
             } catch (JSONException e) {
                 jsonObject.put("containerName", "PandoraNext");
                 log.info("config.json没有新增containerName参数,现已增加！");
+                exist = false;
+            }
+
+            //4.5
+            try {
+                jsonObject.getString("cookiesSetupPassword");
+            } catch (JSONException e) {
+                jsonObject.put("cookiesSetupPassword", "_Secure-next-auth.setup-password");
+                log.info("config.json没有新增cookiesSetupPassword参数,现已增加！");
                 exist = false;
             }
 
@@ -215,7 +228,7 @@ public class systemServiceImpl implements systemService {
             try {
                 jsonObject.getString("proxy_api_prefix");
             } catch (JSONException e) {
-                jsonObject.put("proxy_api_prefix", "tokensTool01");
+                jsonObject.put("proxy_api_prefix", "");
                 log.info("config.json没有新增proxy_api_prefix参数,现已增加！");
                 exist = false;
             }
@@ -226,6 +239,9 @@ public class systemServiceImpl implements systemService {
             config.setAutoToken_url(jsonObject.getString("autoToken_url"));
             config.setGetTokenPassword(jsonObject.getString("getTokenPassword"));
             config.setContainerName(jsonObject.getString("containerName"));
+
+            //4.5
+            config.setCookiesSetupPassword(jsonObject.getString("cookiesSetupPassword"));
 
             // 4.0
             config.setIsolated_conv_title(jsonObject.getString("isolated_conv_title"));
@@ -283,3 +299,4 @@ public class systemServiceImpl implements systemService {
         return null;
     }
 }
+

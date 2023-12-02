@@ -266,9 +266,9 @@ public class apiController {
                 return Result.error("bind填写有误，无法提取port");
             }
             log.info("重载的PandoraNext服务Url:"+baseUrlWithoutPath);
-            String setup_password = systemSetting.getSetup_password();
-            String reloadCommand = "curl -H \"Authorization: Bearer "
-                    + setup_password + "\" -X POST \"" + baseUrlWithoutPath + reloadUrl + "\"";
+            String cookiesSetupPassword = systemSetting.getCookiesSetupPassword();
+            String reloadCommand = "curl -i -w \"\\n%{http_code}\\n\" -b \"_Secure-next-auth.setup-password="
+                    + cookiesSetupPassword + ";\" -X POST \"" + baseUrlWithoutPath + reloadUrl + "\"";
             // 执行重载进程的命令
             Process reloadProcess = executeCommand(reloadCommand);
             log.info("重载命令:"+reloadCommand);

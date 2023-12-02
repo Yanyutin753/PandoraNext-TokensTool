@@ -134,6 +134,7 @@ public class apiServiceImpl implements apiService {
                     temRes.setShared(temNode.has("shared") ? temNode.get("shared").asBoolean() : false);
                     temRes.setShow_user_info(temNode.has("show_user_info") ? temNode.get("show_user_info").asBoolean() : false);
                     temRes.setPlus(temNode.has("plus") ? temNode.get("plus").asBoolean() : false);
+                    temRes.setSetPoolToken(temNode.has("setPoolToken") ? temNode.get("setPoolToken").asBoolean() : false);
                     temRes.setPassword(temNode.has("password") ? temNode.get("password").asText() : "");
                     temRes.setUpdateTime(temNode.has("updateTime") ? temNode.get("updateTime").asText() : "");
                     res.add(temRes);
@@ -206,12 +207,16 @@ public class apiServiceImpl implements apiService {
             newData.put("shared", token.isShared());
             newData.put("show_user_info", token.isShow_user_info());
             newData.put("plus", token.isPlus());
+            newData.put("setPoolToken",token.isSetPoolToken());
+
+
             // 检查是否需要 TokenPassword
             if (token.getPassword() != null && token.getPassword().length() > 0) {
                 newData.put("password", token.getPassword());
             } else {
                 newData.put("password", "");
             }
+
             LocalDateTime now = LocalDateTime.now();
             newData.put("updateTime", now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             // 将新数据添加到 JSON 树中
@@ -265,6 +270,8 @@ public class apiServiceImpl implements apiService {
                 nodeToModifyInNew.put("shared", tem.isShared());
                 nodeToModifyInNew.put("show_user_info", tem.isShow_user_info());
                 nodeToModifyInNew.put("plus", tem.isPlus());
+                nodeToModifyInNew.put("setPoolToken", tem.isSetPoolToken());
+
                 // 检查是否需要 TokenPassword
                 if (tem.getPassword() != null && tem.getPassword().length() > 0) {
                     nodeToModifyInNew.put("password", tem.getPassword());
@@ -571,7 +578,7 @@ public class apiServiceImpl implements apiService {
             List<token> tokens = seleteToken("");
             StringBuffer resToken = new StringBuffer();
             for(token token : tokens){
-                if(token.getShare_token() != null ){
+                if(token.getShare_token() != null && token.isSetPoolToken() ){
                     resToken.append(token.getShare_token()+"\n");
                 }
             }
@@ -594,6 +601,7 @@ public class apiServiceImpl implements apiService {
                 log.info(jsonResponse.toString());
                 resPoolToken = jsonResponse.getString("pool_token");
                 log.info("pool_token更新为："+resPoolToken);
+                log.info("一共运行了"+jsonResponse.getString("count")+"条share_token");
                 httpClient.close();
             } catch (JSONException e) {
                 e.printStackTrace();

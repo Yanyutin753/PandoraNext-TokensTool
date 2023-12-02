@@ -1,5 +1,6 @@
 package com.yyandywt99.pandoraNext.service.impl;
 
+import com.yyandywt99.pandoraNext.pojo.systemSetting;
 import com.yyandywt99.pandoraNext.service.loginService;
 import com.yyandywt99.pandoraNext.service.systemService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,8 +35,9 @@ public class loginServiceImpl implements loginService {
     @Override
     public String login(String userName, String password) {
         try {
-            String loginUsername = systemService.selectSetting().getLoginUsername();
-            String loginPassword = systemService.selectSetting().getLoginPassword();
+            systemSetting systemSetting = systemService.selectSetting();
+            String loginUsername = systemSetting.getLoginUsername();
+            String loginPassword = systemSetting.getLoginPassword();
             if(userName.equals(loginUsername) && password.equals(loginPassword)){
                 return "登录成功！";
             }

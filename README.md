@@ -32,7 +32,7 @@
 - 现如今只支持账号密码登录，希望大佬能扩充！
 
 #### 初始用户名：root 初始密码值:123456 
-####**(请务必在第一次登录之后修改)**
+#### **(请务必在第一次登录之后修改)**
 
 ------------
 
@@ -76,8 +76,8 @@ curl -fLO "https://dash.pandoranext.com/data/ (uVlk_4ilqs23dfsdfdsfsdfOlgaPdNkgG
 
 ------------
 
-##非一键部署方式
-###环境变量
+## 非一键部署方式
+### 环境变量
 
 - 启动端口号：server.port=8081
 
@@ -229,7 +229,7 @@ docker-compose up -d
 
 ## 接口
 
-1. 目前写了一个/shared_token接口，可以通过config.json里面的getTokenPassword拿到（默认密码为123456）
+1. /shared_token
    * 请求方式为get
    * 示例网址：http://ip:8081/shared_token?password=123456
    * 返回
@@ -244,7 +244,7 @@ docker-compose up -d
       }
      ```
     
-2./pool_token
+2 /pool_token
    * 请求方式为get
    * 示例网址：http://ip:8081/pool_token?password=123456
    * 返回

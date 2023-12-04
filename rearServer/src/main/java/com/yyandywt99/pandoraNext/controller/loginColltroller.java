@@ -1,14 +1,12 @@
 package com.yyandywt99.pandoraNext.controller;
 
 import com.yyandywt99.pandoraNext.pojo.Result;
+import com.yyandywt99.pandoraNext.pojo.systemSetting;
 import com.yyandywt99.pandoraNext.service.loginService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,9 +26,8 @@ public class loginColltroller {
      * @return "jwt令牌！"or"NOT_LOGIN"
      */
     @PostMapping("/login")
-    public Result login(@RequestParam("userName") String userName,
-                        @RequestParam("password") String password) {
-        String res = loginService.login(userName,password);
+    public Result login(@RequestBody systemSetting setting) {
+        String res = loginService.login(setting);
         if(res.contains("登录成功")){
             log.info("登录成功");
             Map<String,Object> chaims = new HashMap<String,Object>();

@@ -9,4 +9,6 @@ import com.yyandywt99.pandoraNext.pojo.systemSetting;
 public interface systemService {
     String requiredSetting(systemSetting tem);
     systemSetting selectSetting();
+
+    String requiredPoolToken(systemSetting setting);
 }

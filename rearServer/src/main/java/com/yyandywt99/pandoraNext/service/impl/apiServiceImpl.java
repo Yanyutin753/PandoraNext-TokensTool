@@ -162,7 +162,7 @@ public class apiServiceImpl implements apiService {
             if (res != null) {
                 token.setToken(res);
             } else {
-                return "添加失败,检查你的账号密码是否正确或FakeOpen服务异常";
+                return "添加失败,检查你的账号密码是否正确或刷新token网址有误！";
             }
         }
         try {

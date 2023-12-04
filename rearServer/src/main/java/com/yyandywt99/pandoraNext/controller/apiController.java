@@ -73,21 +73,21 @@ public class apiController {
         }
     }
 
-    @GetMapping("seletePoolToken")
-    public Result seleteToken(){
-        try {
-            String res = autoTokenController.getPoolToken();
-            if(res != null){
-                return Result.success(res);
-            }
-            else{
-                return Result.error("获取pool_token失败，请检查是否生成!");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Result.error("获取pool_token失败");
-        }
-    }
+//    @GetMapping("seletePoolToken")
+//    public Result seleteToken(){
+//        try {
+//            String res = autoTokenController.getPoolToken();
+//            if(res != null){
+//                return Result.success(res);
+//            }
+//            else{
+//                return Result.error("获取pool_token失败，请检查是否生成!");
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return Result.error("获取pool_token失败");
+//        }
+//    }
 
     /**
      * @param token

@@ -2,6 +2,7 @@ package com.yyandywt99.pandoraNext.controller;
 
 import com.yyandywt99.pandoraNext.anno.Log;
 import com.yyandywt99.pandoraNext.pojo.Result;
+import com.yyandywt99.pandoraNext.pojo.systemSetting;
 import com.yyandywt99.pandoraNext.pojo.token;
 import com.yyandywt99.pandoraNext.service.systemService;
 import lombok.extern.slf4j.Slf4j;
@@ -27,13 +28,6 @@ public class autoTokenController {
     @Autowired
     private systemService systemService;
 
-    public static String getPoolToken() {
-        return poolToken;
-    }
-
-    public static void setPoolToken(String res){
-        poolToken = res;
-    }
     /**
      * 自动更新access_Token和share_token
      * 更换tokens.json里存储的Tokens
@@ -120,12 +114,26 @@ public class autoTokenController {
     @GetMapping("updatePoolToken")
     public Result toUpdatePoolToken(){
         try {
-            String temPoolToken = autoTokenController.getPoolToken();
-            log.info(temPoolToken);
-            String res = apiService.toUpdatePoolToken(temPoolToken);
-            if(! res.equals(temPoolToken)){
-                setPoolToken(res);
-                log.info(poolToken);
+            String temPoolToken = systemService.selectSetting().getPool_token();
+            log.info("temPoolToken: " + temPoolToken);
+            String res;
+            if(temPoolToken != null && temPoolToken.length() > 0){
+                log.info(temPoolToken);
+                res = apiService.toUpdatePoolToken(temPoolToken);
+                log.info("poolToken没有发生改变！");
+                if(! res.equals(temPoolToken)){
+                    systemSetting systemSetting = new systemSetting();
+                    systemSetting.setPool_token(res);
+                    systemService.requiredPoolToken(systemSetting);
+                    log.info("更新为:"+ res);
+                }
+            }
+            else{
+                res = apiService.toUpdatePoolToken("");
+                systemSetting systemSetting = new systemSetting();
+                systemSetting.setPool_token(res);
+                log.info(systemService.requiredPoolToken(systemSetting));;
+                log.info("更新为:"+ res);
             }
             return Result.success(res);
         } catch (Exception e) {
@@ -140,8 +148,10 @@ public class autoTokenController {
             String temPoolToken = "";
             String res = apiService.toUpdatePoolToken(temPoolToken);
             if(! res.equals(temPoolToken)){
-                setPoolToken(res);
-                log.info(poolToken);
+                systemSetting systemSetting = new systemSetting();
+                systemSetting.setPool_token(res);
+                systemService.requiredPoolToken(systemSetting);
+                log.info("更新为:"+poolToken);
             }
             return Result.success(res);
         } catch (Exception e) {
@@ -153,11 +163,13 @@ public class autoTokenController {
     @Scheduled(cron = "0 4 0 */5 * ?")
     public void  autoUpdatePoolToken(){
         try {
-            String temPoolToken = autoTokenController.getPoolToken();
+            String temPoolToken = systemService.selectSetting().getPool_token();
             String res = apiService.toUpdatePoolToken(temPoolToken);
             if(! res.equals(temPoolToken)){
-                setPoolToken(res);
-                log.info("pool token已更新为：" + temPoolToken);
+                systemSetting systemSetting = new systemSetting();
+                systemSetting.setPool_token(res);
+                systemService.requiredPoolToken(systemSetting);
+                log.info("更新为:"+poolToken);
             }
             log.info("已成功更新pool_token，pool_token保持不变");
         } catch (Exception e) {

@@ -29,47 +29,49 @@
         >
       </el-menu-item>
       <el-menu-item index="2">
-        <a href="https://chat.openai.com/api/auth/session">OpenAI官网</a>
+        <a href="https://chat.openai.com/api/auth/session"
+          >OpenAI官网</a
+        >
       </el-menu-item>
       <el-menu-item index="3">
         <a href="https://ai.fakeopen.com/auth">Pandora地址</a>
       </el-menu-item>
       <el-sub-menu index="4">
         <template #title>系统设置</template>
-        <el-menu-item index="1-1" @click="onRequireSetting(pandoraNext)"
+        <el-menu-item index="4-1" @click="onRequireSetting(pandoraNext)"
           >PandoraNext设置</el-menu-item
         >
-        <el-menu-item index="1-2" @click="onRequireSetting(tokensTool)"
+        <el-menu-item index="4-2" @click="onRequireSetting(tokensTool)"
           >tokensTool设置</el-menu-item
         >
-        <el-menu-item index="1-3" @click="onRequireSetting(validation)"
+        <el-menu-item index="4-3" @click="onRequireSetting(validation)"
           >验证码信息设置</el-menu-item
         >
       </el-sub-menu>
       <el-sub-menu index="5">
         <template #title>系统状态</template>
-        <el-menu-item index="4-1" @click="openPandora"
+        <el-menu-item index="5-1" @click="openPandora"
           >开启{{ containerName }}</el-menu-item
         >
-        <el-menu-item index="4-2" @click="closePandora"
+        <el-menu-item index="5-2" @click="closePandora"
           >暂停{{ containerName }}</el-menu-item
         >
-        <el-menu-item index="4-3" @click="AgainPandora"
+        <el-menu-item index="5-3" @click="AgainPandora"
           >重启{{ containerName }}</el-menu-item
         >
-        <el-menu-item index="4-4" @click="reloadPandora"
+        <el-menu-item index="5-4" @click="reloadPandora"
           >重载{{ containerName }}</el-menu-item
         >
-        <el-menu-item index="4-5" @click="updateAllShareToken"
+        <el-menu-item index="5-5" @click="updateAllShareToken"
           >全部生成share_token</el-menu-item
         >
-        <el-menu-item index="4-6" @click="updatePoolToken"
+        <el-menu-item index="5-6" @click="updatePoolToken"
           >刷新pool_token</el-menu-item
         >
-        <el-menu-item index="4-7" @click="changePoolToken"
+        <el-menu-item index="5-7" @click="changePoolToken"
           >更换pool_token</el-menu-item
         >
-        <el-menu-item index="4-8" @click="logout">退出登录</el-menu-item>
+        <el-menu-item index="5-8" @click="logout">退出登录</el-menu-item>
       </el-sub-menu>
     </el-menu>
     <div style="display: block; transform: translate(5vw, 2.5vh); width=95vw;">
@@ -246,11 +248,14 @@
         >
           <h2>
             获取token
-            <a href="https://chat.OpenAI.com/api/auth/session">官网地址 </a>
+            <a
+              href="https://chat.OpenAI.com/api/auth/session"
+              >官网地址
+            </a>
             <a href="https://ai.fakeopen.com/auth">Pandora地址</a>
             欢迎大家来扩展
             <a href="https://github.com/Yanyutin753/PandoraNext-TokensTool"
-              >PandoraNext-TokensTool v0.4.6
+              >PandoraNext-TokensTool v0.4.7
             </a>
           </h2>
         </div>
@@ -327,7 +332,6 @@
               name="进入Token的密码"
               label="进入Token的密码"
               placeholder="填了将不会分享给他人！"
-              :rules="[{ required: true, message: '如不分享token,则该项必填' }]"
             />
           </div>
           <br />
@@ -361,6 +365,7 @@
     :close-on-click-overlay="true"
     :show-cancel-button="false"
     :show-confirm-button="false"
+    class="addTokenDialog"
   >
     <div style="display: block">
       <van-form @submit="onAddToken()">
@@ -440,7 +445,6 @@
               name="进入Token的密码"
               label="进入Token的密码"
               placeholder="填了将不会分享给他人！"
-              :rules="[{ required: true, message: '如不分享token,则该项必填' }]"
             />
           </div>
           <br />
@@ -606,14 +610,6 @@
         <van-cell-group inset>
           <br />
           <van-field
-            v-model="proxy_api_prefix"
-            name="接口前缀"
-            label="接口前缀"
-            placeholder="不少于8位，且同时包含数字和字母"
-            :rules="[{ validator: customValidator }]"
-          />
-          <br />
-          <van-field
             v-model="isolated_conv_title"
             name="对话标题"
             label="对话标题"
@@ -669,19 +665,12 @@
             placeholder="代理服务URL(选填)"
           />
           <br />
+          <!-- 4.5 -->
           <van-field
-            v-model="site_password"
-            name="访问网站密码"
-            label="访问网站密码"
-            placeholder="开启proxy失效"
-          />
-          <br />
-          <van-field
-            v-model="setup_password"
-            name="重载服务密码密码"
-            label="重载服务密码密码"
-            placeholder="不少于8位，且同时包含数字和字母"
-            :rules="[{ validator: customValidator }]"
+            v-model="cookiesSetupPassword"
+            name="重载session密码"
+            label="重载session密码"
+            placeholder="_Secure-next-auth.setup-password"
           />
           <br />
           <van-field
@@ -733,14 +722,11 @@
           />
           <br />
           <van-field
-            rows="3"
-            type="textarea"
-            maxlength="500"
-            show-word-limit
-            v-model="license_id"
-            name="验证licenseId"
-            label="验证licenseId"
-            placeholder="验证licenseId(复制github的命令)"
+            v-model="proxy_api_prefix"
+            name="接口前缀"
+            label="接口前缀"
+            placeholder="不少于8位，且同时包含数字和字母"
+            :rules="[{ validator: customValidator }]"
           />
           <br />
           <van-field
@@ -766,12 +752,28 @@
             :rules="[{ required: true, message: '请填写监管的容器名' }]"
           />
           <br />
-          <!-- 4.5 -->
           <van-field
-            v-model="cookiesSetupPassword"
-            name="重载session密码"
-            label="重载session密码"
-            placeholder="_Secure-next-auth.setup-password"
+            v-model="site_password"
+            name="访问网站密码"
+            label="访问网站密码"
+            placeholder="建议开启访问网站密码"
+          />
+          <br />
+          <van-field
+            v-model="setup_password"
+            name="重载服务密码密码"
+            label="重载服务密码密码"
+            placeholder="不少于8位，且同时包含数字和字母"
+            :rules="[{ validator: customValidator }]"
+          />
+          <br />
+          <van-field
+            maxlength="100"
+            show-word-limit
+            v-model="license_id"
+            name="验证licenseId"
+            label="验证licenseId"
+            placeholder="验证licenseId(复制github的命令)"
           />
           <br />
         </van-cell-group>
@@ -796,7 +798,7 @@
     :close-on-click-overlay="true"
     :show-cancel-button="false"
     :show-confirm-button="false"
-    class="requireSettingDialog"
+    class="verify"
   >
     <div style="display: block">
       <van-form @submit="RequireSetting(validation)">
@@ -886,7 +888,7 @@ const validation = 2;
  * router 切换页面
  */
 const router = useRouter();
-if (window.innerWidth <= 800) {
+if (window.innerWidth <= 700) {
   router.replace("/iphone");
 }
 /**
@@ -1003,9 +1005,8 @@ const addPassword = ref("");
  * 单位%
  */
 
- var y = window.innerHeight * 0.11;
+var y = window.innerHeight * 0.11;
 var x = window.innerWidth * 0.842;
-
 
 const iconSize = ref(window.innerHeight * 0.1);
 console.log(window.innerHeight.toString());
@@ -1059,9 +1060,12 @@ const onSearch = (value: string) => {
  */
 const fetchDataAndFillForm = async (value: string) => {
   try {
-    const response = await axios.get(`/api/seleteToken?name=${value}`, {
-      headers,
-    });
+    const response = await axios.get(
+      `/api/seleteToken?name=${value}`,
+      {
+        headers,
+      }
+    );
     const data_token = response.data.data;
     console.log(data_token);
 
@@ -1085,14 +1089,12 @@ const fetchDataAndFillForm = async (value: string) => {
       // 将用户数据添加到tableData
       tableData.value = resUsers;
 
-      const response_pool = await axios.get(`/api/seletePoolToken`, {
-        headers,
-      });
-      temPoolToken.value = response_pool.data.data;
-
-      const response = await axios.get(`/api/selectSetting`, {
-        headers,
-      });
+      const response = await axios.get(
+        `/api/selectSetting`,
+        {
+          headers,
+        }
+      );
       const data = response.data.data;
       console.log(data);
       proxy_api_prefix.value = data.proxy_api_prefix;
@@ -1122,6 +1124,10 @@ const fetchDataAndFillForm = async (value: string) => {
       provider.value = data.validation.provider;
       site_key.value = data.validation.site_key;
       site_secret.value = data.validation.site_secret;
+
+      //4.6
+      temPoolToken.value = data.pool_token;
+
       site_login.value = data.validation.site_login;
       setup_login.value = data.validation.setup_login;
       oai_username.value = data.validation.oai_username;
@@ -1246,13 +1252,17 @@ const onAddToken = () => {
       } else {
         ElMessage(data.msg);
       }
+      loadingInstance.close();
+    })
+    .catch((error) => {
+      ElMessage("获取账号出现问题，请检查刷新网址是否正确！");
+      loadingInstance.close();
     });
   temName.value = "";
   temUsername.value = "";
   temUserPassword.value = "";
   temToken.value = "";
   show_1.value = false;
-  loadingInstance.close();
 };
 
 /**
@@ -1348,9 +1358,13 @@ const RequireSetting = (value: any) => {
       if (data.code == 1) {
         console.log(data.data);
         ElMessage(data.data);
-      } else ElMessage(data.msg);
+      } else {
+        ElMessage(data.msg);
+      }
+      loadingInstance.close();
     })
     .catch((error) => {
+      loadingInstance.close();
       console.error("请求requireSetting接口失败", error);
       ElMessage("修改失败！");
     });
@@ -1362,7 +1376,6 @@ const RequireSetting = (value: any) => {
   } else if (value == 2) {
     show_5.value = false;
   }
-  loadingInstance.close();
 };
 /**
  * 修改token函数
@@ -1383,12 +1396,8 @@ const RequireToken = () => {
       .toString()
       .padStart(2, "0")}`;
   }
-  if (temPassword.value != "" && temShared.value === false) {
-    temPlus.value = false;
-    temShow_user_info.value = false;
-  } else if (temShared.value === true || temPassword.value == "") {
+  if (temShared.value === true) {
     temPassword.value = "";
-    temShared.value = true;
   }
   const api = {
     name: temName.value,
@@ -1433,14 +1442,17 @@ const RequireToken = () => {
             break; // 找到匹配的元素后跳出循环
           }
         }
-      } else ElMessage(data.msg);
+      } else {
+        ElMessage(data.msg);
+      }
+      loadingInstance.close();
     })
     .catch((error) => {
+      loadingInstance.close();
       console.error("请求requireToken接口失败", error);
       ElMessage("修改失败！");
     });
   show.value = false;
-  loadingInstance.close();
 };
 
 /**
@@ -1552,9 +1564,12 @@ const reloadPandora = async () => {
  */
 const updatePoolToken = async () => {
   const loadingInstance = ElLoading.service({ fullscreen: true });
-  const response = await axios.get(`/api/updatePoolToken`, {
-    headers,
-  });
+  const response = await axios.get(
+    `/api/updatePoolToken`,
+    {
+      headers,
+    }
+  );
   const data = response.data.data;
   temPoolToken.value = data;
   console.log(data);
@@ -1577,30 +1592,62 @@ const updatePoolToken = async () => {
 /**
  * 更换pool_token
  */
-const ChangePoolToken = async () => {
-  const loadingInstance = ElLoading.service({ fullscreen: true });
-  const response = await axios.get(`/api/ChangePoolToken`, {
-    headers,
-  });
-  const data = response.data.data;
-  temPoolToken.value = data;
-  console.log(data);
-  if (data != null && data != "") {
-    ElMessageBox.alert("更换pool_token成功", "温馨提醒", {
-      confirmButtonText: "OK",
-      callback: () => {
-        ElMessage({
-          type: "info",
-          message: "感谢Pandora大佬！",
-        });
-      },
-    });
-  } else {
-    ElMessage(response.data.msg);
-  }
-  loadingInstance.close();
-};
 
+ const changePoolToken = async () => {
+   ElMessageBox.confirm(
+     '是否需要更换Pool_token的值，并重新刷新?',
+     'Warning',
+     {
+       confirmButtonText: 'yes',
+       cancelButtonText: 'no',
+       type: 'warning',
+      }
+      )
+      .then(async () => {
+        const loadingInstance = ElLoading.service({ fullscreen: true });
+        try {
+        const response = await axios.get(`/api/changePoolToken`, {
+          headers,
+        });
+
+        const data = response.data.data;
+        temPoolToken.value = data;
+        console.log(data);
+
+        if (data != null && data !== "") {
+          ElMessageBox.alert("更新pool_token成功", "温馨提醒", {
+            confirmButtonText: "OK",
+            callback: () => {
+              ElMessage({
+                type: "info",
+                message: "感谢Pandora大佬！",
+              });
+            },
+          });
+        } else {
+          ElMessage(response.data.msg);
+        }
+      } catch (error) {
+        if (axios.isCancel(error)) {
+          console.log("请求被取消");
+        } else {
+          console.error("Error during API request:", error);
+          ElMessage({
+            type: "error",
+            message: "发生错误，请查看控制台获取更多信息。",
+          });
+        }
+      } finally {
+        loadingInstance.close();
+      }
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: '取消更改Pool_Token',
+      })
+    })
+};
 /**
  * 一键全生成
  */
@@ -1680,11 +1727,12 @@ const reNew = (row: User) => {
           ElMessage(data.msg);
         }
       }
+      loadingInstance.close();
     })
     .catch((error) => {
+      loadingInstance.close();
       console.error("Error:", error);
     });
-  loadingInstance.close();
 };
 
 const review = (row: User) => {
@@ -1736,11 +1784,12 @@ const review = (row: User) => {
           ElMessage(data.msg);
         }
       }
+      loadingInstance.close();
     })
     .catch((error) => {
+      loadingInstance.close();
       console.error("Error:", error);
     });
-  loadingInstance.close();
 };
 /**
  * 删除Token函数
@@ -1904,7 +1953,7 @@ const logout = () => {
   overflow-x: hidden;
 }
 .addTokenDialog {
-  height: 64.5vh;
+  height: auto;
   overflow-y: auto;
   /* 显示垂直滚动条 */
   overflow-x: hidden;
@@ -1916,12 +1965,18 @@ const logout = () => {
   overflow-x: hidden;
 }
 .requirePandora {
-  height: 77.8vh;
+  height: auto;
   overflow-y: auto;
   /* 显示垂直滚动条 */
   overflow-x: hidden;
 }
 .requireSettingDialog {
+  height: 77.5vh;
+  overflow-y: auto;
+  /* 显示垂直滚动条 */
+  overflow-x: hidden;
+}
+.verify {
   height: auto;
   overflow-y: auto;
   /* 显示垂直滚动条 */

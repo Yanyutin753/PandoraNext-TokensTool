@@ -33,12 +33,12 @@ public class loginServiceImpl implements loginService {
      * "用户名账号错误"
      */
     @Override
-    public String login(String userName, String password) {
+    public String login(systemSetting setting) {
         try {
             systemSetting systemSetting = systemService.selectSetting();
             String loginUsername = systemSetting.getLoginUsername();
             String loginPassword = systemSetting.getLoginPassword();
-            if(userName.equals(loginUsername) && password.equals(loginPassword)){
+            if(setting.getLoginUsername().equals(loginUsername) && setting.getLoginPassword().equals(loginPassword)){
                 return "登录成功！";
             }
             else {

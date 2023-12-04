@@ -1,5 +1,6 @@
 com\yyandywt99\pandoraNext\service\impl\systemServiceImpl.class
 com\yyandywt99\pandoraNext\pojo\tls.class
+com\yyandywt99\pandoraNext\util\passwordHashing.class
 com\yyandywt99\pandoraNext\config\WebConfig.class
 com\yyandywt99\pandoraNext\service\loginService.class
 com\yyandywt99\pandoraNext\pojo\token.class
@@ -9,6 +10,7 @@ com\yyandywt99\pandoraNext\interceptor\LoginCheckInterceptor.class
 com\yyandywt99\pandoraNext\service\impl\apiServiceImpl.class
 com\yyandywt99\pandoraNext\service\apiService.class
 com\yyandywt99\pandoraNext\config\TimerScheduleTask.class
+com\yyandywt99\pandoraNext\controller\tokenController.class
 com\yyandywt99\pandoraNext\pojo\Result.class
 com\yyandywt99\pandoraNext\util\JwtUtils.class
 com\yyandywt99\pandoraNext\tokensToolApplication.class

@@ -1,6 +1,7 @@
 package com.yyandywt99.pandoraNext.controller;
 
 import com.yyandywt99.pandoraNext.pojo.Result;
+import com.yyandywt99.pandoraNext.pojo.systemSetting;
 import com.yyandywt99.pandoraNext.pojo.token;
 import com.yyandywt99.pandoraNext.service.impl.apiServiceImpl;
 import com.yyandywt99.pandoraNext.service.impl.systemServiceImpl;
@@ -60,13 +61,49 @@ public class tokenController {
 
     }
 
+    @GetMapping("/access_token")
+    public Result getAccessToken(@RequestParam("password") String password){
+        List<String> res = new ArrayList<>();
+        if(password.equals(systemService.selectSetting().getGetTokenPassword())){
+            for (token token : apiService.seleteToken("")) {
+                res.add(token.getAccess_token());
+            }
+            return Result.success(res);
+        }
+        else{
+            return Result.error("Not_Login");
+        }
+    }
+    @GetMapping("/token/access_token")
+    public Result getSimplyAccessToken(@RequestParam("password") String password,
+                                       @RequestParam("tokenName") String tokenName){
+        List<String> res = new ArrayList<>();
+        if(password.equals(systemService.selectSetting().getGetTokenPassword())){
+            for (token token : apiService.seleteToken("")) {
+                if(token.getName().equals(tokenName)){
+                    if(token.getAccess_token() != null){
+                        return Result.success(token.getAccess_token());
+                    }
+                    return Result.error("该tokenName没有存放Access_Token");
+                }
+                res.add(token.getAccess_token());
+            }
+            return Result.error("未找到该tokenName！");
+        }
+        else{
+            return Result.error("Not_Login");
+        }
+
+    }
     @GetMapping("/pool_token")
     public Result getPoolToken(@RequestParam("password") String password){
-        if(password.equals(systemService.selectSetting().getGetTokenPassword())) {
+        systemSetting systemSetting = systemService.selectSetting();
+
+        if(password.equals(systemSetting.getGetTokenPassword())) {
             try {
-                String poolToken = autoTokenController.getPoolToken();
+                String poolToken = systemSetting.getPool_token();
                 if(poolToken != null && poolToken.contains("pk")){
-                    return Result.success(autoTokenController.getPoolToken());
+                    return Result.success(poolToken);
                 }
                 else{
                     return Result.error("该tokensTool没有正确生成pool_Token");

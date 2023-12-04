@@ -102,6 +102,9 @@ public class systemServiceImpl implements systemService {
             updateJsonValue(jsonObject,"isolated_conv_title",tem.getIsolated_conv_title());
             updateJsonValue(jsonObject,"proxy_api_prefix",tem.getProxy_api_prefix());
 
+            // 4.7
+            updateJsonValue(jsonObject,"pool_token",tem.getPool_token());
+
             // validation
             validation validation = tem.getValidation();
             JSONObject captchaJson = jsonObject.getJSONObject("captcha");
@@ -131,10 +134,14 @@ public class systemServiceImpl implements systemService {
     }
 
     private void updateJsonValue(JSONObject jsonObject, String key, Object value) {
+        if(value == null || value.toString().length() == 0) {
+            return;
+        }
         try {
             if (value != null && value.toString().length() > 0) {
                 jsonObject.put(key, value);
-            } else {
+            }
+            else if(value.toString().length() == 0) {
                 jsonObject.put(key, "");
             }
         } catch (JSONException e) {
@@ -233,6 +240,14 @@ public class systemServiceImpl implements systemService {
                 exist = false;
             }
 
+            try {
+                jsonObject.getString("pool_token");
+            } catch (JSONException e) {
+                jsonObject.put("pool_token", "");
+                log.info("config.json没有新增pool_token参数,现已增加！");
+                exist = false;
+            }
+
             config.setLoginUsername(jsonObject.getString("loginUsername"));
             config.setLoginPassword(jsonObject.getString("loginPassword"));
             config.setLicense_id(jsonObject.getString("license_id"));
@@ -246,6 +261,10 @@ public class systemServiceImpl implements systemService {
             // 4.0
             config.setIsolated_conv_title(jsonObject.getString("isolated_conv_title"));
             config.setProxy_api_prefix(jsonObject.getString("proxy_api_prefix"));
+
+            // 4.7
+            config.setPool_token(jsonObject.getString("pool_token"));
+
 
             boolean validationExist = true;
             // 获取 captcha 相关属性
@@ -297,6 +316,25 @@ public class systemServiceImpl implements systemService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public String requiredPoolToken(systemSetting tem) {
+        String parent = selectFile();
+        try {
+            // 读取 JSON 文件内容
+            String jsonContent = new String(Files.readAllBytes(Paths.get(parent)));
+
+            JSONObject jsonObject = new JSONObject(jsonContent);
+            updateJsonValue(jsonObject, "pool_token", tem.getPool_token());
+            // 将修改后的 JSONObject 转换为格式化的 JSON 字符串
+            String updatedJson = jsonObject.toString(2);
+            Files.write(Paths.get(parent), updatedJson.getBytes());
+            return "修改config.json成功，快去重启PandoraNext吧!";
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "修改config.json失败";
     }
 }
 

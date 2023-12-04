@@ -44,8 +44,14 @@
 
 ```
 # 安装git
+
+(Ubuntu)
 sudo apt update
 sudo apt install git
+
+（如Fedora、CentOS等）
+sudo yum update
+sudo yum install git
 
 # 国内
 cd / && git clone https://gitee.com/yangyangEN/tokenTools-sh.git

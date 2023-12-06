@@ -48,7 +48,7 @@ public class apiController {
     /**
      * 重载接口
      */
-    private final static String reloadUrl = "/setup/api/reload";
+    private final static String reloadUrl = "/api/setup/reload";
 
     @Autowired
     public void setSystemService(apiService apiService) {
@@ -62,10 +62,10 @@ public class apiController {
      * @param name
      * @return 通过name获取到（tokens.json）文件里的全部值
      */
-    @GetMapping("seleteToken")
-    public Result seleteToken(@RequestParam("name") String name){
+    @GetMapping("selectToken")
+    public Result selectToken(@RequestParam("name") String name){
         try {
-            List<token> res = apiService.seleteToken(name);
+            List<token> res = apiService.selectToken(name);
             return Result.success(res);
         } catch (Exception e) {
             e.printStackTrace();
@@ -73,21 +73,6 @@ public class apiController {
         }
     }
 
-//    @GetMapping("seletePoolToken")
-//    public Result seleteToken(){
-//        try {
-//            String res = autoTokenController.getPoolToken();
-//            if(res != null){
-//                return Result.success(res);
-//            }
-//            else{
-//                return Result.error("获取pool_token失败，请检查是否生成!");
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return Result.error("获取pool_token失败");
-//        }
-//    }
 
     /**
      * @param token
@@ -151,10 +136,6 @@ public class apiController {
             return Result.error("删除失败");
         }
     }
-
-
-
-
 
 
     /**
@@ -261,17 +242,15 @@ public class apiController {
             systemSetting systemSetting = systemService.selectSetting();
             String bingUrl = systemSetting.getBing();
             String[] parts = bingUrl.split(":");
-            String baseUrlWithoutPath = "http://" + externalIP + ":" + parts[1];
+            String baseUrlWithoutPath = "http://" + externalIP + ":" + parts[1] + "/" +systemSetting.getProxy_api_prefix();
             if (parts.length != 2) {
                 return Result.error("bind填写有误，无法提取port");
             }
             log.info("重载的PandoraNext服务Url:"+baseUrlWithoutPath);
-            String cookiesSetupPassword = systemSetting.getCookiesSetupPassword();
-            String reloadCommand = "curl -i -w \"\\n%{http_code}\\n\" -b \"_Secure-next-auth.setup-password="
-                    + cookiesSetupPassword + ";\" -X POST \"" + baseUrlWithoutPath + reloadUrl + "\"";
+            String reloadCommand = "curl -i -X POST " + baseUrlWithoutPath + reloadUrl;
+            log.info("重载命令:"+reloadCommand);
             // 执行重载进程的命令
             Process reloadProcess = executeCommand(reloadCommand);
-            log.info("重载命令:"+reloadCommand);
             // 等待重载进程完成
             try {
                 int exitCode = reloadProcess.waitFor();

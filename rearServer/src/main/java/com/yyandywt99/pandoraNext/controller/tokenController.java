@@ -30,7 +30,7 @@ public class tokenController {
     public Result getSharedToken(@RequestParam("password") String password){
         List<String> res = new ArrayList<>();
         if(password.equals(systemService.selectSetting().getGetTokenPassword())){
-            for (token token : apiService.seleteToken("")) {
+            for (token token : apiService.selectToken("")) {
                 res.add(token.getShare_token());
             }
             return Result.success(res);
@@ -44,7 +44,7 @@ public class tokenController {
                                        @RequestParam("tokenName") String tokenName){
         List<String> res = new ArrayList<>();
         if(password.equals(systemService.selectSetting().getGetTokenPassword())){
-            for (token token : apiService.seleteToken("")) {
+            for (token token : apiService.selectToken("")) {
                 if(token.getName().equals(tokenName)){
                     if(token.getShare_token() != null){
                         return Result.success(token.getShare_token());
@@ -65,7 +65,7 @@ public class tokenController {
     public Result getAccessToken(@RequestParam("password") String password){
         List<String> res = new ArrayList<>();
         if(password.equals(systemService.selectSetting().getGetTokenPassword())){
-            for (token token : apiService.seleteToken("")) {
+            for (token token : apiService.selectToken("")) {
                 res.add(token.getAccess_token());
             }
             return Result.success(res);
@@ -79,7 +79,7 @@ public class tokenController {
                                        @RequestParam("tokenName") String tokenName){
         List<String> res = new ArrayList<>();
         if(password.equals(systemService.selectSetting().getGetTokenPassword())){
-            for (token token : apiService.seleteToken("")) {
+            for (token token : apiService.selectToken("")) {
                 if(token.getName().equals(tokenName)){
                     if(token.getAccess_token() != null){
                         return Result.success(token.getAccess_token());

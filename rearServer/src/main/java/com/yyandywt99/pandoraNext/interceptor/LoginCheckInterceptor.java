@@ -2,7 +2,6 @@ package com.yyandywt99.pandoraNext.interceptor;
 
 import com.alibaba.fastjson.JSONObject;
 import com.yyandywt99.pandoraNext.pojo.Result;
-import com.yyandywt99.pandoraNext.util.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -15,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 @Component
 public class LoginCheckInterceptor implements HandlerInterceptor {
-    @Override //目标资源方法运行前运行, 返回true: 放行, 放回false, 不放行
+    @Override
     public boolean preHandle(HttpServletRequest req, HttpServletResponse resp, Object handler) throws Exception {
         //1.获取请求url。
         String url = req.getRequestURL().toString();
@@ -43,7 +42,7 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         jwt = jwt.substring(7);
         //5.解析token，如果解析失败，返回错误结果（未登录）。
         try {
-            JwtUtils.parseJWT(jwt);
+            com.yyandywt99.pandoraNext.util.JwtUtils.parseJWT(jwt);
         } catch (Exception e) {//jwt解析失败
             e.printStackTrace();
             log.info("解析令牌失败, 返回未登录错误信息");
@@ -53,13 +52,11 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
             resp.getWriter().write(notLogin);
             return false;
         }
-
-        //6.放行。
         log.info("令牌合法, 放行");
         return true;
     }
 
-    @Override //目标资源方法运行后运行
+    @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         try {
             System.out.println("postHandle ...");
@@ -68,7 +65,7 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         }
     }
 
-    @Override //视图渲染完毕后运行, 最后运行
+    @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         try {
             System.out.println("afterCompletion...");

@@ -1,10 +1,8 @@
 package com.yyandywt99.pandoraNext;
 
-import com.yyandywt99.pandoraNext.config.TaskSchedulerConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
@@ -14,7 +12,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 /**
  * 定时注解
  */
-@Import(TaskSchedulerConfig.class)
 /**
  * 定时注解
  */
@@ -22,9 +19,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @SpringBootApplication
 public class tokensToolApplication {
-
     public static void main(String[] args) {
-        log.info("PandoraNext-tokensTool v 0.4.7 版本，感谢您的使用！");
+        log.info("PandoraNext-tokensTool v 0.4.7.1 版本，修改了jwt的漏洞问题，感谢您的使用！");
         SpringApplication.run(tokensToolApplication.class, args);
     }
 

@@ -2,7 +2,10 @@ package com.yyandywt99.pandoraNext.interceptor;
 
 import com.alibaba.fastjson.JSONObject;
 import com.yyandywt99.pandoraNext.pojo.Result;
+<<<<<<< HEAD
+=======
 import com.yyandywt99.pandoraNext.util.JwtUtils;
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -15,6 +18,10 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 @Component
 public class LoginCheckInterceptor implements HandlerInterceptor {
+<<<<<<< HEAD
+
+=======
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
     @Override //目标资源方法运行前运行, 返回true: 放行, 放回false, 不放行
     public boolean preHandle(HttpServletRequest req, HttpServletResponse resp, Object handler) throws Exception {
         //1.获取请求url。
@@ -43,7 +50,11 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         jwt = jwt.substring(7);
         //5.解析token，如果解析失败，返回错误结果（未登录）。
         try {
+<<<<<<< HEAD
+            com.yyandywt99.pandoraNext.util.JwtUtils.parseJWT(jwt);
+=======
             JwtUtils.parseJWT(jwt);
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
         } catch (Exception e) {//jwt解析失败
             e.printStackTrace();
             log.info("解析令牌失败, 返回未登录错误信息");
@@ -53,8 +64,11 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
             resp.getWriter().write(notLogin);
             return false;
         }
+<<<<<<< HEAD
+=======
 
         //6.放行。
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
         log.info("令牌合法, 放行");
         return true;
     }

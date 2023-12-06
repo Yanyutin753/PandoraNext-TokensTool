@@ -255,7 +255,7 @@
             <a href="https://ai.fakeopen.com/auth">Pandora地址</a>
             欢迎大家来扩展
             <a href="https://github.com/Yanyutin753/PandoraNext-TokensTool"
-              >PandoraNext-TokensTool v0.4.7
+              >PandoraNext-TokensTool v0.4.7.1
             </a>
           </h2>
         </div>
@@ -665,14 +665,6 @@
             placeholder="代理服务URL(选填)"
           />
           <br />
-          <!-- 4.5 -->
-          <van-field
-            v-model="cookiesSetupPassword"
-            name="重载session密码"
-            label="重载session密码"
-            placeholder="_Secure-next-auth.setup-password"
-          />
-          <br />
           <van-field
             v-model="whitelist"
             name="白名单"
@@ -757,6 +749,7 @@
             name="访问网站密码"
             label="访问网站密码"
             placeholder="建议开启访问网站密码"
+            :rules="[{ validator: customValidator }]"
           />
           <br />
           <van-field
@@ -888,9 +881,7 @@ const validation = 2;
  * router 切换页面
  */
 const router = useRouter();
-if (window.innerWidth <= 700) {
-  router.replace("/iphone");
-}
+
 /**
  *   <!-- 添加token信息 主键 名称为show_1 -->
  *   <!-- 添加token信息 主键 名称为show_1 -->
@@ -946,7 +937,6 @@ const loginPassword = ref("");
 const license_id = ref("");
 const getTokenPassword = ref("");
 const containerName = ref("PandoraNext");
-const cookiesSetupPassword = ref("");
 const autoToken_url = ref("default");
 const whitelist = ref("");
 
@@ -1061,7 +1051,7 @@ const onSearch = (value: string) => {
 const fetchDataAndFillForm = async (value: string) => {
   try {
     const response = await axios.get(
-      `/api/seleteToken?name=${value}`,
+      `/api/selectToken?name=${value}`,
       {
         headers,
       }
@@ -1119,7 +1109,6 @@ const fetchDataAndFillForm = async (value: string) => {
       license_id.value = data.license_id;
       getTokenPassword.value = data.getTokenPassword;
       containerName.value = data.containerName;
-      cookiesSetupPassword.value = data.cookiesSetupPassword;
       autoToken_url.value = data.autoToken_url;
       provider.value = data.validation.provider;
       site_key.value = data.validation.site_key;
@@ -1159,6 +1148,9 @@ const fetchDataAndFillForm = async (value: string) => {
 
 // 在组件加载完成后自动触发数据加载和填充
 onMounted(() => {
+  if (window.innerWidth <= 700) {
+    router.replace("/iphone");
+  }
   fetchLoginToken();
   onSearch(value.value);
 });
@@ -1337,7 +1329,6 @@ const RequireSetting = (value: any) => {
     license_id: license_id.value,
     getTokenPassword: getTokenPassword.value,
     containerName: containerName.value,
-    cookiesSetupPassword: cookiesSetupPassword.value,
     autoToken_url: autoToken_url.value,
     whitelist: whitelist.value,
     validation: validation,
@@ -1361,6 +1352,7 @@ const RequireSetting = (value: any) => {
       } else {
         ElMessage(data.msg);
       }
+      fetchLoginToken();
       loadingInstance.close();
     })
     .catch((error) => {
@@ -1593,22 +1585,21 @@ const updatePoolToken = async () => {
  * 更换pool_token
  */
 
- const changePoolToken = async () => {
-   ElMessageBox.confirm(
-     '是否需要更换Pool_token的值，并重新刷新?',
-     'Warning',
-     {
-       confirmButtonText: 'yes',
-       cancelButtonText: 'no',
-       type: 'warning',
-      }
-      )
-      .then(async () => {
-        const loadingInstance = ElLoading.service({ fullscreen: true });
-        try {
-        const response = await axios.get(`/api/changePoolToken`, {
-          headers,
-        });
+const changePoolToken = async () => {
+  ElMessageBox.confirm("是否需要更换Pool_token的值，并重新刷新?", "Warning", {
+    confirmButtonText: "yes",
+    cancelButtonText: "no",
+    type: "warning",
+  })
+    .then(async () => {
+      const loadingInstance = ElLoading.service({ fullscreen: true });
+      try {
+        const response = await axios.get(
+          `/api/changePoolToken`,
+          {
+            headers,
+          }
+        );
 
         const data = response.data.data;
         temPoolToken.value = data;
@@ -1643,10 +1634,10 @@ const updatePoolToken = async () => {
     })
     .catch(() => {
       ElMessage({
-        type: 'info',
-        message: '取消更改Pool_Token',
-      })
-    })
+        type: "info",
+        message: "取消更改Pool_Token",
+      });
+    });
 };
 /**
  * 一键全生成
@@ -1971,7 +1962,7 @@ const logout = () => {
   overflow-x: hidden;
 }
 .requireSettingDialog {
-  height: 77.5vh;
+  height: 76vh;
   overflow-y: auto;
   /* 显示垂直滚动条 */
   overflow-x: hidden;

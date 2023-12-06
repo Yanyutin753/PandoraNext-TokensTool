@@ -104,14 +104,20 @@ public class systemSetting {
     private String proxy_api_prefix;
 
 
+<<<<<<< HEAD
+=======
     /** 4.5
      * PandoraNext 重载session密码
      */
     private String cookiesSetupPassword;
 
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
     /**
      * PandoraNext pool_token
      */
     private String pool_token;
+<<<<<<< HEAD
+=======
 
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
 }

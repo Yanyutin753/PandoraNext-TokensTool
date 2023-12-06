@@ -62,17 +62,11 @@ public class apiController {
      * @param name
      * @return 通过name获取到（tokens.json）文件里的全部值
      */
-<<<<<<< HEAD
+
     @GetMapping("selectToken")
     public Result selectToken(@RequestParam("name") String name){
         try {
             List<token> res = apiService.selectToken(name);
-=======
-    @GetMapping("seleteToken")
-    public Result seleteToken(@RequestParam("name") String name){
-        try {
-            List<token> res = apiService.seleteToken(name);
->>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
             return Result.success(res);
         } catch (Exception e) {
             e.printStackTrace();
@@ -80,24 +74,6 @@ public class apiController {
         }
     }
 
-<<<<<<< HEAD
-=======
-//    @GetMapping("seletePoolToken")
-//    public Result seleteToken(){
-//        try {
-//            String res = autoTokenController.getPoolToken();
-//            if(res != null){
-//                return Result.success(res);
-//            }
-//            else{
-//                return Result.error("获取pool_token失败，请检查是否生成!");
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return Result.error("获取pool_token失败");
-//        }
-//    }
->>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
 
     /**
      * @param token
@@ -162,14 +138,6 @@ public class apiController {
         }
     }
 
-
-<<<<<<< HEAD
-=======
-
-
-
-
->>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
     /**
      * @return 通过访问restart，重启PandoraNext服务
      */
@@ -274,22 +242,14 @@ public class apiController {
             systemSetting systemSetting = systemService.selectSetting();
             String bingUrl = systemSetting.getBing();
             String[] parts = bingUrl.split(":");
-<<<<<<< HEAD
             String baseUrlWithoutPath = "http://" + externalIP + ":" + parts[1] + "/" +systemSetting.getProxy_api_prefix();
-=======
-            String baseUrlWithoutPath = "http://" + externalIP + ":" + parts[1];
->>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
+
             if (parts.length != 2) {
                 return Result.error("bind填写有误，无法提取port");
             }
             log.info("重载的PandoraNext服务Url:"+baseUrlWithoutPath);
-<<<<<<< HEAD
+
             String reloadCommand = "curl -i " + baseUrlWithoutPath + reloadUrl + "\"";
-=======
-            String cookiesSetupPassword = systemSetting.getCookiesSetupPassword();
-            String reloadCommand = "curl -i -w \"\\n%{http_code}\\n\" -b \"_Secure-next-auth.setup-password="
-                    + cookiesSetupPassword + ";\" -X POST \"" + baseUrlWithoutPath + reloadUrl + "\"";
->>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
             // 执行重载进程的命令
             Process reloadProcess = executeCommand(reloadCommand);
             log.info("重载命令:"+reloadCommand);

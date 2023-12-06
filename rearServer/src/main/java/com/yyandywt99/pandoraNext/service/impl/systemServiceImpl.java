@@ -4,10 +4,7 @@ import com.yyandywt99.pandoraNext.pojo.systemSetting;
 import com.yyandywt99.pandoraNext.pojo.tls;
 import com.yyandywt99.pandoraNext.pojo.validation;
 import com.yyandywt99.pandoraNext.service.systemService;
-<<<<<<< HEAD
 import com.yyandywt99.pandoraNext.util.JwtUtils;
-=======
->>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,6 +12,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.ws.rs.HEAD;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -95,28 +93,14 @@ public class systemServiceImpl implements systemService {
             updateJsonValue(jsonObject,"license_id",tem.getLicense_id());
             updateJsonValue(jsonObject,"loginUsername",tem.getLoginUsername());
             updateJsonValue(jsonObject,"loginPassword",tem.getLoginPassword());
-<<<<<<< HEAD
+
             if(tem.getLoginPassword()!= null && tem.getLoginPassword().length() > 0){
                 JwtUtils.setSignKey(tem.getLoginPassword());
             }
 
-
-
-=======
->>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
             updateJsonValue(jsonObject,"autoToken_url",tem.getAutoToken_url());
             updateJsonValue(jsonObject,"getTokenPassword",tem.getGetTokenPassword());
             updateJsonValue(jsonObject,"containerName",tem.getContainerName());
-
-<<<<<<< HEAD
-//            //4.5
-//            //重载cookies密码
-//            updateJsonValue(jsonObject,"cookiesSetupPassword",tem.getCookiesSetupPassword());
-=======
-            //4.5
-            //重载cookies密码
-            updateJsonValue(jsonObject,"cookiesSetupPassword",tem.getCookiesSetupPassword());
->>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
 
             updateJsonValue(jsonObject,"isolated_conv_title",tem.getIsolated_conv_title());
             updateJsonValue(jsonObject,"proxy_api_prefix",tem.getProxy_api_prefix());
@@ -234,25 +218,6 @@ public class systemServiceImpl implements systemService {
                 exist = false;
             }
 
-            //4.5
-<<<<<<< HEAD
-//            try {
-//                jsonObject.getString("cookiesSetupPassword");
-//            } catch (JSONException e) {
-//                jsonObject.put("cookiesSetupPassword", "_Secure-next-auth.setup-password");
-//                log.info("config.json没有新增cookiesSetupPassword参数,现已增加！");
-//                exist = false;
-//            }
-=======
-            try {
-                jsonObject.getString("cookiesSetupPassword");
-            } catch (JSONException e) {
-                jsonObject.put("cookiesSetupPassword", "_Secure-next-auth.setup-password");
-                log.info("config.json没有新增cookiesSetupPassword参数,现已增加！");
-                exist = false;
-            }
->>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
-
             try {
                 jsonObject.getString("isolated_conv_title");
             } catch (JSONException e) {
@@ -279,21 +244,11 @@ public class systemServiceImpl implements systemService {
 
             config.setLoginUsername(jsonObject.getString("loginUsername"));
             config.setLoginPassword(jsonObject.getString("loginPassword"));
-<<<<<<< HEAD
 
-=======
->>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
             config.setLicense_id(jsonObject.getString("license_id"));
             config.setAutoToken_url(jsonObject.getString("autoToken_url"));
             config.setGetTokenPassword(jsonObject.getString("getTokenPassword"));
             config.setContainerName(jsonObject.getString("containerName"));
-
-            //4.5
-<<<<<<< HEAD
-//            config.setCookiesSetupPassword(jsonObject.getString("cookiesSetupPassword"));
-=======
-            config.setCookiesSetupPassword(jsonObject.getString("cookiesSetupPassword"));
->>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
 
             // 4.0
             config.setIsolated_conv_title(jsonObject.getString("isolated_conv_title"));

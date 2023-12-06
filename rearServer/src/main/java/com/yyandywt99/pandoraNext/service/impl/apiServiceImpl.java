@@ -22,18 +22,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Yangyang
@@ -106,7 +101,11 @@ public class apiServiceImpl implements apiService {
      * @return res（List<token> ）
      */
     @Override
+<<<<<<< HEAD
     public List<token> selectToken(String name) {
+=======
+    public List<token> seleteToken(String name) {
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
         List<token> res = new ArrayList<>();
         try {
             String parent = selectFile();
@@ -580,7 +579,11 @@ public class apiServiceImpl implements apiService {
 
             // 使用MultipartEntityBuilder构建表单数据
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+<<<<<<< HEAD
             List<token> tokens = selectToken("");
+=======
+            List<token> tokens = seleteToken("");
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
             StringBuffer resToken = new StringBuffer();
             for(token token : tokens){
                 if(token.getShare_token() != null && token.isSetPoolToken() ){
@@ -660,7 +663,11 @@ public class apiServiceImpl implements apiService {
      * @return "更新成功" or "更新失败"
      */
     public String autoUpdateToken(String name) {
+<<<<<<< HEAD
         List<token> resTokens = selectToken(name);
+=======
+        List<token> resTokens = seleteToken(name);
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
         int newToken = 0;
         for (token token : resTokens) {
             token res = autoUpdateSimpleToken(token);

@@ -238,15 +238,23 @@
         <div style="text-align: center; transform: translateY(0vh)">
           <h2>
             获取token
+<<<<<<< HEAD
             <a
               href="https://chat.OpenAI.com/api/auth/session"
               >官网地址
             </a>
+=======
+            <a href="https://chat.OpenAI.com/api/auth/session">官网地址 </a>
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
             <a href="https://ai.fakeopen.com/auth">Pandora地址</a>
             <br />
             欢迎大家来扩展
             <a href="https://github.com/Yanyutin753/PandoraNext-TokensTool"
+<<<<<<< HEAD
               >PandoraNext-TokensTool v0.4.7.1
+=======
+              >PandoraNext-TokensTool v0.4.7
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
             </a>
           </h2>
         </div>
@@ -598,7 +606,11 @@
     :show-confirm-button="false"
     class="requireSettingDialog"
   >
+<<<<<<< HEAD
     <div style="display: block">
+=======
+  <div style="display: block">
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
       <van-form @submit="RequireSetting(pandoraNext)">
         <van-cell-group inset>
           <br />
@@ -658,6 +670,17 @@
             placeholder="代理服务URL(选填)"
           />
           <br />
+<<<<<<< HEAD
+=======
+          <!-- 4.5 -->
+          <van-field
+            v-model="cookiesSetupPassword"
+            name="重载session密码"
+            label="重载session密码"
+            placeholder="_Secure-next-auth.setup-password"
+          />
+          <br />
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
           <van-field
             v-model="whitelist"
             name="白名单"
@@ -687,7 +710,11 @@
     :show-confirm-button="false"
     class="requireSettingDialog"
   >
+<<<<<<< HEAD
     <div style="display: block">
+=======
+  <div style="display: block">
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
       <van-form @submit="RequireSetting(tokensTool)">
         <van-cell-group inset>
           <br />
@@ -742,7 +769,10 @@
             name="访问网站密码"
             label="访问网站密码"
             placeholder="建议开启访问网站密码"
+<<<<<<< HEAD
             :rules="[{ validator: customValidator }]"
+=======
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
           />
           <br />
           <van-field
@@ -860,6 +890,10 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import { differenceInDays, parseISO } from "date-fns";
 import { ElLoading } from "element-plus";
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
 //加载状态
 const loading = ref(true);
 
@@ -932,6 +966,10 @@ const loginPassword = ref("");
 const license_id = ref("");
 const getTokenPassword = ref("");
 const containerName = ref("PandoraNext");
+<<<<<<< HEAD
+=======
+const cookiesSetupPassword = ref("");
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
 const autoToken_url = ref("default");
 const whitelist = ref("");
 
@@ -1045,12 +1083,18 @@ const onSearch = (value: string) => {
  */
 const fetchDataAndFillForm = async (value: string) => {
   try {
+<<<<<<< HEAD
     const response = await axios.get(
       `/api/selectToken?name=${value}`,
       {
         headers,
       }
     );
+=======
+    const response = await axios.get(`/api/seleteToken?name=${value}`, {
+      headers,
+    });
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
     const data_token = response.data.data;
     console.log(data_token);
 
@@ -1074,12 +1118,18 @@ const fetchDataAndFillForm = async (value: string) => {
       // 将用户数据添加到tableData
       tableData.value = resUsers;
 
+<<<<<<< HEAD
       const response = await axios.get(
         `/api/selectSetting`,
         {
           headers,
         }
       );
+=======
+      const response = await axios.get(`/api/selectSetting`, {
+        headers,
+      });
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
       const data = response.data.data;
       console.log(data);
       proxy_api_prefix.value = data.proxy_api_prefix;
@@ -1104,6 +1154,10 @@ const fetchDataAndFillForm = async (value: string) => {
       license_id.value = data.license_id;
       getTokenPassword.value = data.getTokenPassword;
       containerName.value = data.containerName;
+<<<<<<< HEAD
+=======
+      cookiesSetupPassword.value = data.cookiesSetupPassword;
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
       autoToken_url.value = data.autoToken_url;
       provider.value = data.validation.provider;
       site_key.value = data.validation.site_key;
@@ -1143,9 +1197,12 @@ const fetchDataAndFillForm = async (value: string) => {
 
 // 在组件加载完成后自动触发数据加载和填充
 onMounted(() => {
+<<<<<<< HEAD
   if (window.innerWidth <= 700) {
     router.replace("/iphone");
   }
+=======
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
   fetchLoginToken();
   onSearch(value.value);
 });
@@ -1185,7 +1242,11 @@ const handleEdit = (index: number, row: User) => {
  * 添加token开启函数
  * 类user
  */
+<<<<<<< HEAD
 const addToken = () => {
+=======
+ const addToken = () => {
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
   show_1.value = true;
 };
 
@@ -1329,6 +1390,10 @@ const RequireSetting = (value: any) => {
     license_id: license_id.value,
     getTokenPassword: getTokenPassword.value,
     containerName: containerName.value,
+<<<<<<< HEAD
+=======
+    cookiesSetupPassword: cookiesSetupPassword.value,
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
     autoToken_url: autoToken_url.value,
     whitelist: whitelist.value,
     validation: validation,
@@ -1352,7 +1417,10 @@ const RequireSetting = (value: any) => {
       } else {
         ElMessage(data.msg);
       }
+<<<<<<< HEAD
       fetchLoginToken();
+=======
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
       loadingInstance.close();
     })
     .catch((error) => {
@@ -1585,6 +1653,7 @@ const updatePoolToken = async () => {
  * 更换pool_token
  */
 
+<<<<<<< HEAD
 const changePoolToken = async () => {
   ElMessageBox.confirm("是否需要更换Pool_token的值，并重新刷新?", "Warning", {
     confirmButtonText: "yes",
@@ -1600,6 +1669,24 @@ const changePoolToken = async () => {
             headers,
           }
         );
+=======
+ const changePoolToken = async () => {
+   ElMessageBox.confirm(
+     '是否需要更换Pool_token的值，并重新刷新?',
+     'Warning',
+     {
+       confirmButtonText: 'yes',
+       cancelButtonText: 'no',
+       type: 'warning',
+      }
+      )
+      .then(async () => {
+        const loadingInstance = ElLoading.service({ fullscreen: true });
+        try {
+        const response = await axios.get(`/api/ChangePoolToken`, {
+          headers,
+        });
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
 
         const data = response.data.data;
         temPoolToken.value = data;
@@ -1634,10 +1721,17 @@ const changePoolToken = async () => {
     })
     .catch(() => {
       ElMessage({
+<<<<<<< HEAD
         type: "info",
         message: "取消更改Pool_Token",
       });
     });
+=======
+        type: 'info',
+        message: '取消更改Pool_Token',
+      })
+    })
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
 };
 /**
  * 一键全生成

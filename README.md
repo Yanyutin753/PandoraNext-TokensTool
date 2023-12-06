@@ -44,12 +44,6 @@
 
 ```
 # 安装git
-<<<<<<< HEAD
-sudo apt update
-sudo apt install git
-
-=======
-
 (Ubuntu)
 sudo apt update
 sudo apt install git
@@ -58,7 +52,6 @@ sudo apt install git
 sudo yum update
 sudo yum install git
 
->>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
 # 国内
 cd / && git clone https://gitee.com/yangyangEN/tokenTools-sh.git
 
@@ -255,10 +248,6 @@ docker-compose up -d
           ]
       }
      ```
-<<<<<<< HEAD
-    
-2 /pool_token
-=======
 
 2./token/shared_token
 * 请求方式为get
@@ -300,7 +289,6 @@ docker-compose up -d
 ```
 
 5 /pool_token
->>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
    * 请求方式为get
    * 示例网址：http://ip:8081/pool_token?password=123456
    * 返回
@@ -311,22 +299,7 @@ docker-compose up -d
           "data": "pk-L25JirYw2mWiyRqasdasdSCYrnovbHkmXIA7jDUs-Zpug"
       }
      ```
-    
-<<<<<<< HEAD
-3./token/shared_token
-   * 请求方式为get
-   * 示例网址：http://ip:8081/token/shared_token?password=123456?tokenName=tokenstool
-   * 返回
-     ```
-     {
-       "code": 1,
-       "msg": "success",
-       "data": "fk-I2hsq9weY_NnBm0Fgcsadsasdasdasg9_OFwn7A"
-      }
-     ```
-=======
 
->>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
 	 
 # 图片展示
 
@@ -348,16 +321,9 @@ docker-compose up -d
 
 本项目是站在巨人的肩膀上的，感谢[Pandora](https://github.com/pandora-next/deploy)超级无敌始皇!，欢迎各位来帮助修改本项目，使得本项目变得更方便，更简单！
 
-<<<<<<< HEAD
-## 新增群聊，点了⭐️可以进群讨论部署，无广，广子踢掉
-
-![b5c8df8d7121836cc7cb4b957acd3bd](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/fe714766-eed5-4016-a143-518d2ef95cc6)
-=======
 ## 新增群聊，点了⭐️可以进群讨论部署，我把你们拉进群，无广，广子踢掉
 ![903c5a117387f1a236ba1ce3d83f867](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/a87d3070-6eb7-4ad0-8105-1d3e103b1c15)
 
-
->>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
 
 ### 请给我一个免费的⭐吧！！！
 

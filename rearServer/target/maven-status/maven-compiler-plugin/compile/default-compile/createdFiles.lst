@@ -1,5 +1,17 @@
 com\yyandywt99\pandoraNext\service\impl\systemServiceImpl.class
 com\yyandywt99\pandoraNext\pojo\tls.class
+<<<<<<< HEAD
+com\yyandywt99\pandoraNext\service\systemService.class
+com\yyandywt99\pandoraNext\anno\Log.class
+com\yyandywt99\pandoraNext\pojo\validation.class
+com\yyandywt99\pandoraNext\config\CorsConfig.class
+com\yyandywt99\pandoraNext\service\loginService.class
+com\yyandywt99\pandoraNext\pojo\token.class
+com\yyandywt99\pandoraNext\pojo\systemSetting.class
+com\yyandywt99\pandoraNext\interceptor\LoginCheckInterceptor.class
+com\yyandywt99\pandoraNext\service\impl\loginServiceImpl.class
+com\yyandywt99\pandoraNext\pojo\Result.class
+=======
 com\yyandywt99\pandoraNext\util\passwordHashing.class
 com\yyandywt99\pandoraNext\config\WebConfig.class
 com\yyandywt99\pandoraNext\service\loginService.class
@@ -23,4 +35,5 @@ com\yyandywt99\pandoraNext\pojo\validation.class
 com\yyandywt99\pandoraNext\config\CorsConfig.class
 com\yyandywt99\pandoraNext\config\TaskSchedulerConfig.class
 com\yyandywt99\pandoraNext\service\impl\loginServiceImpl.class
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
 com\yyandywt99\pandoraNext\controller\systemColltroller.class

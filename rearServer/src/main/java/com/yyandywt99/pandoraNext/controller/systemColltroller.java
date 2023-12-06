@@ -37,6 +37,10 @@ public class systemColltroller {
         }
     }
 
+<<<<<<< HEAD
+
+=======
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
     /**
      * 选择config.json里的系统值
      * @return "修改成功！"or"修改失败"

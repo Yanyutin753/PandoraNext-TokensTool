@@ -30,7 +30,11 @@ public class tokenController {
     public Result getSharedToken(@RequestParam("password") String password){
         List<String> res = new ArrayList<>();
         if(password.equals(systemService.selectSetting().getGetTokenPassword())){
+<<<<<<< HEAD
             for (token token : apiService.selectToken("")) {
+=======
+            for (token token : apiService.seleteToken("")) {
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
                 res.add(token.getShare_token());
             }
             return Result.success(res);
@@ -44,7 +48,11 @@ public class tokenController {
                                        @RequestParam("tokenName") String tokenName){
         List<String> res = new ArrayList<>();
         if(password.equals(systemService.selectSetting().getGetTokenPassword())){
+<<<<<<< HEAD
             for (token token : apiService.selectToken("")) {
+=======
+            for (token token : apiService.seleteToken("")) {
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
                 if(token.getName().equals(tokenName)){
                     if(token.getShare_token() != null){
                         return Result.success(token.getShare_token());
@@ -65,7 +73,11 @@ public class tokenController {
     public Result getAccessToken(@RequestParam("password") String password){
         List<String> res = new ArrayList<>();
         if(password.equals(systemService.selectSetting().getGetTokenPassword())){
+<<<<<<< HEAD
             for (token token : apiService.selectToken("")) {
+=======
+            for (token token : apiService.seleteToken("")) {
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
                 res.add(token.getAccess_token());
             }
             return Result.success(res);
@@ -79,7 +91,11 @@ public class tokenController {
                                        @RequestParam("tokenName") String tokenName){
         List<String> res = new ArrayList<>();
         if(password.equals(systemService.selectSetting().getGetTokenPassword())){
+<<<<<<< HEAD
             for (token token : apiService.selectToken("")) {
+=======
+            for (token token : apiService.seleteToken("")) {
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
                 if(token.getName().equals(tokenName)){
                     if(token.getAccess_token() != null){
                         return Result.success(token.getAccess_token());

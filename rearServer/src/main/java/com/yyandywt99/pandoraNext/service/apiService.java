@@ -13,7 +13,11 @@ public interface apiService {
 
     String addToken(token token) throws IOException;
 
+<<<<<<< HEAD
     List<token> selectToken(String name);
+=======
+    List<token> seleteToken(String name);
+>>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
 
     String requiredToken(token tem);
 

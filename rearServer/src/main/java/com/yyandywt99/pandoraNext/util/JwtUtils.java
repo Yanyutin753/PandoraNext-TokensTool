@@ -36,14 +36,6 @@ public class JwtUtils{
     }
 
     /**
-=======
-public class JwtUtils {
-
-    private static String signKey = "fakeApiTool";
-    private static Long expire = 43200000L;
-
-    /**
->>>>>>> bcd58edf7697081bd86d12c983b1afcac8db4495
      * 生成JWT令牌
      * @param claims JWT第二部分负载 payload 中存储的内容
      * @return

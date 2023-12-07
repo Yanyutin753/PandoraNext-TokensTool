@@ -26,6 +26,10 @@ public class tokenController {
     @Autowired
     private apiServiceImpl apiService;
 
+    /**
+     * 获取全部share_tokens
+     * 返回share_tokens或Not_Login
+     */
     @GetMapping("/shared_token")
     public Result getSharedToken(@RequestParam("password") String password){
         List<String> res = new ArrayList<>();
@@ -39,6 +43,11 @@ public class tokenController {
             return Result.error("Not_Login");
         }
     }
+
+    /**
+     * 获取指定share_token
+     * 返回share_token或Not_Login
+     */
     @GetMapping("/token/shared_token")
     public Result getSimplySharedToken(@RequestParam("password") String password,
                                        @RequestParam("tokenName") String tokenName){
@@ -61,6 +70,10 @@ public class tokenController {
 
     }
 
+    /**
+     * 获取全部access_token
+     * 返回access_token或Not_Login
+     */
     @GetMapping("/access_token")
     public Result getAccessToken(@RequestParam("password") String password){
         List<String> res = new ArrayList<>();
@@ -74,6 +87,11 @@ public class tokenController {
             return Result.error("Not_Login");
         }
     }
+
+    /**
+     * 获取指定access_token
+     * 返回access_token或Not_Login
+     */
     @GetMapping("/token/access_token")
     public Result getSimplyAccessToken(@RequestParam("password") String password,
                                        @RequestParam("tokenName") String tokenName){
@@ -93,12 +111,15 @@ public class tokenController {
         else{
             return Result.error("Not_Login");
         }
-
     }
+
+    /**
+     * 获取pool_token
+     * 返回pool_token或Not_Login
+     */
     @GetMapping("/pool_token")
     public Result getPoolToken(@RequestParam("password") String password){
         systemSetting systemSetting = systemService.selectSetting();
-
         if(password.equals(systemSetting.getGetTokenPassword())) {
             try {
                 String poolToken = systemSetting.getPool_token();

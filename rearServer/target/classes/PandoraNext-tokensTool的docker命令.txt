@@ -32,6 +32,8 @@ docker run -d \
 sudo lsof -
 nohup java -jar pandoraNext-0.0.1-SNAPSHOT.jar --server.port=8081 --deployWay=releases --deployPosition=/www/wwwroot/PandoraNext --pandoara_Ip=default > myput.log 2>&1 &
 
+nohup java -jar pandoraNext-0.0.1-SNAPSHOT.jar --server.port=8081 --deployWay=docker --deployPosition=/pandora/data --pandoara_Ip=default > myput.log 2>&1 &
+
 sudo mkdir -p /etc/docker
 sudo tee /etc/docker/daemon.json <<-'EOF'
 {

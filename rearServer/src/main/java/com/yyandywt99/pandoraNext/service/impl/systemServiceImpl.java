@@ -4,7 +4,6 @@ import com.yyandywt99.pandoraNext.pojo.systemSetting;
 import com.yyandywt99.pandoraNext.pojo.tls;
 import com.yyandywt99.pandoraNext.pojo.validation;
 import com.yyandywt99.pandoraNext.service.systemService;
-import com.yyandywt99.pandoraNext.util.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,7 +11,6 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.ws.rs.HEAD;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -93,10 +91,6 @@ public class systemServiceImpl implements systemService {
             updateJsonValue(jsonObject,"license_id",tem.getLicense_id());
             updateJsonValue(jsonObject,"loginUsername",tem.getLoginUsername());
             updateJsonValue(jsonObject,"loginPassword",tem.getLoginPassword());
-
-            if(tem.getLoginPassword()!= null && tem.getLoginPassword().length() > 0){
-                JwtUtils.setSignKey(tem.getLoginPassword());
-            }
 
             updateJsonValue(jsonObject,"autoToken_url",tem.getAutoToken_url());
             updateJsonValue(jsonObject,"getTokenPassword",tem.getGetTokenPassword());

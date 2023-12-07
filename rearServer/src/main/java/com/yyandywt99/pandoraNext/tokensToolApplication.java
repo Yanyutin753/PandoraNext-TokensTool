@@ -12,13 +12,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 /**
  * 定时注解
  */
-
-
-
-
-/**
- * 定时注解
- */
 @Slf4j
 @EnableScheduling
 @SpringBootApplication

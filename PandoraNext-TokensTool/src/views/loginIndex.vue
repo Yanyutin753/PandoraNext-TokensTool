@@ -64,19 +64,35 @@
     <!-- 页面结尾文字 -->
     <div class="bottom">
       <div style="text-align: center; transform: translateY(0vh)">
-        <h3>
-          获取token
-          <a
-            href="https://chat.OpenAI.com/api/auth/session"
-            >官网地址
-          </a>
-          <a href="https://ai.fakeopen.com/auth">Pandora地址</a>
-          <br />
-          欢迎大家来扩展
-          <a href="https://github.com/Yanyutin753/PandoraNext-TokensTool"
-            >PandoraNext-TokensTool v0.4.7.1
-          </a>
-        </h3>
+        <div v-if="page == false">
+          <h3>
+            获取token
+            <a
+              href="https://chat.OpenAI.com/api/auth/session"
+              >官网地址
+            </a>
+            <a href="https://ai.fakeopen.com/auth">Pandora地址</a>
+            欢迎大家来扩展
+            <a href="https://github.com/Yanyutin753/PandoraNext-TokensTool"
+              >PandoraNext-TokensTool v0.4.7.1
+            </a>
+          </h3>
+        </div>
+        <div v-else>
+          <h3>
+            获取token
+            <a
+              href="https://chat.OpenAI.com/api/auth/session"
+              >官网地址
+            </a>
+            <a href="https://ai.fakeopen.com/auth">Pandora地址</a>
+            <br />
+            欢迎大家来扩展
+            <a href="https://github.com/Yanyutin753/PandoraNext-TokensTool"
+              >PandoraNext-TokensTool v0.4.7.1
+            </a>
+          </h3>
+        </div>
       </div>
     </div>
   </div>
@@ -94,6 +110,7 @@ export default {
     const password = ref("");
     const checked = ref("");
     const image = png;
+    const page = ref(true);
 
     onMounted(() => {
       const savedUsername = localStorage.getItem("savedUsername");
@@ -105,6 +122,10 @@ export default {
         password.value = savedPassword || "";
         checked.value = true;
       }
+      if (window.innerWidth > 767) {
+        page.value = false;
+      }
+      console.log(page.value);
     });
 
     const submit = () => {
@@ -136,8 +157,8 @@ export default {
         .then((data) => {
           if (data.code === 1) {
             // 修改此行，使用严格相等运算符
-            console.log("登录成功", data.data); 
-            const token = data.data; 
+            console.log("登录成功", data.data);
+            const token = data.data;
             localStorage.setItem("jwtToken", token);
             ElMessage("登录成功！");
             setTimeout(() => {
@@ -164,6 +185,7 @@ export default {
       image,
       checked,
       submit,
+      page,
     };
   },
 };
@@ -204,7 +226,7 @@ body {
   height: auto;
   margin: 0 auto;
   background-color: #fff;
-  padding: 28px;
+  padding: 40px;
   transform: translateY(10vh);
   box-shadow: 0px 0px 3.5px rgba(0, 0, 0, 0.2);
   border-radius: 14px;
@@ -239,7 +261,7 @@ input[type="submit"]:hover {
 .login-container {
   color: #fff;
   margin-top: 3vh;
-  margin-bottom: 5vh;
+  margin-bottom: 7vh;
   background-color: #0ea27e;
   padding: 17.5px;
   border-radius: 25px;
@@ -266,8 +288,13 @@ a {
 }
 
 h3 {
-  font-size: 17.5px;
+  font-size: 20.5px;
   color: #606266;
+}
+
+.van-field__label {
+  width: 120px;
+  font-size: 14.6px;
 }
 
 .bottom {
@@ -358,6 +385,10 @@ h3 {
     color: var(--el-message-text-color);
     overflow-wrap: anywhere;
     width: 41vw;
+  }
+  .van-field__label {
+    width: 84px;
+    font-size: 13px;
   }
 }
 </style>

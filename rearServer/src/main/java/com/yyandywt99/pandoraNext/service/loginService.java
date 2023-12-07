@@ -8,5 +8,5 @@ import com.yyandywt99.pandoraNext.pojo.systemSetting;
  */
 
 public interface loginService {
-    String login(systemSetting setting);
+    boolean login(systemSetting setting);
 }

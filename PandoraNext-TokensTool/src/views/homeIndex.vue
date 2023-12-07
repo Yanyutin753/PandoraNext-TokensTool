@@ -86,7 +86,7 @@
             >
               TokensTool
             </span>
-            <el-tag>made by Yang</el-tag>
+            <el-tag>v0.4.7.1</el-tag>
           </div>
         </template>
       </el-page-header>
@@ -121,7 +121,7 @@
           <el-table
             v-loading="loading"
             :data="tableData"
-            style="width: 72vw"
+            style="width: 75vw"
             height="66vh"
           >
             <!-- Token名称表 宽150 -->
@@ -237,31 +237,10 @@
         </div>
         <div style="display: flex; margin-top: 3vh"></div>
       </div>
-
-      <div class="bottom-component">
-        <div
-          style="
-            text-align: center;
-            transform: translateY(2.55vh);
-            margin-bottom: 1vh;
-          "
-        >
-          <h2>
-            获取token
-            <a
-              href="https://chat.OpenAI.com/api/auth/session"
-              >官网地址
-            </a>
-            <a href="https://ai.fakeopen.com/auth">Pandora地址</a>
-            欢迎大家来扩展
-            <a href="https://github.com/Yanyutin753/PandoraNext-TokensTool"
-              >PandoraNext-TokensTool v0.4.7.1
-            </a>
-          </h2>
-        </div>
-        <br />
-      </div>
     </div>
+    <br>
+    <br>
+    <br>
   </div>
   <!------------------------------------------------------------------------------------------------------>
 
@@ -1992,7 +1971,7 @@ a {
 }
 
 h2 {
-  font-size: 1.75vh;
+  font-size: 2vh;
   color: #606266;
   margin: 0px;
 }
@@ -2019,7 +1998,7 @@ h2 {
 
 .search {
   box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
-  transform: translate(14vw, 3.5vh);
+  transform: translate(14vw, 4vh);
   width: 72vw;
   background: white;
   border-radius: 10px;

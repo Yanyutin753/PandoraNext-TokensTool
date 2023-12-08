@@ -86,7 +86,7 @@
             >
               TokensTool
             </span>
-            <el-tag>v0.4.7.1</el-tag>
+            <el-tag>v0.4.7.2</el-tag>
           </div>
         </template>
       </el-page-header>

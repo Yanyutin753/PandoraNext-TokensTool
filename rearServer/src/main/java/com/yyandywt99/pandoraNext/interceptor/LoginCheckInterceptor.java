@@ -29,8 +29,6 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         String password = systemSetting.getLoginPassword();
         String username = systemSetting.getLoginUsername();
 
-        JwtUtils.setSignKey(password);
-
         //1.获取请求url。
         String url = req.getRequestURL().toString();
         log.info("请求的url: {}",url);

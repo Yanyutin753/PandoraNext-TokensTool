@@ -21,7 +21,8 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 public class JwtUtils{
-    private static String signKey = "硬编码的伤";
+    //硬编码的伤
+    private static String signKey = "123456";
     private static Long expire = 43200000L;
 
     /**

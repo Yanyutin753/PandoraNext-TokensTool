@@ -1,6 +1,5 @@
 com\yyandywt99\pandoraNext\service\impl\systemServiceImpl.class
 com\yyandywt99\pandoraNext\pojo\tls.class
-com\yyandywt99\pandoraNext\util\passwordHashing.class
 com\yyandywt99\pandoraNext\config\WebConfig.class
 com\yyandywt99\pandoraNext\service\loginService.class
 com\yyandywt99\pandoraNext\pojo\token.class

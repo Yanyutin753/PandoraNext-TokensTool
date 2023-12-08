@@ -4,6 +4,7 @@ import com.yyandywt99.pandoraNext.pojo.systemSetting;
 import com.yyandywt99.pandoraNext.pojo.tls;
 import com.yyandywt99.pandoraNext.pojo.validation;
 import com.yyandywt99.pandoraNext.service.systemService;
+import com.yyandywt99.pandoraNext.util.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -88,10 +90,20 @@ public class systemServiceImpl implements systemService {
             else {
                 jsonObject.put("whitelist", JSONObject.NULL);
             }
-            updateJsonValue(jsonObject,"license_id",tem.getLicense_id());
+
+            //4.7.2
+            if(! tem.getLoginPassword().equals(jsonObject.optString("loginPassword"))
+                    || ! tem.getLoginUsername().equals(jsonObject.optString("loginUsername"))){
+                Instant instant = Instant.now();
+                //时间戳
+                String key = String.valueOf(instant.toEpochMilli());
+                JwtUtils.setSignKey(key);
+            }
+
             updateJsonValue(jsonObject,"loginUsername",tem.getLoginUsername());
             updateJsonValue(jsonObject,"loginPassword",tem.getLoginPassword());
 
+            updateJsonValue(jsonObject,"license_id",tem.getLicense_id());
             updateJsonValue(jsonObject,"autoToken_url",tem.getAutoToken_url());
             updateJsonValue(jsonObject,"getTokenPassword",tem.getGetTokenPassword());
             updateJsonValue(jsonObject,"containerName",tem.getContainerName());

@@ -162,10 +162,10 @@ docker run -d \
   --net=host \
   --pid=host \
   --privileged=true \
-  -v （你config.json的文件目录）:（你config.json的文件目录） \
+  -v （你config.json的文件目录）:/data \
   yangclivia/tokenstool:latest \
   --deployWay=releases \
-  --deployPosition=（你config.json的文件目录） \
+  --deployPosition=/data \
   --hotReload=true \
   --server.port=8081 \
   --pandoara_Ip=你的Pandoara部署的服务器外网Ip Or default
@@ -179,11 +179,11 @@ docker run -d \
   --net=host \
   --pid=host \
   --privileged=true \
-  -v （你config.json的文件目录）:（你config.json的文件目录） \
+  -v （你config.json的文件目录）:/data \
   -v /var/run/docker.sock:/var/run/docker.sock \
   yangclivia/tokenstool:latest \
   --deployWay=docker \
-  --deployPosition=（你config.json的文件目录） \
+  --deployPosition=/data \
   --hotReload=true \
   --server.port=8081 \
   --pandoara_Ip=你的Pandoara部署的服务器外网Ip Or default
@@ -203,11 +203,11 @@ services:
     pid: host
     privileged: true
     volumes:
-      - （你config.json的文件目录）:（你config.json的文件目录）
+      - （你config.json的文件目录）:/data
       - /var/run/docker.sock:/var/run/docker.sock
     command: 
       - --deployWay=(部署方式看环境变量)
-      - --deployPosition=（你config.json的文件目录）
+      - --deployPosition=/data
       - --hotReload=true
       - --server.port=8081
       - --pandoara_Ip=你的Pandoara部署的服务器外网Ip Or default

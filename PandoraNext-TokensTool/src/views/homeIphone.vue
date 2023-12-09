@@ -15,14 +15,11 @@
       text-color="#0ea27e"
     >
       <el-menu-item index="0">
-        <el-menu-item>
-          <img
-            style="width: 30px"
-            src="../asserts/openAi.jpg"
-            alt="Element logo"
-            @click="acc"
-          />
-        </el-menu-item>
+        <img
+          style="width: 30px"
+          src="../asserts/openAi.jpg"
+          @click="icoImage"
+        />
       </el-menu-item>
       <div class="flex-grow" />
       <el-sub-menu index="1">
@@ -109,7 +106,7 @@
           style="
             display: flex;
             width: 83vw;
-            height: 83%;
+            height: 82.5%;
             transform: translateX(0vw);
           "
         >
@@ -160,7 +157,7 @@
                   width="auto"
                 >
                   <template #default>
-                    <div>token: {{ scope.row.token }}</div>
+                    <div>token: {{ dataToken(scope.row.token) }}</div>
                   </template>
                   <template #reference>
                     <!-- 做了超过50加...的操作 -->
@@ -231,11 +228,11 @@
             </el-table-column>
           </el-table>
         </div>
-        <div style="display: flex; margin-top: 3vh"></div>
+        <div style="display: flex; margin-top: 3.8vh"></div>
       </div>
 
       <div class="bottom-component">
-        <div style="text-align: center; transform: translateY(0vh)">
+        <div style="text-align: center; transform: translateY(0.5vh)">
           <h2>
             获取token
             <a
@@ -246,7 +243,7 @@
             <br />
             欢迎大家来扩展
             <a href="https://github.com/Yanyutin753/PandoraNext-TokensTool"
-              >PandoraNext-TokensTool v0.4.7.2
+              >PandoraNext-TokensTool v0.4.7.3
             </a>
           </h2>
         </div>
@@ -470,8 +467,6 @@
             name="Token用户名"
             label="Token用户名"
             placeholder="Token用户名"
-            :readonly="true"
-            :rules="[{ required: true, message: '请填写Token用户名' }]"
           />
           <br />
           <van-field
@@ -479,8 +474,6 @@
             name="OpenAi用户名"
             label="OpenAi用户名"
             placeholder="OpenAi用户名"
-            :readonly="true"
-            :rules="[{ required: true, message: '请填写OpenAi用户名' }]"
           />
           <br />
           <van-field
@@ -489,8 +482,6 @@
             name="OpenAi密码"
             label="OpenAi密码"
             placeholder="OpenAi密码"
-            :readonly="true"
-            :rules="[{ required: true, message: '请填写OpenAi密码' }]"
           />
           <br />
           <van-field name="temShared" :readonly="true" label="是否分享出来">
@@ -534,7 +525,6 @@
             name="进入Token的密码"
             label="进入Token的密码"
             placeholder="进入Token的密码"
-            :readonly="true"
           />
           <br />
           <van-field
@@ -545,7 +535,6 @@
             maxlength="5000"
             placeholder="请填写OpenAi的Token"
             show-word-limit
-            :readonly="true"
           />
           <br />
           <van-field
@@ -556,7 +545,6 @@
             maxlength="5000"
             placeholder="请填写OpenAi的access_token"
             show-word-limit
-            :readonly="true"
           />
           <br />
           <van-field
@@ -567,7 +555,6 @@
             maxlength="200"
             placeholder="请填写OpenAi的share_token"
             show-word-limit
-            :readonly="true"
           />
           <br />
           <van-field
@@ -578,7 +565,6 @@
             maxlength="200"
             placeholder="请填写OpenAi的pool_token"
             show-word-limit
-            :readonly="true"
           />
           <br />
         </van-cell-group>
@@ -693,73 +679,80 @@
           <br />
           <van-field
             v-model="loginUsername"
-            name="tokensTool用户名"
-            label="tokensTool用户名"
+            name="登录用户名"
+            label="登录用户名"
             placeholder="tokensTool用户名"
           />
           <br />
           <van-field
             v-model="loginPassword"
-            name="tokensTool密码"
-            label="tokensTool密码"
+            name="登录密码"
+            label="登录密码"
             placeholder="不少于8位，且同时包含数字和字母"
             :rules="[{ validator: customValidator }]"
           />
           <br />
           <van-field
             v-model="proxy_api_prefix"
-            name="接口前缀"
-            label="接口前缀"
-            placeholder="不少于8位，且同时包含数字和字母"
+            name="proxy接口前缀"
+            label="proxy接口前缀"
+            placeholder="proxy模式接口后缀，不少于8位，且同时包含数字和字母"
             :rules="[{ validator: customValidator }]"
           />
           <br />
           <van-field
             v-model="autoToken_url"
-            name="刷新token的网址"
-            label="刷新token的网址"
-            placeholder="填default默认本地地址"
-          />
-          <br />
-          <van-field
-            v-model="getTokenPassword"
-            name="获取token的密码"
-            label="获取token密码"
-            placeholder="不少于8位，且同时包含数字和字母"
-            :rules="[{ validator: customValidator }]"
-          />
-          <br />
-          <van-field
-            v-model="containerName"
-            name="监管的容器名"
-            label="监管的容器名"
-            placeholder="默认为PandoraNext"
-            :rules="[{ required: true, message: '请填写监管的容器名' }]"
-          />
-          <br />
-          <van-field
-            v-model="site_password"
-            name="访问网站密码"
-            label="访问网站密码"
-            placeholder="建议开启访问网站密码"
-            :rules="[{ validator: customValidator }]"
+            name="proxy模式URL"
+            label="proxy模式URL"
+            placeholder="http(s)://(ip:port或者域名)/后缀，同公网服务器填default"
           />
           <br />
           <van-field
             v-model="setup_password"
-            name="重载服务密码密码"
-            label="重载服务密码密码"
-            placeholder="不少于8位，且同时包含数字和字母"
+            name="重载服务密码"
+            label="重载服务密码"
+            placeholder="PandoraNext重载服务密码，不少于8位，且同时包含数字和字母"
             :rules="[{ validator: customValidator }]"
           />
           <br />
           <van-field
-            maxlength="100"
-            show-word-limit
+            v-model="site_password"
+            name="访问密码"
+            label="访问密码"
+            placeholder="PandoraNext访问密码，建议开启访问密码"
+            :rules="[{ validator: sitePasswordValidator }]"
+          />
+          <br />
+          <van-field
             v-model="license_id"
             name="验证licenseId"
             label="验证licenseId"
-            placeholder="验证licenseId(复制github的命令)"
+            placeholder="验证licenseId(github上拿到的license_id)"
+          />
+          <!-- 0.4.7.3 -->
+          <br />
+          <van-field name="switch" label="tokensTool接口">
+            <template #right-icon>
+              <van-switch active-color="#0ea27e" v-model="isGetToken" />
+            </template>
+          </van-field>
+          <div v-if="isGetToken == true">
+            <br />
+            <van-field
+              v-model="getTokenPassword"
+              name="接口密码"
+              label="接口密码"
+              placeholder="tokensTool接口密码，用于获取tokens,不少于8位，且同时包含数字和字母"
+              :rules="[{ validator: customValidator }]"
+            />
+          </div>
+          <br />
+          <van-field
+            v-model="containerName"
+            name="监管容器名"
+            label="监管容器名"
+            placeholder="监管运行的容器名或文件名，默认为PandoraNext"
+            :rules="[{ required: true, message: '请填写监管的容器名' }]"
           />
           <br />
         </van-cell-group>
@@ -930,7 +923,11 @@ const setup_password = ref("");
 const loginUsername = ref("");
 const loginPassword = ref("");
 const license_id = ref("");
+
+//0.4.7.3
+const isGetToken = ref(false);
 const getTokenPassword = ref("");
+
 const containerName = ref("PandoraNext");
 const autoToken_url = ref("default");
 const whitelist = ref("");
@@ -949,6 +946,18 @@ const customValidator = (value: string) => {
   const regex = /^(?=.*\d)(?=.*[a-zA-Z]).{8,}$/;
 
   if (regex.test(value)) {
+    return true;
+  } else {
+    return "此项至少要包含8位且必须包含数字和字母";
+  }
+};
+
+// 自定义校验函数，直接返回错误提示
+const sitePasswordValidator = (value: string) => {
+  // 至少8位，包含数字和字母
+  const regex = /^(?=.*\d)(?=.*[a-zA-Z]).{8,}$/;
+
+  if (regex.test(value) || value == "") {
     return true;
   } else {
     return "此项至少要包含8位且必须包含数字和字母";
@@ -1102,7 +1111,11 @@ const fetchDataAndFillForm = async (value: string) => {
       loginUsername.value = data.loginUsername;
       loginPassword.value = data.loginPassword;
       license_id.value = data.license_id;
+
+      //0.4.7.3
+      isGetToken.value = data.isGetToken;
       getTokenPassword.value = data.getTokenPassword;
+
       containerName.value = data.containerName;
       autoToken_url.value = data.autoToken_url;
       provider.value = data.validation.provider;
@@ -1239,8 +1252,6 @@ const onAddToken = () => {
           onSearch("");
           ElMessage("添加成功！已为你自动装填token");
         }
-        tableData.value.unshift(api);
-        // ElMessage(data.data);
       } else {
         ElMessage(data.msg);
       }
@@ -1327,7 +1338,11 @@ const RequireSetting = (value: any) => {
     loginUsername: loginUsername.value,
     loginPassword: loginPassword.value,
     license_id: license_id.value,
+
+    //0.4.7.3
+    isGetToken: isGetToken.value,
     getTokenPassword: getTokenPassword.value,
+
     containerName: containerName.value,
     autoToken_url: autoToken_url.value,
     whitelist: whitelist.value,
@@ -1862,6 +1877,11 @@ const logout = () => {
   // 使用 Vue Router 进行页面跳转到登录页面
   router.replace("/login");
 };
+
+const icoImage = () => {
+  window.location.href =
+    "https://github.com/Yanyutin753/PandoraNext-TokensTool";
+};
 </script>
 
 <style>
@@ -1935,6 +1955,7 @@ const logout = () => {
 /* 集合内容字体大小 */
 .el-menu-item {
   font-size: 12.6px;
+  width: auto;
 }
 
 .van-dialog__header {
@@ -2018,11 +2039,11 @@ h2 {
 
 .search {
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-  transform: translate(7.5vw, 2vh);
+  transform: translate(7.5vw, 1.75vh);
   width: 85vw;
   background: #fff;
   border-radius: 10px;
-  height: 74vh;
+  height: 75vh;
   margin-top: 5px;
   margin-bottom: 10px;
 }

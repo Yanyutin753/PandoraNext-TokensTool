@@ -74,7 +74,7 @@
             <a href="https://ai.fakeopen.com/auth">Pandora地址</a>
             欢迎大家来扩展
             <a href="https://github.com/Yanyutin753/PandoraNext-TokensTool"
-              >PandoraNext-TokensTool v0.4.7.2
+              >PandoraNext-TokensTool v0.4.7.3
             </a>
           </h3>
         </div>
@@ -89,7 +89,7 @@
             <br />
             欢迎大家来扩展
             <a href="https://github.com/Yanyutin753/PandoraNext-TokensTool"
-              >PandoraNext-TokensTool v0.4.7.2
+              >PandoraNext-TokensTool v0.4.7.3
             </a>
           </h3>
         </div>
@@ -125,7 +125,6 @@ export default {
       if (window.innerWidth > 767) {
         page.value = false;
       }
-      console.log(page.value);
     });
 
     const submit = () => {
@@ -157,7 +156,7 @@ export default {
         .then((data) => {
           if (data.code === 1) {
             // 修改此行，使用严格相等运算符
-            console.log("登录成功", data.data);
+            console.log("登录成功");
             const token = data.data;
             localStorage.setItem("jwtToken", token);
             ElMessage("登录成功！");

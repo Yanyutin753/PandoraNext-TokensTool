@@ -68,3 +68,216 @@ docker pull yangclivia/fakeapitool:latest
 ````
 
 #映射路径会把路径上的文件全部覆盖，被覆盖的文件会被全覆盖
+
+
+
+
+
+
+
+
+
+#!/bin/bash
+
+# 定义配置文件路径
+CONFIG_FILE="config.json"
+TOKEN_FILE="tokens.json"
+
+# 检查配置文件是否存在
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "Config file not found"
+    exit 1
+fi
+
+# 读取 bind、proxy_api_prefix 和 tls.enabled 值
+bind=$(jq -r '.bind' "$CONFIG_FILE")
+proxy_api_prefix=$(jq -r '.proxy_api_prefix' "$CONFIG_FILE")
+tls_enabled=$(jq -r '.tls.enabled' "$CONFIG_FILE")
+
+# 检查是否有空值
+if [ -z "$bind" ]; then
+    echo "Bind is empty"
+    exit 1
+fi
+
+if [ -z "$proxy_api_prefix" ]; then
+    echo "Proxy API Prefix is empty"
+    exit 1
+fi
+
+# 根据 tls.enabled 的值选择协议
+protocol="http"
+if [[ "$tls_enabled" == true ]]; then
+    protocol="https"
+fi
+
+# 处理特殊的 bind 值
+case $bind in
+    0.0.0.0|127.0.0.1)
+        bind="localhost"
+        ;;
+    *)
+        ;;
+esac
+
+# 构建并输出 API 接口前缀
+api_endpoint_prefix="$protocol://$bind/$proxy_api_prefix/api"
+echo "API Endpoint Prefix: $api_endpoint_prefix"
+
+# 检查 token 文件是否存在
+if [ ! -f "$TOKEN_FILE" ]; then
+    echo "Token file not found"
+    exit 1
+fi
+
+# 读取 session_token
+session_tokens=($(jq -r '.[].token' "$TOKEN_FILE"))
+
+# 如果 session_token 不存在，则结束脚本
+if [ ${#session_tokens[@]} -eq 0 ]; then
+    echo "Session Token not found"
+    exit 1
+fi
+
+sessionToken_count=${#session_tokens[@]}
+
+# 打印元素个数
+echo "提取到Session Token的个数: $sessionToken_count"
+
+access_tokens=()
+share_tokens=()
+
+# 函数：使用 Session Token 获取 Access Token（/auth/session）
+get_access_token_with_session_token() {
+    echo "Getting access token using session token..."
+
+    for token in "${session_tokens[@]}"; do
+        login_response=$(curl --silent --location "$api_endpoint_prefix/auth/session" \
+        --header 'Content-Type: application/x-www-form-urlencoded' \
+        --data-urlencode "session_token=$session_token")
+
+        if [ -z "$login_response" ]; then
+            echo "Failed to get access token: No response"
+            return 1
+        fi
+
+        access_token=$(echo $login_response | jq -r '.access_token')
+
+        if [ -z "$access_token" ]; then
+            echo "Failed to get access token."
+        else
+            # Assuming you have an array variable named "token_array"
+            access_tokens+=("$access_token")
+            echo "转换access_token成功+1"
+            echo "休息一秒"
+            sleep 1
+        fi
+    done
+
+    accessToken_count=${#access_tokens[@]}
+
+    # 打印元素个数
+    echo "提取到access Token的个数: $accessToken_count"
+}
+
+# 函数：注册或更新 Share Token（/token/register）
+register_share_token() {
+    echo "Registering or updating Share Token..."
+    for token in "${access_tokens[@]}"; do
+        share_token_response=$(curl --silent --location "$api_endpoint_prefix/token/register" \
+            --header 'Content-Type: application/x-www-form-urlencoded' \
+            --data-urlencode 'unique_name=fakeopen' \
+            --data-urlencode "access_token=$token" \
+            --data-urlencode 'site_limit=' \
+            --data-urlencode 'expires_in=0' \
+            --data-urlencode 'show_conversations=true' \
+            --data-urlencode 'show_userinfo=true')
+
+        if [ -z "$share_token_response" ]; then
+            echo "Failed to register share token: No response"
+            return 1
+        fi
+
+        share_token=$(echo $share_token_response | jq -r '.token_key')
+
+        if [ -z "$share_token" ]; then
+            echo "Failed to get share_token."
+        else
+            # Assuming you have an array variable named "token_array"
+            share_tokens+=("$share_token")
+            echo "转换share_token成功+1"
+            echo "休息一秒"
+            sleep 1
+        fi
+    done
+
+    shareToken_count=${#share_tokens[@]}
+
+    # 打印元素个数
+    echo "提取到share token的个数: $shareToken_count"
+}
+
+# 函数：注册或更新 Pool Token（pool/update）
+update_pool_token() {
+    echo "Registering or updating Pool Token..."
+    for token in "${share_tokens[@]}"; do
+        shareTokens+="$(echo "$token")"$'\n'
+    done
+    pool_token_response=$(curl --silent --location "$api_endpoint_prefix/pool/update" \
+        --header 'Content-Type: application/x-www-form-urlencoded' \
+        --data-urlencode "share_tokens=$shareTokens" \
+        --data-urlencode 'pool_token=您的pool_token')
+
+    if [ -z "$pool_token_response" ]; then
+        echo "Failed to update pool token: No response"
+        return 1
+    fi
+
+    pool_token=$(echo $pool_token_response | jq -r '.pool_token')
+
+    if [ -z "$pool_token" ]; then
+        echo "Failed to extract pool token."
+        return 1
+    fi
+
+    echo "Successfully updated Pool Token: $pool_token"
+}
+
+
+# 执行函数
+get_access_token_with_session_token
+if [ $? -eq 0 ]; then
+    register_share_token
+    if [ $? -eq 0 ]; then
+        update_pool_token
+    fi
+fi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

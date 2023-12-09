@@ -100,12 +100,6 @@ curl -fLO "https://dash.pandoranext.com/data/ (uVlk_4ilqs23dfsdfdsfsdfOlgaPdNkgG
 
 - 是否开启热重载：  --hotReload=true
 
-- PandoraNext的部署ip  --pandoara_Ip=
-
-   * 如果你是静态IP,这填上你的PandoraNext部署的外网IP(格式：20.123.43.52）
-
-   * 如果你是动态IP，填上default，则将通过[淘宝链接](https://www.taobao.com/help/getip.php)自动获取你的外网ip
-
 - ⭐记住路径没有/config.json
 
 - 记得修改你的路径，密码，账号，端口号（选填），最最重要没有括号
@@ -143,7 +137,7 @@ cd （你的jar包的位置）
 ##### 运行程序
 ```
 # 例如
-nohup java -jar pandoraNext-0.0.1-SNAPSHOT.jar --server.port=8081 --deployWay=releases --deployPosition=default --pandoara_Ip=（你的Pandoara部署的服务器外网Ip) Or default > myput.log 2>&1 &
+nohup java -jar pandoraNext-0.0.1-SNAPSHOT.jar --server.port=8081 --deployWay=releases --deployPosition=default --pandoara_Ip=127.0.0.1 > myput.log 2>&1 &
 
 # 等待一会 放行8081端口即可运行（自行调整）
 ```
@@ -168,7 +162,7 @@ docker run -d \
   --deployPosition=/data \
   --hotReload=true \
   --server.port=8081 \
-  --pandoara_Ip=你的Pandoara部署的服务器外网Ip Or default
+  --pandoara_Ip=127.0.0.1
 ```
 #### Docker部署PandoraNext启动命令
 ```
@@ -186,7 +180,7 @@ docker run -d \
   --deployPosition=/data \
   --hotReload=true \
   --server.port=8081 \
-  --pandoara_Ip=你的Pandoara部署的服务器外网Ip Or default
+  --pandoara_Ip=127.0.0.1
 ```
 
 ### Docker Compose部署详情
@@ -210,7 +204,7 @@ services:
       - --deployPosition=/data
       - --hotReload=true
       - --server.port=8081
-      - --pandoara_Ip=你的Pandoara部署的服务器外网Ip Or default
+      - --pandoara_Ip=127.0.0.1
 ```
 
 ##### 启动tokensTool

@@ -583,14 +583,12 @@ public class apiServiceImpl implements apiService {
                     resToken.append(token.getShare_token()+"\n");
                 }
             }
-            log.info("更新之前pool_token为："+pool_token);
             builder.addTextBody("share_tokens", resToken.toString(), ContentType.TEXT_PLAIN);
             builder.addTextBody("pool_token",pool_token, ContentType.TEXT_PLAIN);
             // 设置请求实体
             httpPost.setEntity(builder.build());
             // 执行HTTP请求
             HttpResponse response = httpClient.execute(httpPost);
-            log.info(response.toString());
             int statusCode = response.getStatusLine().getStatusCode();
             // 获得响应数据
             String responseContent = EntityUtils.toString(response.getEntity());
@@ -756,6 +754,59 @@ public class apiServiceImpl implements apiService {
             res = getPoolToken(poolToken);
             if(poolToken != null){
                 return res;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public String deletePoolToken(String pool_token) {
+        String url;
+        systemSetting systemSetting = systemService.selectSetting();
+        if(systemSetting.getAutoToken_url().equals("default")){
+            String bingUrl = systemSetting.getBing();
+            String[] parts = bingUrl.split(":");
+            url = "http://" + getIp() + ":" + parts[1] + "/" +
+                    systemSetting.getProxy_api_prefix() + poolToken;
+        }
+        else{
+            url = systemSetting.getAutoToken_url() + poolToken;
+        }
+        log.info("将通过这个网址请求登录信息："+url);
+        try {
+            // 创建HttpClient实例
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            // 创建HttpPost请求
+            HttpPost httpPost = new HttpPost(url);
+
+            // 使用MultipartEntityBuilder构建表单数据
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.addTextBody("share_tokens", "", ContentType.TEXT_PLAIN);
+            builder.addTextBody("pool_token",pool_token, ContentType.TEXT_PLAIN);
+            // 设置请求实体
+            httpPost.setEntity(builder.build());
+            // 执行HTTP请求
+            HttpResponse response = httpClient.execute(httpPost);
+            int statusCode = response.getStatusLine().getStatusCode();
+            // 获得响应数据
+            String responseContent = EntityUtils.toString(response.getEntity());
+            // 处理响应数据
+            String resPoolToken = null;
+            try {
+                JSONObject jsonResponse = new JSONObject(responseContent);
+                resPoolToken = jsonResponse.getString("detail");
+                httpClient.close();
+            } catch (JSONException e) {
+                e.printStackTrace();
+                httpClient.close();
+            }
+            //关闭进程
+            if (statusCode == 200 && resPoolToken.length() > 0) {
+                //用来防止请求的token出现问题，回退token值
+                log.info("注销pool_token成功，Url的路径为："+url);
+                return resPoolToken;
             }
         } catch (Exception e) {
             e.printStackTrace();

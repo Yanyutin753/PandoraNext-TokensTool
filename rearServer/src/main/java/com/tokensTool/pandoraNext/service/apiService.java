@@ -71,4 +71,11 @@ public interface apiService {
      * @return
      */
     String toUpdatePoolToken(String poolToken);
+
+    /**
+     * 注销pool_token
+     * @param poolToken
+     * @return
+     */
+    String deletePoolToken(String poolToken);
 }

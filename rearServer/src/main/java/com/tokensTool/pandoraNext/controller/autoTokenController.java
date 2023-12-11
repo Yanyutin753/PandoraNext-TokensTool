@@ -144,6 +144,12 @@ public class autoTokenController {
 
     @GetMapping("changePoolToken")
     public Result toChangePoolToken(){
+        String deletePoolToken = systemService.selectSetting().getPool_token();
+        String resDelete = apiService.deletePoolToken(deletePoolToken);
+        log.info("注销pool_token成功:"+resDelete);
+        if(resDelete == null){
+            return Result.error("未注销pool_token成功！");
+        }
         try {
             String temPoolToken = "";
             String res = apiService.toUpdatePoolToken(temPoolToken);
@@ -151,7 +157,7 @@ public class autoTokenController {
                 systemSetting systemSetting = new systemSetting();
                 systemSetting.setPool_token(res);
                 systemService.requiredPoolToken(systemSetting);
-                log.info("更新为:"+poolToken);
+                log.info("更新为:"+res);
             }
             return Result.success(res);
         } catch (Exception e) {

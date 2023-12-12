@@ -13,23 +13,19 @@
 
 2. **自动添加删除修改token：** 工具能够自动在 tokens.josn 中添加删除刷新token，简化配置过程。
 
-3. **每五天自动通过openAI账号密码刷新share_token,access_token,pool_token**， tokensTool工具会每五天自动通过openAI账号密码刷新tokens,重启PandoraNext，方便使用。
+3. **自动刷新share_token,access_token,pool_token**,tokensTool工具会自动通过openAI账号密码刷新tokens,重启PandoraNext，方便使用。
 
-4. **通过账号密码添加token**该功能如今恢复正常 ，避免查找繁琐的token
+4. **通过账号密码添加token**,该功能如今恢复正常 ，避免查找繁琐的token
 
-5. **一键暂停，启动,重启PandoraNext** ，使得修改token效率更高
-
-6. **支持多种PandoraNext部署方法，开箱就用**
+5. **一键暂停，启动,重启PandoraNext** ,使得修改token效率更高
    
-7. **支持在线修改config.json文件,重启PandoraNext生效**
+6. **支持在线修改config.json文件,重启PandoraNext生效**
 
-8. **支持热重载，需要在配置文件或者在网页上添加重载密码，开启服务**
+7. **支持热重载，需要在配置文件或者在网页上添加重载密码，开启服务**
 
-9. **新增脚本文件,真一键部署并更新PandoraNext和tokensTool双服务**
+8. **新增脚本文件,真一键部署并更新PandoraNext和tokensTool双服务**
 
-10.**新增获取多个pool_tokens**,方便使用
-
-- PandoraNext的热重载改网站密码和热重载密码还是优点bug，建议修改config.json配置文件之后按重启PandoraNext服务
+9.**新增获取多个pool_tokens**,方便使用
 
 - 现如今只支持账号密码登录，希望大佬能扩充！
 
@@ -226,6 +222,20 @@ docker-compose pull
 docker-compose up -d
 ```
 
+## 注意事项
+
+1. pandora容器端口跟映射端口一致能减少麻烦，bind端口要跟容器端口一致
+2. 不做反代的话，路由端口也要跟反射端一致，做的话就在tools proxy url地址里面写上http(s)://(ip:port或者域名)/后缀名
+3. 默认API调用接口：http(s)://(ip:port或者域名)/后缀名/v1/chat/completions
+
+
+
+### 初次启动，请根据提示完成填写，并之后重启pandoraNext服务
+
+![c6494a936ee764d13929b1fef5693d0](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/d8f470d7-b280-41d5-afbf-0164732ef0ec)
+
+
+	
 ### 想要二开项目的友友们，可以自行遵循相应的开源规则更改前后端项目，本人小白，项目写的不太好，还请谅解！
 
 ## 接口
@@ -247,7 +257,7 @@ docker-compose up -d
 
 2./token/shared_token
 * 请求方式为get
-* 示例网址：http://ip:8081/token/shared_token?password=123456?tokenName=tokenstool
+* 示例网址：http://ip:8081/token/shared_token?password=123456&tokenName=tokenstool
 * 返回
 ```
 {
@@ -267,14 +277,14 @@ docker-compose up -d
 "msg": "success",
 "data": [
       "access_token_1",
-      "access_token_1"
+      "access_token_2"
   ]
 }
 ```
 
 4 /token/access_token
 * 请求方式为get
-* 示例网址：http://ip:8081/token/access_token?password=123456?tokenName=tokenstool
+* 示例网址：http://ip:8081/token/access_token?password=123456&tokenName=tokenstool
 * 返回
 ```
 {
@@ -286,7 +296,7 @@ docker-compose up -d
 
 5 /token/pool_token
    * 请求方式为get
-   * 示例网址：http://ip:8081/pool_token?password=123456?tokenName=tokenstool
+   * 示例网址：http://ip:8081/pool_token?password=123456&tokenName=tokenstool
    * 返回
      ```
       {
@@ -295,8 +305,7 @@ docker-compose up -d
           "data": "pk-L25JirYw2mWiyRqasdasdSCYrnovbHkmXIA7jDUs-Zpug"
       }
      ```
-
-	 
+ 
 # 图片展示
 
 # 手机端展示
@@ -315,7 +324,9 @@ docker-compose up -d
 
 ## 强调
 
-本项目是站在巨人的肩膀上的，感谢[Pandora](https://github.com/pandora-next/deploy)超级无敌始皇!，欢迎各位来帮助修改本项目，使得本项目变得更方便，更简单！
+* 本项目是站在巨人的肩膀上的，感谢[Pandora](https://github.com/pandora-next/deploy)超级无敌始皇!，欢迎各位来帮助修改本项目，使得本项目变得更方便，更简单！
+
+* 有群佬写了一个自动刷新token的[脚本](https://github.com/ALbur/autoTools/blob/main/autorenew.py)，大家也可以试试！
 
 ## 新增群聊，点了⭐️可以进群讨论部署，我把你们拉进群，无广，广子踢掉
 ![903c5a117387f1a236ba1ce3d83f867](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/a87d3070-6eb7-4ad0-8105-1d3e103b1c15)

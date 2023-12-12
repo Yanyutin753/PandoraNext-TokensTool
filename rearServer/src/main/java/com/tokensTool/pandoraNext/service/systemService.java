@@ -19,5 +19,4 @@ public interface systemService {
      */
     systemSetting selectSetting();
 
-    String requiredPoolToken(systemSetting setting);
 }

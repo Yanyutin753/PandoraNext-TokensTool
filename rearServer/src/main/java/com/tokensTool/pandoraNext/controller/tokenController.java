@@ -1,9 +1,11 @@
 package com.tokensTool.pandoraNext.controller;
 
-import com.tokensTool.pandoraNext.pojo.systemSetting;
-import com.tokensTool.pandoraNext.service.impl.apiServiceImpl;
 import com.tokensTool.pandoraNext.pojo.Result;
+import com.tokensTool.pandoraNext.pojo.poolToken;
+import com.tokensTool.pandoraNext.pojo.systemSetting;
 import com.tokensTool.pandoraNext.pojo.token;
+import com.tokensTool.pandoraNext.service.impl.apiServiceImpl;
+import com.tokensTool.pandoraNext.service.impl.poolServiceImpl;
 import com.tokensTool.pandoraNext.service.impl.systemServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +27,9 @@ public class tokenController {
 
     @Autowired
     private apiServiceImpl apiService;
+
+    @Autowired
+    private poolServiceImpl poolService;
 
     /**
      * 获取全部share_tokens
@@ -125,25 +130,56 @@ public class tokenController {
         }
     }
 
+//    /**
+//     * 获取pool_token
+//     * 返回pool_token或Not_Login
+//     */
+//    @GetMapping("/pool_token")
+//    public Result getPoolToken(@RequestParam("password") String password){
+//        systemSetting systemSetting = systemService.selectSetting();
+//        if(! systemSetting.getIsGetToken()){
+//            return Result.error("Not_Open");
+//        }
+//        if(password.equals(systemSetting.getGetTokenPassword())) {
+//            try {
+//                String poolToken = systemSetting.getPool_token();
+//                if(poolToken != null && poolToken.contains("pk")){
+//                    return Result.success(poolToken);
+//                }
+//                else{
+//                    return Result.error("该tokensTool没有正确生成pool_Token");
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                return Result.error("获取pool_token出现问题！");
+//            }
+//        }
+//        return Result.error("Not_Login");
+//    }
+
     /**
-     * 获取pool_token
+     * 获取单个pool_token
      * 返回pool_token或Not_Login
      */
-    @GetMapping("/pool_token")
-    public Result getPoolToken(@RequestParam("password") String password){
+    @GetMapping("/token/pool_token")
+    public Result getSimplePoolToken(@RequestParam("password") String password,
+                                     @RequestParam("tokenName") String tokenName){
         systemSetting systemSetting = systemService.selectSetting();
         if(! systemSetting.getIsGetToken()){
             return Result.error("Not_Open");
         }
         if(password.equals(systemSetting.getGetTokenPassword())) {
             try {
-                String poolToken = systemSetting.getPool_token();
-                if(poolToken != null && poolToken.contains("pk")){
-                    return Result.success(poolToken);
+                List<poolToken> poolTokens = poolService.selectPoolToken("");
+                for(poolToken poolToken : poolTokens){
+                    if(poolToken.getPoolName().equals(tokenName)){
+                        String poolValue = poolToken.getPoolToken();
+                        if(poolValue != null && poolValue.contains("pk")){
+                            return Result.success(poolValue);
+                        }
+                    }
                 }
-                else{
-                    return Result.error("该tokensTool没有正确生成pool_Token");
-                }
+                return Result.error("该tokensTool没有正确生成相应名称的pool_Token");
             } catch (Exception e) {
                 e.printStackTrace();
                 return Result.error("获取pool_token出现问题！");

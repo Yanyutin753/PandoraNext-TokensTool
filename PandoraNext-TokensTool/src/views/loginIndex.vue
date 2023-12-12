@@ -6,7 +6,7 @@
     />
     <div class="login-container">
       <img :src="image" alt="Your Image" size:30 />
-      <h1>Pandora-TokensTool</h1>
+      <h4>Pandora-TokensTool</h4>
     </div>
     <div class="container">
       <div
@@ -74,7 +74,7 @@
             <a href="https://ai.fakeopen.com/auth">Pandora地址</a>
             欢迎大家来扩展
             <a href="https://github.com/Yanyutin753/PandoraNext-TokensTool"
-              >PandoraNext-TokensTool v0.4.7.3
+              >PandoraNext-TokensTool v0.4.8.1
             </a>
           </h3>
         </div>
@@ -89,7 +89,7 @@
             <br />
             欢迎大家来扩展
             <a href="https://github.com/Yanyutin753/PandoraNext-TokensTool"
-              >PandoraNext-TokensTool v0.4.7.3
+              >PandoraNext-TokensTool v0.4.8.1
             </a>
           </h3>
         </div>
@@ -271,7 +271,7 @@ input[type="submit"]:hover {
   align-items: center;
   flex-direction: row; /* 指定Flex容器的主轴方向，这里设置为水平方向 */
 }
-.login-container h1 {
+.login-container h4 {
   margin-right: 20px; /* 在文本和图像之间添加一些间距 */
   font-size: 35px;
 }
@@ -327,7 +327,7 @@ h3 {
     /* 隐藏水平滚动条 */
     flex-direction: column;
   }
-  .login-container h1 {
+  .login-container h4 {
     margin-right: 20px; /* 在文本和图像之间添加一些间距 */
     font-size: 30px;
   }
@@ -361,7 +361,7 @@ h3 {
   .userName {
     font-size: 14.6px;
   }
-  .login-container h1 {
+  .login-container h4 {
     margin-right: 7px;
     font-size: 28px;
     justify-content: center;

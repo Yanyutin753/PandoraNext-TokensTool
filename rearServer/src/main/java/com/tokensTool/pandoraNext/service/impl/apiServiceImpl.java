@@ -28,8 +28,10 @@ import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -225,7 +227,7 @@ public class apiServiceImpl implements apiService {
             // 将新数据添加到 JSON 树中
             rootNode.put(token.getName(), newData);
             // 将修改后的数据写回到文件
-            objectMapper.writeValue(jsonFile, rootNode);
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(jsonFile, rootNode);
             log.info("数据成功添加到 JSON 文件中。");
             return res;
         } catch (IOException e) {
@@ -379,7 +381,7 @@ public class apiServiceImpl implements apiService {
         if(systemSetting.getAutoToken_url().equals("default")){
             String bingUrl = systemSetting.getBing();
             String[] parts = bingUrl.split(":");
-            url = "http://" + getIp() + ":" + parts[1] +"/" + systemSetting.getProxy_api_prefix() +loginToken;
+            url = "http://127.0.0.1"+ ":" + parts[1] +"/" + systemSetting.getProxy_api_prefix() +loginToken;
         }
         else{
             url = systemSetting.getAutoToken_url() + loginToken;
@@ -439,7 +441,7 @@ public class apiServiceImpl implements apiService {
         if(systemSetting.getAutoToken_url().equals("default")){
             String bingUrl = systemSetting.getBing();
             String[] parts = bingUrl.split(":");
-            url = "http://" + getIp() + ":" + parts[1] + "/" + systemSetting.getProxy_api_prefix() + accessToken;
+            url = "http://127.0.0.1"+ ":" + parts[1] + "/" + systemSetting.getProxy_api_prefix() + accessToken;
         }
         else{
             url = systemSetting.getAutoToken_url() + accessToken;
@@ -495,7 +497,7 @@ public class apiServiceImpl implements apiService {
         if (systemSetting.getAutoToken_url().equals("default")) {
             String bingUrl = systemSetting.getBing();
             String[] parts = bingUrl.split(":");
-            url = "http://" + getIp() + ":" + parts[1] + "/" + systemSetting.getProxy_api_prefix() + shareToken;
+            url = "http://127.0.0.1"+ ":" + parts[1] + "/" + systemSetting.getProxy_api_prefix() + shareToken;
         } else {
             url = systemSetting.getAutoToken_url() + shareToken;
         }
@@ -556,13 +558,13 @@ public class apiServiceImpl implements apiService {
         return null;
     }
 
-    public String getPoolToken(String pool_token) {
+    public String getPoolToken(String pool_token,String shareTokens) {
         String url;
         systemSetting systemSetting = systemService.selectSetting();
         if(systemSetting.getAutoToken_url().equals("default")){
             String bingUrl = systemSetting.getBing();
             String[] parts = bingUrl.split(":");
-            url = "http://" + getIp() + ":" + parts[1] + "/" + systemSetting.getProxy_api_prefix() + poolToken;
+            url = "http://127.0.0.1" + ":" + parts[1] + "/" + systemSetting.getProxy_api_prefix() + poolToken;
         }
         else{
             url = systemSetting.getAutoToken_url() + poolToken;
@@ -576,19 +578,27 @@ public class apiServiceImpl implements apiService {
 
             // 使用MultipartEntityBuilder构建表单数据
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            List<token> tokens = selectToken("");
-            StringBuffer resToken = new StringBuffer();
-            for(token token : tokens){
-                if(token.getShare_token() != null && token.isSetPoolToken() ){
-                    resToken.append(token.getShare_token()+"\n");
+            if(shareTokens == ""){
+                List<token> tokens = selectToken("");
+                StringBuffer resToken = new StringBuffer();
+                for(token token : tokens){
+                    if(token.getShare_token() != null && token.isSetPoolToken() ){
+                        resToken.append(token.getShare_token()+"\n");
+                    }
                 }
+                log.info("更新之前pool_token为："+pool_token);
+                builder.addTextBody("share_tokens", resToken.toString(), ContentType.TEXT_PLAIN);
+                builder.addTextBody("pool_token",pool_token, ContentType.TEXT_PLAIN);
             }
-            builder.addTextBody("share_tokens", resToken.toString(), ContentType.TEXT_PLAIN);
-            builder.addTextBody("pool_token",pool_token, ContentType.TEXT_PLAIN);
+            else{
+                builder.addTextBody("share_tokens", shareTokens, ContentType.TEXT_PLAIN);
+                builder.addTextBody("pool_token",pool_token, ContentType.TEXT_PLAIN);
+            }
             // 设置请求实体
             httpPost.setEntity(builder.build());
             // 执行HTTP请求
             HttpResponse response = httpClient.execute(httpPost);
+            log.info(response.toString());
             int statusCode = response.getStatusLine().getStatusCode();
             // 获得响应数据
             String responseContent = EntityUtils.toString(response.getEntity());
@@ -617,6 +627,7 @@ public class apiServiceImpl implements apiService {
         }
         return null;
     }
+
 
 
     /**
@@ -656,8 +667,23 @@ public class apiServiceImpl implements apiService {
         List<token> resTokens = selectToken(name);
         int newToken = 0;
         for (token token : resTokens) {
-            token res = autoUpdateSimpleToken(token);
-            if(res != null){
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            // 将字符串解析为LocalDateTime
+            LocalDateTime localDateTime = LocalDateTime.parse(token.getUpdateTime(), formatter);
+            // 提取日期部分
+            LocalDate inputDate = localDateTime.toLocalDate();
+            // 获取当前日期
+            LocalDate currentDate = LocalDate.now();
+            // 计算过去了多少天
+            long daysAgo = ChronoUnit.DAYS.between(inputDate, currentDate);
+            log.info("过去了"+daysAgo+"天");
+            if(daysAgo % 10 == 0 || daysAgo % 9 == 0 || daysAgo % 11 == 0){
+                token res = autoUpdateSimpleToken(token);
+                if(res != null){
+                    newToken++;
+                }
+            }
+            else{
                 newToken++;
             }
             try {
@@ -667,8 +693,10 @@ public class apiServiceImpl implements apiService {
             }
         }
         if (newToken == 0) {
+            log.info("自动修改Token失败！");
             return "自动修改Token失败！";
         } else {
+            log.info("自动修改Token成功：" + newToken + "失败：" + (resTokens.size() - newToken));
             return "自动修改Token成功：" + newToken + "失败：" + (resTokens.size() - newToken);
         }
     }
@@ -751,7 +779,7 @@ public class apiServiceImpl implements apiService {
     public String toUpdatePoolToken(String poolToken) {
         String res;
         try {
-            res = getPoolToken(poolToken);
+            res = getPoolToken(poolToken,"");
             if(poolToken != null){
                 return res;
             }
@@ -768,7 +796,7 @@ public class apiServiceImpl implements apiService {
         if(systemSetting.getAutoToken_url().equals("default")){
             String bingUrl = systemSetting.getBing();
             String[] parts = bingUrl.split(":");
-            url = "http://" + getIp() + ":" + parts[1] + "/" +
+            url = "http://127.0.0.1"+ ":" + parts[1] + "/" +
                     systemSetting.getProxy_api_prefix() + poolToken;
         }
         else{
@@ -813,5 +841,4 @@ public class apiServiceImpl implements apiService {
         }
         return null;
     }
-
 }

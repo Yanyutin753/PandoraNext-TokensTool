@@ -20,7 +20,7 @@ import java.time.Instant;
 @SpringBootApplication
 public class tokensToolApplication {
     public static void main(String[] args) {
-        log.info("PandoraNext-tokensTool v 0.4.7.3 版本，增加在线开关tokenTools接口,优化前端代码，增加注释");
+        log.info("PandoraNext-tokensTool v 0.4.8.1版本，增加创建多pool_tokens，优化自动刷新过程，修改小bug");
         Instant instant = Instant.now();
         String key = String.valueOf(instant.toEpochMilli());
         JwtUtils.setSignKey(key);

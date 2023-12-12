@@ -327,27 +327,5 @@ public class systemServiceImpl implements systemService {
         return null;
     }
 
-    /**
-     * 修改config.json里的pool_token
-     * @return systemSettings类
-     */
-    @Override
-    public String requiredPoolToken(systemSetting tem) {
-        String parent = selectFile();
-        try {
-            // 读取 JSON 文件内容
-            String jsonContent = new String(Files.readAllBytes(Paths.get(parent)));
-
-            JSONObject jsonObject = new JSONObject(jsonContent);
-            updateJsonValue(jsonObject, "pool_token", tem.getPool_token());
-            // 将修改后的 JSONObject 转换为格式化的 JSON 字符串
-            String updatedJson = jsonObject.toString(2);
-            Files.write(Paths.get(parent), updatedJson.getBytes());
-            return "修改config.json成功，快去重启PandoraNext吧!";
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "修改config.json失败";
-    }
 }
 

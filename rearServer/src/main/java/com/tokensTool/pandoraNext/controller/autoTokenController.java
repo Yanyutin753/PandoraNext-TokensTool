@@ -2,7 +2,6 @@ package com.tokensTool.pandoraNext.controller;
 
 import com.tokensTool.pandoraNext.anno.Log;
 import com.tokensTool.pandoraNext.pojo.Result;
-import com.tokensTool.pandoraNext.pojo.systemSetting;
 import com.tokensTool.pandoraNext.pojo.token;
 import com.tokensTool.pandoraNext.service.systemService;
 import lombok.extern.slf4j.Slf4j;
@@ -35,9 +34,10 @@ public class autoTokenController {
      * @return "更新成功" or "更新失败"
      * @throws Exception
      */
-    @Scheduled(cron = "0 3 0 */5 * ?")
+    @Scheduled(cron = "0 0 3 * * ?")
     public Result toUpdateToken(){
         try {
+            log.info("开始自动更新Token..........................");
             String res = apiService.autoUpdateToken("");
             if(res.contains("修改Token成功")){
                 try {
@@ -111,76 +111,4 @@ public class autoTokenController {
         return Result.error("刷新session_token失败,请尝重新刷新！");
     }
 
-    @GetMapping("updatePoolToken")
-    public Result toUpdatePoolToken(){
-        try {
-            String temPoolToken = systemService.selectSetting().getPool_token();
-            log.info("temPoolToken: " + temPoolToken);
-            String res;
-            if(temPoolToken != null && temPoolToken.length() > 0){
-                log.info(temPoolToken);
-                res = apiService.toUpdatePoolToken(temPoolToken);
-                log.info("poolToken没有发生改变！");
-                if(! res.equals(temPoolToken)){
-                    systemSetting systemSetting = new systemSetting();
-                    systemSetting.setPool_token(res);
-                    systemService.requiredPoolToken(systemSetting);
-                    log.info("更新为:"+ res);
-                }
-            }
-            else{
-                res = apiService.toUpdatePoolToken("");
-                systemSetting systemSetting = new systemSetting();
-                systemSetting.setPool_token(res);
-                log.info(systemService.requiredPoolToken(systemSetting));;
-                log.info("更新为:"+ res);
-            }
-            return Result.success(res);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return Result.error("刷新pool_token失败,请尝重新刷新！");
-    }
-
-    @GetMapping("changePoolToken")
-    public Result toChangePoolToken(){
-        String deletePoolToken = systemService.selectSetting().getPool_token();
-        String resDelete = apiService.deletePoolToken(deletePoolToken);
-        log.info("注销pool_token成功:"+resDelete);
-        if(resDelete == null){
-            return Result.error("未注销pool_token成功！");
-        }
-        try {
-            String temPoolToken = "";
-            String res = apiService.toUpdatePoolToken(temPoolToken);
-            if(! res.equals(temPoolToken)){
-                systemSetting systemSetting = new systemSetting();
-                systemSetting.setPool_token(res);
-                systemService.requiredPoolToken(systemSetting);
-                log.info("更新为:"+res);
-            }
-            return Result.success(res);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return Result.error("更换pool_token失败,请尝重新更换！");
-    }
-
-    @Scheduled(cron = "0 4 0 */5 * ?")
-    public void  autoUpdatePoolToken(){
-        try {
-            String temPoolToken = systemService.selectSetting().getPool_token();
-            String res = apiService.toUpdatePoolToken(temPoolToken);
-            if(! res.equals(temPoolToken)){
-                systemSetting systemSetting = new systemSetting();
-                systemSetting.setPool_token(res);
-                systemService.requiredPoolToken(systemSetting);
-                log.info("更新为:"+poolToken);
-            }
-            log.info("已成功更新pool_token，pool_token保持不变");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        log.info("更新pool_token失败！");
-    }
 }

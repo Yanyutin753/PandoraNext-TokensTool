@@ -27,6 +27,8 @@
 
 9. **新增脚本文件,真一键部署并更新PandoraNext和tokensTool双服务**
 
+10.**新增获取多个pool_tokens**,方便使用
+
 - PandoraNext的热重载改网站密码和热重载密码还是优点bug，建议修改config.json配置文件之后按重启PandoraNext服务
 
 - 现如今只支持账号密码登录，希望大佬能扩充！
@@ -282,9 +284,9 @@ docker-compose up -d
 }
 ```
 
-5 /pool_token
+5 /token/pool_token
    * 请求方式为get
-   * 示例网址：http://ip:8081/pool_token?password=123456
+   * 示例网址：http://ip:8081/pool_token?password=123456?tokenName=tokenstool
    * 返回
      ```
       {

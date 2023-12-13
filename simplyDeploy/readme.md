@@ -108,7 +108,7 @@
 
 ## 5.poolToken列表介绍
 
-<img width="700" height="200"alt="764d2f1534d7a2a3261c6cd833d9470" src="https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/dd59e346-265b-4153-8b0a-cf3750da240a">
+<img width="700" height="200" alt="764d2f1534d7a2a3261c6cd833d9470" src="https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/dd59e346-265b-4153-8b0a-cf3750da240a">
 
 * 通过点击选择token,点击选择合成pool_token，填写独一无二的名字之后，pool_token将会在pool_token列表显示（请确保不要填写重复名称，否则会覆盖）
 

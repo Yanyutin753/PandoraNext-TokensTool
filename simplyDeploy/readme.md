@@ -2,19 +2,10 @@
 
 ##### ### *请先确保安装好tokensTool和pandoraNext之后食用本教程*
 
-------------
-
 ## 初始配置介绍
 ###*1.首先打开tokensTool，点击右上角的系统设置，找到tokensTool设置*
 
-------------
-
-
-
 <img width="400" alt="56bfc0cf0b70582cf8dd2c80d498253" src="https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/e6e024d4-adf6-4bce-9e4f-1922595f5a78">
-
-------------
-
 
 > **登录用户名**： 用于设置tokensTool的登录账号
 
@@ -38,7 +29,6 @@
 
 #### *填写完毕点击提交之后，会退出界面，重新登录之后，重新启动PandoraNext，等待PandoraNext启动完成！*
 
-------------
 
 
 #### 注意事项
@@ -49,10 +39,8 @@
 ------------
 
 ##2. 修改PandoraNext里面的其他配置介绍
+
 <img width="400"  alt="d3e5ac6e9e9da3da99163de9872b953" src="https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/a42216aa-d945-44bd-9cce-8e7fa107e45b">
-
-------------
-
 
 > **对话标题**： 隔离会话可以设置标题了，而不再是千篇一律的*号。
 
@@ -72,14 +60,11 @@
 * whitelist为null则不限制，为空数组[]则限制所有账号，内置tokens不受限。
 * 一个whitelist的例子："whitelist": ["mail2@test.com", "mail2@test.com"]
 
-
 ------------
 
 ## 3.添加Token介绍
+
 <img width="400" alt="764d2f1534d7a2a3261c6cd833d9470" src="https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/872590e1-fae8-4f75-a42f-706891526ae1">
-
-------------
-
 
 > **Token用户名**： token的独一无二的名称，用于PandoraNext直接输入该名称登录（不允许重名，重名则覆盖！）
 
@@ -100,10 +85,8 @@
 
 
 ## 4.Token功能介绍
+
 <img width="400" height="400" alt="906eac572ef8bc4d9d23f91ff882383" src="https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/39e62e3a-d14c-4001-94a3-3da7fafedcb0">
-
-------------
-
 
 > **编辑**：字面意思，编辑token
 
@@ -115,9 +98,6 @@
 
 > **生成**：耗费 2/8 通过原有的**session_token**转化成**access_token**,**access_token**再转换成**share_token**,这些tokens都会在查看中出现，请点击查看。
 
-------------
-
-
 ### 注意事项
 * *刷新获得session_token的正常有效期是：**3个月**，所以请不要盲目刷新*
 
@@ -127,10 +107,8 @@
 
 
 ## 5.poolToken列表介绍
+
 <img width="700" height="200"alt="764d2f1534d7a2a3261c6cd833d9470" src="https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/dd59e346-265b-4153-8b0a-cf3750da240a">
-
-------------
-
 
 * 通过点击选择token,点击选择合成pool_token，填写独一无二的名字之后，pool_token将会在pool_token列表显示（请确保不要填写重复名称，否则会覆盖）
 
@@ -148,12 +126,9 @@
 ###注意事项
 * **由于始皇的接口限制，没到刷新时间，是不会更改access_token的，所以，这样做能尽可能的降低没有及时更新的风险，但是不怕一万就怕万一，如果是在时遇到问题了，还请大家手动按一下按钮进行刷新，谢谢大家的不断支持！**
 
-
 ------------
 
-
-
-## ⭐如遇到实在解决不了的问题，欢迎加我微信，加进充满大佬的群吧，群佬有时间就会帮忙答疑的！
+## ⭐最后如遇到实在解决不了的问题，欢迎加我微信，加进充满大佬的群吧，群佬有时间就会帮忙答疑的！
 
 #### 让我们一起感谢始皇能让我们白嫖openAI吧，一起让项目更好！
 

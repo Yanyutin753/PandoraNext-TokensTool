@@ -25,7 +25,7 @@
 
 > **Tokenstool接口**: 打开将会开启tokensTool的接口，你可以通过访问tokensTool的接口来获取到你想要拿到tokensTool里的pool_token或者share_token，方便第三方应用使用PandoraNext的API。
 
->** 监管容器**：具体可以看你的docker里的PandoraNext服务的容器名称，默认为PandoraNext，填写完之后可以控制容器的开启，暂停，重载与重启。（release部署使用默认即可）
+> **监管容器**: 具体可以看你的docker里的PandoraNext服务的容器名称，默认为PandoraNext，填写完之后可以控制容器的开启，暂停，重载与重启。（release部署使用默认即可）
 
 #### *填写完毕点击提交之后，会退出界面，重新登录之后，重新启动PandoraNext，等待PandoraNext启动完成！*
 
@@ -123,7 +123,7 @@
 * *1.首先系统会在每天的3点先自动检查token距离现在是否超过了9或10或11的倍数，如果是的话则进行自动生成，将**session_token**重新生成**access_token**和**share_token***
 * *2.其次系统会在每天的凌晨4点左右会重新刷新**pool_token**,将更新好了的和没更新好的一起放入**pool_token**中，完成更新。*
 
-###注意事项
+### 注意事项
 * **由于始皇的接口限制，没到刷新时间，是不会更改access_token的，所以，这样做能尽可能的降低没有及时更新的风险，但是不怕一万就怕万一，如果是在时遇到问题了，还请大家手动按一下按钮进行刷新，谢谢大家的不断支持！**
 
 ------------

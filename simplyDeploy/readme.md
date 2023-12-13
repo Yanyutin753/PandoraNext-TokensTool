@@ -118,7 +118,83 @@
 
 > **更换**：是会注销原先的**pool_token**，重新把相应的**share_tokens**填充到新的pool_token里面
 
-## 6.tokensTool实现自动刷新access_token、share_token和pool_token的原理介绍
+------------
+
+
+
+## 接口使用说明
+
+* 通过这些接口，可以直接让第三方应用拿到我们的token,方便更好的使用PandoraNext，如果不需要，在配置tokensTool的设置关闭即可！
+1. /shared_token
+   * 请求方式为get
+   * 示例网址：http://ip:8081/shared_token?password=123456
+   * 返回
+    ```
+     {
+    "code": 1,
+    "msg": "success",
+    "data": [
+              "fk-Yasdasdasdasdasdasd",
+              "fk-ssadasdd asdasdasdasM"
+          ]
+      }
+     ```
+
+2./token/shared_token
+* 请求方式为get
+* 示例网址：http://ip:8081/token/shared_token?password=123456&tokenName=tokenstool
+* 返回
+```
+{
+"code": 1,
+"msg": "success",
+"data": "fk-I2hsq9weY_NnBm0Fgcsadsasdasdasg9_OFwn7A"
+}
+```
+
+3 /access_token
+   * 请求方式为get
+   * 示例网址：http://ip:8081/access_token?password=123456
+   * 返回
+```
+{
+"code": 1,
+"msg": "success",
+"data": [
+      "access_token_1",
+      "access_token_2"
+  ]
+}
+```
+
+4 /token/access_token
+* 请求方式为get
+* 示例网址：http://ip:8081/token/access_token?password=123456&tokenName=tokenstool
+* 返回
+```
+{
+"code": 1,
+"msg": "success",
+"data": "access_token"
+}
+```
+
+5 /token/pool_token
+   * 请求方式为get
+   * 示例网址：http://ip:8081/pool_token?password=123456&tokenName=tokenstool
+   * 返回
+     ```
+      {
+          "code": 1,
+          "msg": "success",
+          "data": "pk-L25JirYw2mWiyRqasdasdSCYrnovbHkmXIA7jDUs-Zpug"
+      }
+     ```
+ 
+------------
+
+
+## 7.tokensTool实现自动刷新access_token、share_token和pool_token的原理介绍
 
 * *1.首先系统会在每天的3点先自动检查token距离现在是否超过了9或10或11的倍数，如果是的话则进行自动生成，将**session_token**重新生成**access_token**和**share_token***
 * *2.其次系统会在每天的凌晨4点左右会重新刷新**pool_token**,将更新好了的和没更新好的一起放入**pool_token**中，完成更新。*

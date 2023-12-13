@@ -1,9 +1,9 @@
 # tokensTool使用教程
 
-##### ### *请先确保安装好tokensTool和pandoraNext之后食用本教程*
+##### *请先确保安装好tokensTool和pandoraNext之后食用本教程*
 
 ## 初始配置介绍
-###*1.首先打开tokensTool，点击右上角的系统设置，找到tokensTool设置*
+### *1.首先打开tokensTool，点击右上角的系统设置，找到tokensTool设置*
 
 <img width="400" alt="56bfc0cf0b70582cf8dd2c80d498253" src="https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/e6e024d4-adf6-4bce-9e4f-1922595f5a78">
 
@@ -38,7 +38,7 @@
 
 ------------
 
-##2. 修改PandoraNext里面的其他配置介绍
+## 2. 修改PandoraNext里面的其他配置介绍
 
 <img width="400"  alt="d3e5ac6e9e9da3da99163de9872b953" src="https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/a42216aa-d945-44bd-9cce-8e7fa107e45b">
 

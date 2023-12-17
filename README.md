@@ -328,6 +328,8 @@ docker-compose up -d
 
 * 有群佬写了一个自动刷新token的[脚本](https://github.com/ALbur/autoTools/blob/main/autorenew.py)，大家也可以试试！
 
+* 新增详细使用[tokensTools说明](https://github.com/Yanyutin753/PandoraNext-TokensTool/blob/main/simplyDeploy/readme.md)
+
 ## 新增群聊，点了⭐️可以进群讨论部署，我把你们拉进群，无广，广子踢掉
 ![903c5a117387f1a236ba1ce3d83f867](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/a87d3070-6eb7-4ad0-8105-1d3e103b1c15)
 

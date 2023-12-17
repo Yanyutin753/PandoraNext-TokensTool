@@ -19,4 +19,6 @@ public interface poolService {
     String changePoolToken(poolToken poolToken);
 
     List<poolToken> selectPoolToken(String name);
+
+    String refreshAllTokens();
 }

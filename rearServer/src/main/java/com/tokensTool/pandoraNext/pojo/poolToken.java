@@ -14,12 +14,24 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class poolToken {
+    /**
+     * pool_token 专属名（文件唯一）
+     */
     private String poolName;
 
+    /**
+     * pool_token 值
+     */
     private String poolToken;
 
+    /**
+     * pool_token 的分享token名数组
+     */
     private List<String> shareTokens;
 
+    /**
+     * pool_token 注册时间
+     */
     private String poolTime;
 
 }

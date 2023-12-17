@@ -130,32 +130,6 @@ public class tokenController {
         }
     }
 
-//    /**
-//     * 获取pool_token
-//     * 返回pool_token或Not_Login
-//     */
-//    @GetMapping("/pool_token")
-//    public Result getPoolToken(@RequestParam("password") String password){
-//        systemSetting systemSetting = systemService.selectSetting();
-//        if(! systemSetting.getIsGetToken()){
-//            return Result.error("Not_Open");
-//        }
-//        if(password.equals(systemSetting.getGetTokenPassword())) {
-//            try {
-//                String poolToken = systemSetting.getPool_token();
-//                if(poolToken != null && poolToken.contains("pk")){
-//                    return Result.success(poolToken);
-//                }
-//                else{
-//                    return Result.error("该tokensTool没有正确生成pool_Token");
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//                return Result.error("获取pool_token出现问题！");
-//            }
-//        }
-//        return Result.error("Not_Login");
-//    }
 
     /**
      * 获取单个pool_token

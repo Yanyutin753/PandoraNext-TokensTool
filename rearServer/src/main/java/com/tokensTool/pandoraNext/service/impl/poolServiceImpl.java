@@ -172,6 +172,7 @@ public class poolServiceImpl implements poolService {
         String resPoolToken;
         try {
             String shareTokens = getShareTokens(poolToken.getShareTokens());
+            log.info(shareTokens);
             String temPoolToken = poolToken.getPoolToken();
             if(temPoolToken != null && temPoolToken.contains("pk")){
                 resPoolToken = apiService.getPoolToken(temPoolToken,shareTokens);
@@ -183,6 +184,9 @@ public class poolServiceImpl implements poolService {
             throw new RuntimeException(ex);
         }
         try {
+            if(resPoolToken == null){
+                return "pool_token数据添加失败，请开启登录生成";
+            }
             String parent = selectFile();
             File jsonFile = new File(parent);
             Path jsonFilePath = Paths.get(parent);
@@ -300,7 +304,7 @@ public class poolServiceImpl implements poolService {
      */
 
     @Scheduled(cron = "0 0 4 * * ?")
-    public void refreshAllTokens(){
+    public String refreshAllTokens(){
         log.info("开始自动更新PoolToken..........................");
         List<poolToken> poolTokens = selectPoolToken("");
         int count = 0;
@@ -322,7 +326,8 @@ public class poolServiceImpl implements poolService {
                 }
             }
         }
-        log.info("pool_token刷新成功:"+count+"失败:"+ (poolTokens.size() - count));
+        log.info("(\"pool_token刷新成功:\"+count+\"失败:\"+ (poolTokens.size() - count))");
+        return ("pool_token刷新成功:"+count+"失败:"+ (poolTokens.size() - count));
     }
 
     /**

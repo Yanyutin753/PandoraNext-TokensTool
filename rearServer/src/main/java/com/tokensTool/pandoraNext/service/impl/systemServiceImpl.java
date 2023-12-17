@@ -112,8 +112,11 @@ public class systemServiceImpl implements systemService {
             updateJsonValue(jsonObject,"isolated_conv_title",tem.getIsolated_conv_title());
             updateJsonValue(jsonObject,"proxy_api_prefix",tem.getProxy_api_prefix());
 
-            // 4.7
-            updateJsonValue(jsonObject,"pool_token",tem.getPool_token());
+            // 4,9
+            updateJsonValue(jsonObject,"disable_signup",tem.getDisable_signup());
+            updateJsonValue(jsonObject,"auto_conv_arkose",tem.getAuto_conv_arkose());
+            updateJsonValue(jsonObject,"proxy_file_service",tem.getProxy_file_service());
+            updateJsonValue(jsonObject,"custom_doh_host",tem.getCustom_doh_host());
 
             // validation
             validation validation = tem.getValidation();
@@ -251,10 +254,34 @@ public class systemServiceImpl implements systemService {
             }
 
             try {
-                jsonObject.getString("pool_token");
+                jsonObject.getBoolean("disable_signup");
             } catch (JSONException e) {
-                jsonObject.put("pool_token", "");
-                log.info("config.json没有新增pool_token参数,现已增加！");
+                jsonObject.put("disable_signup", false);
+                log.info("config.json没有新增disable_signup参数,现已增加！");
+                exist = false;
+            }
+
+            try {
+                jsonObject.getBoolean("auto_conv_arkose");
+            } catch (JSONException e) {
+                jsonObject.put("auto_conv_arkose", false);
+                log.info("config.json没有新增auto_conv_arkose参数,现已增加！");
+                exist = false;
+            }
+
+            try {
+                jsonObject.getBoolean("proxy_file_service");
+            } catch (JSONException e) {
+                jsonObject.put("proxy_file_service", false);
+                log.info("config.json没有新增proxy_file_service参数,现已增加！");
+                exist = false;
+            }
+
+            try {
+                jsonObject.getString("custom_doh_host");
+            } catch (JSONException e) {
+                jsonObject.put("custom_doh_host", "");
+                log.info("config.json没有新增custom_doh_host参数,现已增加！");
                 exist = false;
             }
 
@@ -271,8 +298,11 @@ public class systemServiceImpl implements systemService {
             config.setIsolated_conv_title(jsonObject.getString("isolated_conv_title"));
             config.setProxy_api_prefix(jsonObject.getString("proxy_api_prefix"));
 
-            // 4.7
-            config.setPool_token(jsonObject.getString("pool_token"));
+            //4.9
+            config.setDisable_signup(jsonObject.getBoolean("disable_signup"));
+            config.setAuto_conv_arkose(jsonObject.getBoolean("auto_conv_arkose"));
+            config.setProxy_file_service(jsonObject.getBoolean("proxy_file_service"));
+            config.setCustom_doh_host(jsonObject.getString("custom_doh_host"));
 
 
             boolean validationExist = true;

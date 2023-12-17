@@ -107,9 +107,25 @@ public class systemSetting {
      */
     private String proxy_api_prefix;
 
+
     /**
-     * PandoraNext pool_token
+     * 禁用注册账号功能，true或false
      */
-    private String pool_token;
+    private Boolean disable_signup;
+
+    /**
+     * 在proxy模式使用gpt-4模型调用/backend-api/conversation接口是否自动打码，使用消耗为4+10。
+     */
+    private Boolean auto_conv_arkose;
+
+    /**
+     * 在proxy模式是否使用PandoraNext的文件代理服务，避免官方文件服务的墙。
+     */
+    private Boolean proxy_file_service;
+
+    /**
+     * 配置自定义的DoH主机名，建议使用IP形式。默认在+8区使用223.6.6.6，其余地区使用1.1.1.1。
+     */
+    private String custom_doh_host;
 
 }

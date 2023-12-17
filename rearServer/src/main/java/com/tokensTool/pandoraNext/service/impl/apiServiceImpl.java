@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.tokensTool.pandoraNext.pojo.PandoraLimit;
 import com.tokensTool.pandoraNext.pojo.systemSetting;
 import com.tokensTool.pandoraNext.pojo.token;
 import com.tokensTool.pandoraNext.service.apiService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -134,8 +136,8 @@ public class apiServiceImpl implements apiService {
                     JsonNode temNode = rootNode.get(nodeName);
                     temRes.setUsername(temNode.has("username") ? temNode.get("username").asText() : "");
                     temRes.setToken(temNode.has("token") ? temNode.get("token").asText() : "");
-                    temRes.setAccess_token(temNode.has("access_token") ? temNode.get("access_token").asText() : "第一次加载数据请先点击生成");
-                    temRes.setShare_token(temNode.has("share_token") ? temNode.get("share_token").asText() : "第一次加载数据请先点击生成");
+                    temRes.setAccess_token(temNode.has("access_token") ? temNode.get("access_token").asText() : "未开启pool_token无法生成");
+                    temRes.setShare_token(temNode.has("share_token") ? temNode.get("share_token").asText() : "未开启pool_token无法生成");
                     temRes.setUserPassword(temNode.has("userPassword") ? temNode.get("userPassword").asText() : "");
                     temRes.setShared(temNode.has("shared") ? temNode.get("shared").asBoolean() : false);
                     temRes.setShow_user_info(temNode.has("show_user_info") ? temNode.get("show_user_info").asBoolean() : false);
@@ -194,19 +196,20 @@ public class apiServiceImpl implements apiService {
 
             newData.put("token", token.getToken());
 
-            String access_token = getAccessToken(token);
-            if(access_token != null){
-                newData.put("access_token",access_token);
-                token.setAccess_token(access_token);
-                String share_token = getShareToken(token);
-                if(share_token != null && share_token.length() > 0){
-                    token.setShare_token(share_token);
-                    newData.put("share_token",share_token);
+            String access_token = null;
+            if(token.isSetPoolToken()){
+                access_token = getAccessToken(token);
+                if(access_token != null){
+                    newData.put("access_token",access_token);
+                    token.setAccess_token(access_token);
+                    String share_token = getShareToken(token);
+                    if(share_token != null && share_token.length() > 0){
+                        token.setShare_token(share_token);
+                        newData.put("share_token",share_token);
+                    }
                 }
             }
-//            else{
-//                return "出错了，没有拿到access_token和share_token";
-//            }
+
             newData.put("username", token.getUsername());
             newData.put("userPassword", token.getUserPassword());
             newData.put("shared", token.isShared());
@@ -214,14 +217,12 @@ public class apiServiceImpl implements apiService {
             newData.put("plus", token.isPlus());
             newData.put("setPoolToken",token.isSetPoolToken());
 
-
             // 检查是否需要 TokenPassword
             if (token.getPassword() != null && token.getPassword().length() > 0) {
                 newData.put("password", token.getPassword());
             } else {
                 newData.put("password", "");
             }
-
             LocalDateTime now = LocalDateTime.now();
             newData.put("updateTime", now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             // 将新数据添加到 JSON 树中
@@ -276,21 +277,25 @@ public class apiServiceImpl implements apiService {
                 nodeToModifyInNew.put("plus", tem.isPlus());
                 nodeToModifyInNew.put("setPoolToken", tem.isSetPoolToken());
 
+
                 // 检查是否需要 TokenPassword
                 if (tem.getPassword() != null && tem.getPassword().length() > 0) {
                     nodeToModifyInNew.put("password", tem.getPassword());
                 } else {
                     nodeToModifyInNew.put("password", "");
                 }
-                if (tem.getAccess_token() != null && tem.getAccess_token().length() > 0) {
-                    nodeToModifyInNew.put("access_token", tem.getAccess_token());
-                }
-                log.info("tem里的share_token"+tem.getShare_token());
-                if (tem.getShare_token() != null && tem.getShare_token().length() > 0) {
-                    nodeToModifyInNew.put("share_token", tem.getShare_token());
-                    log.info("添加share_token成功！");
-                }
-                if(! previousToken.equals(tem.getToken())){
+//                if (tem.getAccess_token() != null && tem.getAccess_token().length() > 0) {
+//                    nodeToModifyInNew.put("access_token", tem.getAccess_token());
+//                }
+//                log.info("tem里的share_token"+tem.getShare_token());
+//                if (tem.getShare_token() != null && tem.getShare_token().length() > 0) {
+//                    nodeToModifyInNew.put("share_token", tem.getShare_token());
+//                    log.info("添加share_token成功！");
+//                }
+                // 检查修改的token是否相同，不相同且为eyjhbG开头，能生成API的
+                if(! previousToken.equals(tem.getToken())
+                        && tem.getToken().contains("eyJhbG")
+                        && tem.isSetPoolToken()){
                     //获取access_token或share_token
                     String access_token = getAccessToken(tem);
                     if(access_token != null){
@@ -307,6 +312,15 @@ public class apiServiceImpl implements apiService {
                     else{
                         nodeToModifyInNew.put("access_token","");
                     }
+                    LocalDateTime now = LocalDateTime.now();
+                    nodeToModifyInNew.put("updateTime", now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                }
+
+                //如果不能生成API
+                if(tem.isSetPoolToken() == false){
+                    nodeToModifyInNew.put("token", tem.getUsername() + ","+ tem.getUserPassword());
+                    nodeToModifyInNew.put("share_token","未开启pool_token无法生成");
+                    nodeToModifyInNew.put("access_token","未开启pool_token无法生成");
                     LocalDateTime now = LocalDateTime.now();
                     nodeToModifyInNew.put("updateTime", now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                 }
@@ -471,9 +485,7 @@ public class apiServiceImpl implements apiService {
             try {
                 JSONObject jsonResponse = new JSONObject(responseContent);
                 // 提取返回的数据
-                log.info(jsonResponse.toString());
                 resToken = jsonResponse.getString("access_token");
-                log.info("access_token更新为："+resToken);
                 httpClient.close();
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -503,7 +515,8 @@ public class apiServiceImpl implements apiService {
         }
         // 假设expires_in为0
         int expires_in = 0;
-        boolean show_conversations = true;
+        // 自定义隔离对话
+        boolean show_conversations = false;
         log.info("将通过这个网址请求登录信息：" + url);
         String data = "unique_name=" + token.getName() + "&access_token=" + token.getAccess_token() + "&expires_in=" + expires_in + "&show_conversations=" + show_conversations;
         String tokenKey = "";
@@ -549,7 +562,6 @@ public class apiServiceImpl implements apiService {
             // 使用正则表达式匹配字符串
             String shareToken = tokenKey;
             if (shareToken.matches("^(fk-|pk-).*")) {
-                log.info("open_ai_api_key 被更新为: " + shareToken);
                 return shareToken;
             }
         } catch (Exception e) {
@@ -666,7 +678,12 @@ public class apiServiceImpl implements apiService {
     public String autoUpdateToken(String name) {
         List<token> resTokens = selectToken(name);
         int newToken = 0;
+        int allToken = 0;
         for (token token : resTokens) {
+            if(token.isSetPoolToken() == false){
+                continue;
+            }
+            allToken++;
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             // 将字符串解析为LocalDateTime
             LocalDateTime localDateTime = LocalDateTime.parse(token.getUpdateTime(), formatter);
@@ -693,11 +710,11 @@ public class apiServiceImpl implements apiService {
             }
         }
         if (newToken == 0) {
-            log.info("自动修改Token失败！");
-            return "自动修改Token失败！";
+            log.info("自动生成Token失败！");
+            return "自动生成Token失败！";
         } else {
-            log.info("自动修改Token成功：" + newToken + "失败：" + (resTokens.size() - newToken));
-            return "自动修改Token成功：" + newToken + "失败：" + (resTokens.size() - newToken);
+            log.info("自动生成Token成功：" + newToken + "失败：" + (allToken - newToken));
+            return "自动生成Token成功：" + newToken + "失败：" + (allToken - newToken);
         }
     }
 
@@ -835,6 +852,49 @@ public class apiServiceImpl implements apiService {
                 //用来防止请求的token出现问题，回退token值
                 log.info("注销pool_token成功，Url的路径为："+url);
                 return resPoolToken;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public PandoraLimit getPandoraLimit() {
+        systemSetting systemSetting = systemService.selectSetting();
+        String url = "https://dash.pandoranext.com/api/" + systemSetting.getLicense_id() + "/usage";
+        log.info("将通过这个网址请求PandoraNext余额信息："+ url);
+        try {
+            // 创建HttpClient实例
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            // 创建HttpPost请求
+            HttpGet httpGet = new HttpGet(url);
+
+            // 执行HTTP请求
+            HttpResponse response = httpClient.execute(httpGet);
+            int statusCode = response.getStatusLine().getStatusCode();
+            // 获得响应数据
+            String responseContent = EntityUtils.toString(response.getEntity());
+            PandoraLimit pandoraLimit = new PandoraLimit();
+            try {
+                JSONObject jsonResponse = new JSONObject(responseContent);
+                //用量
+                pandoraLimit.setCurrent(jsonResponse.getInt("current"));
+                //ip
+                pandoraLimit.setIp(jsonResponse.getString("ip"));
+                //总额
+                pandoraLimit.setTotal(jsonResponse.getInt("total"));
+                //重载时间
+                pandoraLimit.setTtl(jsonResponse.getInt("ttl"));
+
+                httpClient.close();
+            } catch (JSONException e) {
+                e.printStackTrace();
+                httpClient.close();
+            }
+            //关闭进程
+            if (statusCode == 200 && pandoraLimit.toString().length() > 0) {
+                return pandoraLimit;
             }
         } catch (Exception e) {
             e.printStackTrace();

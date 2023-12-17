@@ -4,6 +4,7 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.exception.DockerException;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.tokensTool.pandoraNext.anno.Log;
+import com.tokensTool.pandoraNext.pojo.PandoraLimit;
 import com.tokensTool.pandoraNext.pojo.Result;
 import com.tokensTool.pandoraNext.pojo.systemSetting;
 import com.tokensTool.pandoraNext.pojo.token;
@@ -395,6 +396,25 @@ public class apiController {
             throw new RuntimeException();
         }
     }
+
+    /**
+     * 查询PandoraNext的额度
+     */
+    @GetMapping("gePandoraNext")
+    public Result getPandoraLimit(){
+        try {
+            PandoraLimit pandoraLimit = apiService.getPandoraLimit();
+            if(pandoraLimit != null){
+                return Result.success(pandoraLimit);
+            }
+            else{
+                return Result.error("查询PandoraNext余额失败，请检查ip绑定是否成功!");
+            }
+        } catch (Exception e) {
+            return Result.error("查询PandoraNext余额失败!");
+        }
+    }
+
 
     @Value("${pandoara_Ip}")
     private String pandoara_Ip;

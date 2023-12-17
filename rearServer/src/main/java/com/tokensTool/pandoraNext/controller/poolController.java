@@ -3,6 +3,7 @@ package com.tokensTool.pandoraNext.controller;
 import com.tokensTool.pandoraNext.pojo.Result;
 import com.tokensTool.pandoraNext.pojo.poolToken;
 import com.tokensTool.pandoraNext.service.poolService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,7 @@ import java.util.List;
  * @author Yangyang
  * @create 2023-12-11 10:49
  */
+@Slf4j
 @RestController
 @Component
 @RequestMapping("/api")
@@ -92,6 +94,17 @@ public class poolController {
         } catch (Exception e) {
             e.printStackTrace();
             return Result.error("获取失败");
+        }
+    }
+
+    @GetMapping("updateAllPoolToken")
+    public Result updateAllPoolToken(){
+        try {
+            String res = poolService.refreshAllTokens();
+            return Result.success(res);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error("刷新失败");
         }
     }
 }

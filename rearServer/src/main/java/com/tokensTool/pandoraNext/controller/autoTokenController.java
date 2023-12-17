@@ -3,7 +3,7 @@ package com.tokensTool.pandoraNext.controller;
 import com.tokensTool.pandoraNext.anno.Log;
 import com.tokensTool.pandoraNext.pojo.Result;
 import com.tokensTool.pandoraNext.pojo.token;
-import com.tokensTool.pandoraNext.service.systemService;
+import com.tokensTool.pandoraNext.service.impl.poolServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,13 +19,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api")
 public class autoTokenController {
 
-    private static String poolToken = "";
 
     @Autowired
     private com.tokensTool.pandoraNext.service.apiService apiService;
 
     @Autowired
-    private systemService systemService;
+    private poolServiceImpl poolService;
 
     /**
      * 自动更新access_Token和share_token
@@ -56,15 +55,16 @@ public class autoTokenController {
     public Result toUpdateAllToken(){
         try {
             String res = apiService.autoUpdateToken("");
-            if(res.contains("修改Token成功")){
+            if(res.contains("生成Token成功")){
                 try {
-                    return Result.success(res);
+                    String s = poolService.refreshAllTokens();
+                    return Result.success(res + "\n" + s);
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    return Result.success(res +",但是自动更新pool_token失败，请手动点击一键全更新pool_token!");
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new IllegalStateException(e);
         }
         return Result.error("生成access_token和share_token失败");
     }
@@ -100,6 +100,7 @@ public class autoTokenController {
             String res = apiService.autoUpdateSessionToken(token);
             if(res != null && res.length() > 300){
                 token.setToken(res);
+                token.setSetPoolToken(true);
                 Result update = toUpdateToken(token);
                 if(update.getCode() == 1){
                     return Result.success(res);

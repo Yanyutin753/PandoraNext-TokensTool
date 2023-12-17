@@ -1,5 +1,6 @@
 package com.tokensTool.pandoraNext.service;
 
+import com.tokensTool.pandoraNext.pojo.PandoraLimit;
 import com.tokensTool.pandoraNext.pojo.token;
 
 import java.io.IOException;
@@ -78,4 +79,10 @@ public interface apiService {
      * @return
      */
     String deletePoolToken(String poolToken);
+
+    /**
+     * 获取pandoraNext的余额
+     * @return
+     */
+    PandoraLimit getPandoraLimit();
 }

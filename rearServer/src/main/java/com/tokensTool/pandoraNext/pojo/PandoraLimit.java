@@ -12,10 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PandoraLimit {
-//    {"current":4,
-//            "ip":"121.37.243.173",
-//            "license_id":"etYUwfjFn89LNRtbcdFMPlTcdP9hLSJS6wHZEpEQTR0",
-//            "total":"2000","ttl":44679}
     /**
      * 用量
      */

@@ -56,7 +56,6 @@ public class systemSetting {
      */
     private String loginPassword;
 
-
     /**
      * tokensTool 验证信息
      */
@@ -67,7 +66,6 @@ public class systemSetting {
      * 为"default"则调用本机的，不为“default"则自定义
      */
     private String autoToken_url;
-
 
     /**
      * 是否开启拿tokensTool的后台token
@@ -107,7 +105,6 @@ public class systemSetting {
      */
     private String proxy_api_prefix;
 
-
     /**
      * 禁用注册账号功能，true或false
      */
@@ -128,4 +125,23 @@ public class systemSetting {
      */
     private String custom_doh_host;
 
+    /**
+     * 自动刷新session的开关
+     */
+    private Boolean auto_updateSession;
+
+    /**
+     * 自动刷新session的时间 (天为单位)
+     */
+    private Integer auto_updateTime;
+
+    /**
+     * 自动刷新session的个数 （个）
+     */
+    private Integer auto_updateNumber;
+
+    /**
+     * PadoraNext的公网访问地址
+     */
+    private String pandoraNext_outUrl;
 }

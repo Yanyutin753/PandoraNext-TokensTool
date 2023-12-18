@@ -39,7 +39,7 @@ public interface apiService {
     String deleteToken(String name);
 
     /**
-     * 刷新Token
+     * 更换tokensTool里存储的Token的access_token和share_token
      * @return "更新成功" or "更新失败"
      */
     token autoUpdateSimpleToken(token token);
@@ -66,12 +66,6 @@ public interface apiService {
      */
     String autoUpdateSessionToken(token token);
 
-    /**
-     * 更新pool_token
-     * @param poolToken
-     * @return
-     */
-    String toUpdatePoolToken(String poolToken);
 
     /**
      * 注销pool_token
@@ -85,4 +79,11 @@ public interface apiService {
      * @return
      */
     PandoraLimit getPandoraLimit();
+
+    /**
+     * 刷新session，更新access_token和share_token
+     * @param token
+     * @return
+     */
+    token updateSession(token token);
 }

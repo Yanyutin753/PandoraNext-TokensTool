@@ -1,10 +1,10 @@
 package com.tokensTool.pandoraNext.service.impl;
 
 import com.tokensTool.pandoraNext.pojo.systemSetting;
-import com.tokensTool.pandoraNext.pojo.validation;
-import com.tokensTool.pandoraNext.util.JwtUtils;
 import com.tokensTool.pandoraNext.pojo.tls;
+import com.tokensTool.pandoraNext.pojo.validation;
 import com.tokensTool.pandoraNext.service.systemService;
+import com.tokensTool.pandoraNext.util.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,9 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Yangyang
@@ -60,6 +58,92 @@ public class systemServiceImpl implements systemService {
         }
         return parent;
     }
+
+    /**
+     * 初始化config.json文件
+     *
+     */
+    public void initializeConfigJson() {
+        String parent = selectFile();
+        try {
+            String jsonContent = new String(Files.readAllBytes(Paths.get(parent)));
+            JSONObject jsonObject = new JSONObject(jsonContent);
+
+            // 定义一个 Map，其中键是 JSON 属性的名称，值是默认值
+            Map<String, Object> keysAndDefaults = new HashMap<>();
+            keysAndDefaults.put("loginUsername", "root");
+            keysAndDefaults.put("loginPassword", "123456");
+            keysAndDefaults.put("license_id", "");
+            keysAndDefaults.put("autoToken_url", "default");
+            keysAndDefaults.put("isGetToken", "false");
+            keysAndDefaults.put("getTokenPassword", "");
+            keysAndDefaults.put("containerName", "PandoraNext");
+            keysAndDefaults.put("isolated_conv_title", "*");
+            keysAndDefaults.put("proxy_api_prefix", "");
+            keysAndDefaults.put("disable_signup", false);
+            keysAndDefaults.put("auto_conv_arkose", false);
+            keysAndDefaults.put("proxy_file_service", false);
+            keysAndDefaults.put("custom_doh_host", "");
+
+            // 0.4.9.2
+            keysAndDefaults.put("auto_updateSession",false);
+            keysAndDefaults.put("auto_updateTime",5);
+            keysAndDefaults.put("auto_updateNumber",1);
+            keysAndDefaults.put("pandoraNext_outUrl","");
+
+            boolean exist = checkAndSetDefaults(jsonObject, keysAndDefaults);
+
+            JSONObject captchaJson = Optional.ofNullable(jsonObject.optJSONObject("captcha")).orElse(new JSONObject());
+            validation captchaSetting = new validation(
+                    captchaJson.optString("provider", ""),
+                    captchaJson.optString("site_key", ""),
+                    captchaJson.optString("site_secret", ""),
+                    captchaJson.optBoolean("site_login", false),
+                    captchaJson.optBoolean("setup_login", false),
+                    captchaJson.optBoolean("oai_username", false),
+                    captchaJson.optBoolean("oai_password", false)
+            );
+
+            JSONObject tlsJson = Optional.ofNullable(jsonObject.optJSONObject("tls")).orElse(new JSONObject());
+            tls tlsSetting = new tls(
+                    tlsJson.optBoolean("enabled", false),
+                    tlsJson.optString("cert_file", ""),
+                    tlsJson.optString("key_file", "")
+            );
+
+            if (tlsJson.length() == 0) {
+                jsonObject.put("tls", tlsSetting.toJSONObject());
+                exist = false;
+            }
+            if (captchaJson.length() == 0) {
+                jsonObject.put("captcha", captchaSetting.toJSONObject());
+                exist = false;
+            }
+            if (!exist) {
+                String updatedJson = jsonObject.toString(2);
+                Files.write(Paths.get(parent), updatedJson.getBytes());
+            }
+            log.info("初始化config.json成功！");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // 通用方法，检查和设置默认值
+    private boolean checkAndSetDefaults(JSONObject jsonObject, Map<String, Object> keysAndDefaults) throws JSONException {
+        boolean exist = true;
+        for (Map.Entry<String, Object> entry : keysAndDefaults.entrySet()) {
+            try {
+                jsonObject.get(entry.getKey());
+            } catch (JSONException e) {
+                jsonObject.put(entry.getKey(), entry.getValue());
+                log.info("config.json没有新增" + entry.getKey() + "参数,现已增加！");
+                exist = false;
+            }
+        }
+        return exist;
+    }
+
     /**
      * 修改config.json里的系统值
      * @return "修改成功！"or"修改失败"
@@ -118,6 +202,12 @@ public class systemServiceImpl implements systemService {
             updateJsonValue(jsonObject,"proxy_file_service",tem.getProxy_file_service());
             updateJsonValue(jsonObject,"custom_doh_host",tem.getCustom_doh_host());
 
+            // 0.4.9.2
+            updateJsonValue(jsonObject,"auto_updateSession",tem.getAuto_updateSession());
+            updateJsonValue(jsonObject,"auto_updateTime",tem.getAuto_updateTime());
+            updateJsonValue(jsonObject,"auto_updateNumber",tem.getAuto_updateNumber());
+            updateJsonValue(jsonObject,"pandoraNext_outUrl",tem.getPandoraNext_outUrl());
+
             // validation
             validation validation = tem.getValidation();
             JSONObject captchaJson = jsonObject.getJSONObject("captcha");
@@ -165,8 +255,7 @@ public class systemServiceImpl implements systemService {
      * 查询config.json里的系统值
      * @return systemSettings类
      */
-    public systemSetting selectSetting(){
-        boolean exist = true;
+    public systemSetting selectSetting() {
         String parent = selectFile();
         try {
             // 读取 JSON 文件内容
@@ -182,135 +271,35 @@ public class systemServiceImpl implements systemService {
             config.setPublic_share(jsonObject.optBoolean("public_share"));
             config.setProxy_url(jsonObject.optString("proxy_url"));
             config.setWhitelist(jsonObject.isNull("whitelist") ? null : jsonObject.optString("whitelist"));
-            config.setTimeout(jsonObject.getInt("timeout"));
-            try {
-                jsonObject.getString("loginUsername");
-            } catch (JSONException e) {
-                jsonObject.put("loginUsername", "root");
-                log.info("config.json没有新增loginUsername参数,现已增加！");
-                exist = false;
-            }
-            try {
-                jsonObject.getString("loginPassword");
-            } catch (JSONException e) {
-                jsonObject.put("loginPassword", "123456");
-                log.info("config.json没有新增loginPassword参数,现已增加！");
-                exist = false;
-            }
-            try {
-                jsonObject.getString("license_id");
-            } catch (JSONException e) {
-                jsonObject.put("license_id", "");
-                log.info("config.json没有新增license_id参数,现已增加！");
-                exist = false;
-            }
+            config.setTimeout(jsonObject.optInt("timeout"));
 
-            try {
-                jsonObject.getString("autoToken_url");
-            } catch (JSONException e) {
-                jsonObject.put("autoToken_url", "default");
-                log.info("config.json没有新增autoToken_url参数,现已增加！");
-                exist = false;
-            }
+            config.setLoginUsername(jsonObject.optString("loginUsername"));
+            config.setLoginPassword(jsonObject.optString("loginPassword"));
 
-            try {
-                jsonObject.getString("isGetToken");
-            } catch (JSONException e) {
-                jsonObject.put("isGetToken", "false");
-                log.info("config.json没有新增isGetToken参数,现已增加！");
-                exist = false;
-            }
-
-            try {
-                jsonObject.getString("getTokenPassword");
-            } catch (JSONException e) {
-                jsonObject.put("getTokenPassword", "");
-                log.info("config.json没有新增getTokenPassword参数,现已增加！");
-                exist = false;
-            }
-
-            try {
-                jsonObject.getString("containerName");
-            } catch (JSONException e) {
-                jsonObject.put("containerName", "PandoraNext");
-                log.info("config.json没有新增containerName参数,现已增加！");
-                exist = false;
-            }
-
-            try {
-                jsonObject.getString("isolated_conv_title");
-            } catch (JSONException e) {
-                jsonObject.put("isolated_conv_title", "*");
-                log.info("config.json没有新增isolated_conv_title参数,现已增加！");
-                exist = false;
-            }
-
-            try {
-                jsonObject.getString("proxy_api_prefix");
-            } catch (JSONException e) {
-                jsonObject.put("proxy_api_prefix", "");
-                log.info("config.json没有新增proxy_api_prefix参数,现已增加！");
-                exist = false;
-            }
-
-            try {
-                jsonObject.getBoolean("disable_signup");
-            } catch (JSONException e) {
-                jsonObject.put("disable_signup", false);
-                log.info("config.json没有新增disable_signup参数,现已增加！");
-                exist = false;
-            }
-
-            try {
-                jsonObject.getBoolean("auto_conv_arkose");
-            } catch (JSONException e) {
-                jsonObject.put("auto_conv_arkose", false);
-                log.info("config.json没有新增auto_conv_arkose参数,现已增加！");
-                exist = false;
-            }
-
-            try {
-                jsonObject.getBoolean("proxy_file_service");
-            } catch (JSONException e) {
-                jsonObject.put("proxy_file_service", false);
-                log.info("config.json没有新增proxy_file_service参数,现已增加！");
-                exist = false;
-            }
-
-            try {
-                jsonObject.getString("custom_doh_host");
-            } catch (JSONException e) {
-                jsonObject.put("custom_doh_host", "");
-                log.info("config.json没有新增custom_doh_host参数,现已增加！");
-                exist = false;
-            }
-
-            config.setLoginUsername(jsonObject.getString("loginUsername"));
-            config.setLoginPassword(jsonObject.getString("loginPassword"));
-
-            config.setLicense_id(jsonObject.getString("license_id"));
-            config.setAutoToken_url(jsonObject.getString("autoToken_url"));
-            config.setIsGetToken(jsonObject.getBoolean("isGetToken"));
-            config.setGetTokenPassword(jsonObject.getString("getTokenPassword"));
-            config.setContainerName(jsonObject.getString("containerName"));
+            config.setLicense_id(jsonObject.optString("license_id"));
+            config.setAutoToken_url(jsonObject.optString("autoToken_url"));
+            config.setIsGetToken(jsonObject.optBoolean("isGetToken"));
+            config.setGetTokenPassword(jsonObject.optString("getTokenPassword"));
+            config.setContainerName(jsonObject.optString("containerName"));
 
             // 4.0
-            config.setIsolated_conv_title(jsonObject.getString("isolated_conv_title"));
-            config.setProxy_api_prefix(jsonObject.getString("proxy_api_prefix"));
+            config.setIsolated_conv_title(jsonObject.optString("isolated_conv_title"));
+            config.setProxy_api_prefix(jsonObject.optString("proxy_api_prefix"));
 
-            //4.9
-            config.setDisable_signup(jsonObject.getBoolean("disable_signup"));
-            config.setAuto_conv_arkose(jsonObject.getBoolean("auto_conv_arkose"));
-            config.setProxy_file_service(jsonObject.getBoolean("proxy_file_service"));
-            config.setCustom_doh_host(jsonObject.getString("custom_doh_host"));
+            // 4.9
+            config.setDisable_signup(jsonObject.optBoolean("disable_signup"));
+            config.setAuto_conv_arkose(jsonObject.optBoolean("auto_conv_arkose"));
+            config.setProxy_file_service(jsonObject.optBoolean("proxy_file_service"));
+            config.setCustom_doh_host(jsonObject.optString("custom_doh_host"));
 
+            // 0.4.9.2
+            config.setAuto_updateSession(jsonObject.optBoolean("auto_updateSession"));
+            config.setAuto_updateTime(jsonObject.optInt("auto_updateTime"));
+            config.setAuto_updateNumber(jsonObject.optInt("auto_updateNumber"));
+            config.setPandoraNext_outUrl(jsonObject.optString("pandoraNext_outUrl"));
 
-            boolean validationExist = true;
             // 获取 captcha 相关属性
-            JSONObject captchaJson = jsonObject.optJSONObject("captcha");
-            if (captchaJson == null ) {
-                captchaJson = new JSONObject();
-            }
+            JSONObject captchaJson = Optional.ofNullable(jsonObject.optJSONObject("captcha")).orElse(new JSONObject());
             validation captchaSetting = new validation(
                     captchaJson.optString("provider", ""),
                     captchaJson.optString("site_key", ""),
@@ -323,38 +312,41 @@ public class systemServiceImpl implements systemService {
             config.setValidation(captchaSetting);
 
             // 获取 tls 相关属性
-            boolean tlsExist = true;
-            JSONObject tlsJson = jsonObject.optJSONObject("tls");
-            if (tlsJson == null ) {
-                tlsJson = new JSONObject();
-                tlsExist = false;
-            }
+            JSONObject tlsJson = Optional.ofNullable(jsonObject.optJSONObject("tls")).orElse(new JSONObject());
             tls tlsSetting = new tls(
                     tlsJson.optBoolean("enabled", false),
                     tlsJson.optString("cert_file", ""),
                     tlsJson.optString("key_file", "")
             );
             config.setTls(tlsSetting);
-
-
-            if(tlsExist == false){
-                jsonObject.put("tls", tlsSetting.toJSONObject());
-                exist = false;
-            }
-            if(validationExist == false){
-                jsonObject.put("captcha", captchaSetting.toJSONObject());
-                exist = false;
-            }
-            if(exist == false){
-                // 将修改后的 JSONObject 转换为格式化的 JSON 字符串
-                String updatedJson = jsonObject.toString(2);
-                Files.write(Paths.get(parent), updatedJson.getBytes());
-            }
             return config;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+
+    public String requireTimeTask(systemSetting tem){
+        String parent = selectFile();
+        try {
+            // 读取 JSON 文件内容
+            String jsonContent = new String(Files.readAllBytes(Paths.get(parent)));
+
+            JSONObject jsonObject = new JSONObject(jsonContent);
+            // 0.4.9.2
+            updateJsonValue(jsonObject,"auto_updateSession",tem.getAuto_updateSession());
+            updateJsonValue(jsonObject,"auto_updateTime",tem.getAuto_updateTime());
+            updateJsonValue(jsonObject,"auto_updateNumber",tem.getAuto_updateNumber());
+            updateJsonValue(jsonObject,"pandoraNext_outUrl",tem.getPandoraNext_outUrl());
+            // 将修改后的 JSONObject 转换为格式化的 JSON 字符串
+            String updatedJson = jsonObject.toString(2);
+            Files.write(Paths.get(parent), updatedJson.getBytes());
+            return "修改定时任务和url成功！";
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "修改定时任务和url失败！";
     }
 
 }

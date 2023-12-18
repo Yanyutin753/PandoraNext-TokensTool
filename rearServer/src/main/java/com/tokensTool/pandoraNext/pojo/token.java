@@ -69,4 +69,8 @@ public class token {
      */
     private String updateTime;
 
+    /**
+     * token 检查session是否过期
+     */
+    private boolean checkSession;
 }

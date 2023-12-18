@@ -21,10 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Yangyang
@@ -282,13 +279,14 @@ public class poolServiceImpl implements poolService {
         try {
             StringBuffer resToken = new StringBuffer();
             List<token> tokens = apiService.selectToken("");
-            for (String temShareName : shareName) {
-                for (token token : tokens) {
-                    if(token.getName().equals(temShareName)
-                            && token.getShare_token() != null
-                            && token.isSetPoolToken()){
-                        resToken.append(token.getShare_token()+"\n");
-                    }
+            HashMap<String, String> tokensHashMap = new HashMap<>();
+            for(token tem : tokens){
+                tokensHashMap.put(tem.getName(),tem.getShare_token());
+            }
+            for(String temShareName : shareName) {
+                String temShareToken = tokensHashMap.get(temShareName);
+                if(temShareToken.substring(0, 3).equals("fk-")){
+                    resToken.append(tokensHashMap.get(temShareName) + "\n");
                 }
             }
             return resToken.toString();
@@ -299,10 +297,9 @@ public class poolServiceImpl implements poolService {
     }
 
     /**
-     * 定时任务每五天后的凌晨4点10分更新poolToken
+     * 定时任务每五天后的凌晨4点0分重新更新poolToken
      * @return
      */
-
     @Scheduled(cron = "0 0 4 * * ?")
     public String refreshAllTokens(){
         log.info("开始自动更新PoolToken..........................");
@@ -326,8 +323,8 @@ public class poolServiceImpl implements poolService {
                 }
             }
         }
-        log.info("(\"pool_token刷新成功:\"+count+\"失败:\"+ (poolTokens.size() - count))");
-        return ("pool_token刷新成功:"+count+"失败:"+ (poolTokens.size() - count));
+        log.info("(\"\npool_token刷新成功:\"+count+\"\n失败:\"+ (poolTokens.size() - count))");
+        return ("\npool_token刷新成功:"+count+"\n失败:"+ (poolTokens.size() - count));
     }
 
     /**
@@ -342,6 +339,7 @@ public class poolServiceImpl implements poolService {
                 if(token.getPoolName().equals(poolToken.getPoolName())){
                     String poolTokenValue = token.getPoolToken();
                     String shareToken = getShareTokens(token.getShareTokens());
+                    log.info(shareToken);
                     String resPoolToken = apiService.getPoolToken(poolTokenValue, shareToken);
                     if(resPoolToken != null && resPoolToken.equals(poolTokenValue)){
                         if(requirePoolToken(poolToken).contains("成功")){

@@ -30,10 +30,8 @@ import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -75,18 +73,17 @@ public class apiServiceImpl implements apiService {
     private String deploy = "default";
 
 
-
     /**
      * 通过判断是否需要自定义查询tokens.json文件位置
+     *
      * @return tokens.json文件位置
      * @throws IOException
      */
     public String selectFile() throws IOException {
         String projectRoot;
-        if(deploy.equals(deployPosition)){
+        if (deploy.equals(deployPosition)) {
             projectRoot = System.getProperty("user.dir");
-        }
-        else{
+        } else {
             projectRoot = deployPosition;
         }
         String parent = projectRoot + File.separator + "tokens.json";
@@ -106,6 +103,7 @@ public class apiServiceImpl implements apiService {
 
     /**
      * 打印token全部
+     *
      * @return res（List<token> ）
      */
     @Override
@@ -145,6 +143,8 @@ public class apiServiceImpl implements apiService {
                     temRes.setSetPoolToken(temNode.has("setPoolToken") ? temNode.get("setPoolToken").asBoolean() : false);
                     temRes.setPassword(temNode.has("password") ? temNode.get("password").asText() : "");
                     temRes.setUpdateTime(temNode.has("updateTime") ? temNode.get("updateTime").asText() : "");
+                    //是否session有效
+                    temRes.setCheckSession(temNode.has("checkSession") ? temNode.get("checkSession").asBoolean() : true);
                     res.add(temRes);
                 }
             }
@@ -156,8 +156,63 @@ public class apiServiceImpl implements apiService {
     }
 
     /**
+     * 添加checkSession变量,初始化为true
+     * 启动的时候自动全部添加
+     */
+    public String initializeCheckSession(){
+        try {
+            String parent = selectFile();
+            log.info(parent);
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            // 读取JSON文件并获取根节点
+            JsonNode rootNode = objectMapper.readTree(new File(parent));
+
+            // 遍历根节点的所有子节点
+            if (rootNode.isObject()) {
+                ObjectNode rootObjectNode = (ObjectNode) rootNode;
+
+                // 遍历所有子节点
+                Iterator<Map.Entry<String, JsonNode>> fields = rootObjectNode.fields();
+                while (fields.hasNext()) {
+                    Map.Entry<String, JsonNode> entry = fields.next();
+
+                    // 获取子节点的名称
+                    String nodeName = entry.getKey();
+
+                    // 获取子节点
+                    JsonNode nodeToModify = entry.getValue();
+
+                    if (nodeToModify != null && nodeToModify.isObject()) {
+                        // 创建新的 ObjectNode，并复制原始节点内容
+                        ObjectNode newObjectNode = JsonNodeFactory.instance.objectNode();
+                        newObjectNode.setAll(rootObjectNode);
+
+                        // 获取要修改的节点
+                        ObjectNode nodeToModifyInNew = newObjectNode.with(nodeName);
+
+                        // 初始化checkSession的值为true
+                        if(!nodeToModifyInNew.has("checkSession")){
+                            nodeToModifyInNew.put("checkSession", true);
+                            log.info("为节点 " + nodeName + " 添加 checkSession 变量成功！");
+                        }
+
+                        // 将修改后的 newObjectNode 写回文件
+                        objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(parent), newObjectNode);
+                    }
+                }
+                return "为所有子节点添加 checkSession 变量成功！";
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "为所有子节点添加 checkSession 变量失败！";
+    }
+
+    /**
      * 添加token
      * 并添加对应keys
+     *
      * @return "添加成功！"or"添加失败,检查你的token是否正确或登录是否过期！"
      */
     @Override
@@ -197,15 +252,15 @@ public class apiServiceImpl implements apiService {
             newData.put("token", token.getToken());
 
             String access_token = null;
-            if(token.isSetPoolToken()){
+            if (token.isSetPoolToken()) {
                 access_token = getAccessToken(token);
-                if(access_token != null){
-                    newData.put("access_token",access_token);
+                if (access_token != null) {
+                    newData.put("access_token", access_token);
                     token.setAccess_token(access_token);
                     String share_token = getShareToken(token);
-                    if(share_token != null && share_token.length() > 0){
+                    if (share_token != null && share_token.length() > 0) {
                         token.setShare_token(share_token);
-                        newData.put("share_token",share_token);
+                        newData.put("share_token", share_token);
                     }
                 }
             }
@@ -215,7 +270,8 @@ public class apiServiceImpl implements apiService {
             newData.put("shared", token.isShared());
             newData.put("show_user_info", token.isShow_user_info());
             newData.put("plus", token.isPlus());
-            newData.put("setPoolToken",token.isSetPoolToken());
+            newData.put("setPoolToken", token.isSetPoolToken());
+            newData.put("checkSession",true);
 
             // 检查是否需要 TokenPassword
             if (token.getPassword() != null && token.getPassword().length() > 0) {
@@ -240,7 +296,6 @@ public class apiServiceImpl implements apiService {
 
     /**
      * 修改token值或者其他
-     * 会通过删除相应的keys,并添加新keys(会检验是否Token合格)
      * @return "修改成功！"or"修改失败"or修改失败,检查你的token是否正确！
      */
     @Override
@@ -276,7 +331,9 @@ public class apiServiceImpl implements apiService {
                 nodeToModifyInNew.put("show_user_info", tem.isShow_user_info());
                 nodeToModifyInNew.put("plus", tem.isPlus());
                 nodeToModifyInNew.put("setPoolToken", tem.isSetPoolToken());
-
+                nodeToModifyInNew.put("access_token", tem.getAccess_token());
+                nodeToModifyInNew.put("share_token", tem.getShare_token());
+                nodeToModifyInNew.put("checkSession",tem.isCheckSession());
 
                 // 检查是否需要 TokenPassword
                 if (tem.getPassword() != null && tem.getPassword().length() > 0) {
@@ -284,49 +341,41 @@ public class apiServiceImpl implements apiService {
                 } else {
                     nodeToModifyInNew.put("password", "");
                 }
-//                if (tem.getAccess_token() != null && tem.getAccess_token().length() > 0) {
-//                    nodeToModifyInNew.put("access_token", tem.getAccess_token());
-//                }
-//                log.info("tem里的share_token"+tem.getShare_token());
-//                if (tem.getShare_token() != null && tem.getShare_token().length() > 0) {
-//                    nodeToModifyInNew.put("share_token", tem.getShare_token());
-//                    log.info("添加share_token成功！");
-//                }
+
                 // 检查修改的token是否相同，不相同且为eyjhbG开头，能生成API的
-                if(! previousToken.equals(tem.getToken())
+                if (!previousToken.equals(tem.getToken())
                         && tem.getToken().contains("eyJhbG")
-                        && tem.isSetPoolToken()){
+                        && tem.isSetPoolToken()) {
                     //获取access_token或share_token
                     String access_token = getAccessToken(tem);
-                    if(access_token != null){
+                    if (access_token != null) {
                         tem.setAccess_token(access_token);
                         String share_token = getShareToken(tem);
-                        nodeToModifyInNew.put("access_token",access_token);
-                        if(share_token != null){
-                            nodeToModifyInNew.put("share_token",share_token);
+                        nodeToModifyInNew.put("access_token", access_token);
+                        nodeToModifyInNew.put("checkSession",true);
+                        if (share_token != null) {
+                            nodeToModifyInNew.put("share_token", share_token);
+                        } else {
+                            nodeToModifyInNew.put("share_token", "检查session是否过期，请重新刷新获取");
                         }
-                        else{
-                            nodeToModifyInNew.put("share_token","");
-                        }
-                    }
-                    else{
-                        nodeToModifyInNew.put("access_token","");
+                    } else {
+                        nodeToModifyInNew.put("access_token", "检查session是否过期，请重新刷新获取");
+                        nodeToModifyInNew.put("checkSession",false);
                     }
                     LocalDateTime now = LocalDateTime.now();
                     nodeToModifyInNew.put("updateTime", now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                 }
 
                 //如果不能生成API
-                if(tem.isSetPoolToken() == false){
-                    nodeToModifyInNew.put("token", tem.getUsername() + ","+ tem.getUserPassword());
-                    nodeToModifyInNew.put("share_token","未开启pool_token无法生成");
-                    nodeToModifyInNew.put("access_token","未开启pool_token无法生成");
+                if (tem.isSetPoolToken() == false) {
+                    nodeToModifyInNew.put("token", tem.getUsername() + "," + tem.getUserPassword());
+                    nodeToModifyInNew.put("share_token", "未开启pool_token无法生成");
+                    nodeToModifyInNew.put("access_token", "未开启pool_token无法生成");
                     LocalDateTime now = LocalDateTime.now();
                     nodeToModifyInNew.put("updateTime", now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                 }
                 // 将修改后的 newObjectNode 写回文件
                 objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(parent), newObjectNode);
-                log.info("修改成功");
                 return "修改成功！";
             } else {
                 System.out.println("节点未找到或不是对象,请检查tokens.json！ " + nodeNameToModify);
@@ -342,6 +391,7 @@ public class apiServiceImpl implements apiService {
     /**
      * 删除token
      * 并删除对应keys
+     *
      * @return "删除成功！"or"删除失败"
      */
     @Override
@@ -392,15 +442,14 @@ public class apiServiceImpl implements apiService {
     public String updateSessionToken(token token) {
         String url;
         systemSetting systemSetting = systemService.selectSetting();
-        if(systemSetting.getAutoToken_url().equals("default")){
+        if (systemSetting.getAutoToken_url().equals("default")) {
             String bingUrl = systemSetting.getBing();
             String[] parts = bingUrl.split(":");
-            url = "http://127.0.0.1"+ ":" + parts[1] +"/" + systemSetting.getProxy_api_prefix() +loginToken;
-        }
-        else{
+            url = "http://127.0.0.1" + ":" + parts[1] + "/" + systemSetting.getProxy_api_prefix() + loginToken;
+        } else {
             url = systemSetting.getAutoToken_url() + loginToken;
         }
-        log.info("将通过这个网址请求登录信息："+url);
+        log.info("将通过这个网址请求登录信息：" + url);
         try {
             // 创建HttpClient实例
             CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -452,15 +501,14 @@ public class apiServiceImpl implements apiService {
     public String getAccessToken(token token) {
         String url;
         systemSetting systemSetting = systemService.selectSetting();
-        if(systemSetting.getAutoToken_url().equals("default")){
+        if (systemSetting.getAutoToken_url().equals("default")) {
             String bingUrl = systemSetting.getBing();
             String[] parts = bingUrl.split(":");
-            url = "http://127.0.0.1"+ ":" + parts[1] + "/" + systemSetting.getProxy_api_prefix() + accessToken;
-        }
-        else{
+            url = "http://127.0.0.1" + ":" + parts[1] + "/" + systemSetting.getProxy_api_prefix() + accessToken;
+        } else {
             url = systemSetting.getAutoToken_url() + accessToken;
         }
-        log.info("将通过这个网址请求登录信息："+url);
+        log.info("将通过这个网址请求登录信息：" + url);
         try {
             // 创建HttpClient实例
             CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -485,6 +533,7 @@ public class apiServiceImpl implements apiService {
             try {
                 JSONObject jsonResponse = new JSONObject(responseContent);
                 // 提取返回的数据
+                log.info(jsonResponse.toString());
                 resToken = jsonResponse.getString("access_token");
                 httpClient.close();
             } catch (JSONException e) {
@@ -494,7 +543,7 @@ public class apiServiceImpl implements apiService {
             //关闭进程
             if (statusCode == 200 && resToken.length() > 400) {
                 //用来防止请求的token出现问题，回退token值
-                log.info("请求成功，Url的路径为："+url);
+                log.info("请求成功，Url的路径为：" + url);
                 return resToken;
             }
         } catch (Exception e) {
@@ -509,7 +558,7 @@ public class apiServiceImpl implements apiService {
         if (systemSetting.getAutoToken_url().equals("default")) {
             String bingUrl = systemSetting.getBing();
             String[] parts = bingUrl.split(":");
-            url = "http://127.0.0.1"+ ":" + parts[1] + "/" + systemSetting.getProxy_api_prefix() + shareToken;
+            url = "http://127.0.0.1" + ":" + parts[1] + "/" + systemSetting.getProxy_api_prefix() + shareToken;
         } else {
             url = systemSetting.getAutoToken_url() + shareToken;
         }
@@ -570,18 +619,17 @@ public class apiServiceImpl implements apiService {
         return null;
     }
 
-    public String getPoolToken(String pool_token,String shareTokens) {
+    public String getPoolToken(String pool_token, String shareTokens) {
         String url;
         systemSetting systemSetting = systemService.selectSetting();
-        if(systemSetting.getAutoToken_url().equals("default")){
+        if (systemSetting.getAutoToken_url().equals("default")) {
             String bingUrl = systemSetting.getBing();
             String[] parts = bingUrl.split(":");
             url = "http://127.0.0.1" + ":" + parts[1] + "/" + systemSetting.getProxy_api_prefix() + poolToken;
-        }
-        else{
+        } else {
             url = systemSetting.getAutoToken_url() + poolToken;
         }
-        log.info("将通过这个网址请求登录信息："+url);
+        log.info("将通过这个网址请求登录信息：" + url);
         try {
             // 创建HttpClient实例
             CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -590,21 +638,20 @@ public class apiServiceImpl implements apiService {
 
             // 使用MultipartEntityBuilder构建表单数据
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            if(shareTokens == ""){
+            if (shareTokens == "") {
                 List<token> tokens = selectToken("");
                 StringBuffer resToken = new StringBuffer();
-                for(token token : tokens){
-                    if(token.getShare_token() != null && token.isSetPoolToken() ){
-                        resToken.append(token.getShare_token()+"\n");
+                for (token token : tokens) {
+                    if (token.getShare_token() != null && token.isSetPoolToken()) {
+                        resToken.append(token.getShare_token() + "\n");
                     }
                 }
-                log.info("更新之前pool_token为："+pool_token);
+                log.info("更新之前pool_token为：" + pool_token);
                 builder.addTextBody("share_tokens", resToken.toString(), ContentType.TEXT_PLAIN);
-                builder.addTextBody("pool_token",pool_token, ContentType.TEXT_PLAIN);
-            }
-            else{
+                builder.addTextBody("pool_token", pool_token, ContentType.TEXT_PLAIN);
+            } else {
                 builder.addTextBody("share_tokens", shareTokens, ContentType.TEXT_PLAIN);
-                builder.addTextBody("pool_token",pool_token, ContentType.TEXT_PLAIN);
+                builder.addTextBody("pool_token", pool_token, ContentType.TEXT_PLAIN);
             }
             // 设置请求实体
             httpPost.setEntity(builder.build());
@@ -621,8 +668,8 @@ public class apiServiceImpl implements apiService {
                 // 提取返回的数据
                 log.info(jsonResponse.toString());
                 resPoolToken = jsonResponse.getString("pool_token");
-                log.info("pool_token更新为："+resPoolToken);
-                log.info("一共运行了"+jsonResponse.getString("count")+"条share_token");
+                log.info("pool_token更新为：" + resPoolToken);
+                log.info("一共运行了" + jsonResponse.getString("count") + "条share_token");
                 httpClient.close();
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -631,7 +678,7 @@ public class apiServiceImpl implements apiService {
             //关闭进程
             if (statusCode == 200 && resPoolToken.contains("pk")) {
                 //用来防止请求的token出现问题，回退token值
-                log.info("请求pool_token成功，Url的路径为："+url);
+                log.info("请求pool_token成功，Url的路径为：" + url);
                 return resPoolToken;
             }
         } catch (Exception e) {
@@ -641,14 +688,14 @@ public class apiServiceImpl implements apiService {
     }
 
 
-
     /**
      * 刷新Token
+     *
      * @return "更新成功" or "更新失败"
      */
     @Override
     public token autoUpdateSimpleToken(token token) {
-        if (token == null) {
+        if (token == null || !token.isSetPoolToken()) {
             log.info("未查询到相关数据");
             return null;
         }
@@ -658,13 +705,20 @@ public class apiServiceImpl implements apiService {
             //执行获取share_token操作
             String share_token = getShareToken(token);
             token.setShare_token(share_token);
-            log.info("更新"+share_token);
+            log.info("更新" + share_token);
             if (share_token != null) {
+                token.setCheckSession(true);
                 String res = requiredToken(token);
                 log.info(res);
-                if(res.contains("成功")){
+                if (res.contains("成功")) {
                     return token;
                 }
+            }
+        } else {
+            token.setCheckSession(false);
+            String res = requiredToken(token);
+            if (res.contains("成功")) {
+                log.info("已为您禁用该session_token!");
             }
         }
         return null;
@@ -673,57 +727,44 @@ public class apiServiceImpl implements apiService {
     /**
      * 自动更新Token
      * 更换tokensTool里存储的Token的access_token和share_token
+     * 并自动检查session是否过期
      * @return "更新成功" or "更新失败"
      */
     public String autoUpdateToken(String name) {
         List<token> resTokens = selectToken(name);
         int newToken = 0;
         int allToken = 0;
-        for (token token : resTokens) {
-            if(token.isSetPoolToken() == false){
-                continue;
-            }
-            allToken++;
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            // 将字符串解析为LocalDateTime
-            LocalDateTime localDateTime = LocalDateTime.parse(token.getUpdateTime(), formatter);
-            // 提取日期部分
-            LocalDate inputDate = localDateTime.toLocalDate();
-            // 获取当前日期
-            LocalDate currentDate = LocalDate.now();
-            // 计算过去了多少天
-            long daysAgo = ChronoUnit.DAYS.between(inputDate, currentDate);
-            log.info("过去了"+daysAgo+"天");
-            if(daysAgo % 10 == 0 || daysAgo % 9 == 0 || daysAgo % 11 == 0){
+        try {
+            for (token token : resTokens) {
+                if (token.isSetPoolToken() == false) {
+                    continue;
+                }
                 token res = autoUpdateSimpleToken(token);
-                if(res != null){
+                if (res != null) {
                     newToken++;
                 }
-            }
-            else{
-                newToken++;
-            }
-            try {
+                allToken++;
                 Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
             }
-        }
-        if (newToken == 0) {
-            log.info("自动生成Token失败！");
-            return "自动生成Token失败！";
-        } else {
-            log.info("自动生成Token成功：" + newToken + "失败：" + (allToken - newToken));
-            return "自动生成Token成功：" + newToken + "失败：" + (allToken - newToken);
+            if (newToken == 0) {
+                log.info("自动生成Token失败！");
+                return "自动生成Token失败！";
+            } else {
+                log.info("自动生成Token成功：" + newToken + "\nsession过期：" + (allToken - newToken));
+                return "自动生成Token成功：" + newToken + "\nsession过期：" + (allToken - newToken);
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
     /**
      * 通过https://www.taobao.com/help/getip.php
      * 获取公网ip
+     *
      * @return 公网ip
      */
-    public String getIp(){
+    public String getIp() {
         StringBuilder result = new StringBuilder();
         BufferedReader in = null;
         try {
@@ -766,6 +807,7 @@ public class apiServiceImpl implements apiService {
 
     /**
      * 自动更新session_token时间80天
+     *
      * @param token
      * @return
      */
@@ -777,7 +819,7 @@ public class apiServiceImpl implements apiService {
         }
         try {
             String sessionToken = updateSessionToken(token);
-            if(sessionToken != null){
+            if (sessionToken != null) {
                 return sessionToken;
             }
         } catch (Exception e) {
@@ -787,39 +829,19 @@ public class apiServiceImpl implements apiService {
     }
 
 
-    /**
-     * 更新pool_token
-     * @param poolToken
-     * @return
-     */
-    @Override
-    public String toUpdatePoolToken(String poolToken) {
-        String res;
-        try {
-            res = getPoolToken(poolToken,"");
-            if(poolToken != null){
-                return res;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     @Override
     public String deletePoolToken(String pool_token) {
         String url;
         systemSetting systemSetting = systemService.selectSetting();
-        if(systemSetting.getAutoToken_url().equals("default")){
+        if (systemSetting.getAutoToken_url().equals("default")) {
             String bingUrl = systemSetting.getBing();
             String[] parts = bingUrl.split(":");
-            url = "http://127.0.0.1"+ ":" + parts[1] + "/" +
+            url = "http://127.0.0.1" + ":" + parts[1] + "/" +
                     systemSetting.getProxy_api_prefix() + poolToken;
-        }
-        else{
+        } else {
             url = systemSetting.getAutoToken_url() + poolToken;
         }
-        log.info("将通过这个网址请求登录信息："+url);
+        log.info("将通过这个网址请求登录信息：" + url);
         try {
             // 创建HttpClient实例
             CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -829,7 +851,7 @@ public class apiServiceImpl implements apiService {
             // 使用MultipartEntityBuilder构建表单数据
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.addTextBody("share_tokens", "", ContentType.TEXT_PLAIN);
-            builder.addTextBody("pool_token",pool_token, ContentType.TEXT_PLAIN);
+            builder.addTextBody("pool_token", pool_token, ContentType.TEXT_PLAIN);
             // 设置请求实体
             httpPost.setEntity(builder.build());
             // 执行HTTP请求
@@ -850,7 +872,7 @@ public class apiServiceImpl implements apiService {
             //关闭进程
             if (statusCode == 200 && resPoolToken.length() > 0) {
                 //用来防止请求的token出现问题，回退token值
-                log.info("注销pool_token成功，Url的路径为："+url);
+                log.info("注销pool_token成功，Url的路径为：" + url);
                 return resPoolToken;
             }
         } catch (Exception e) {
@@ -863,7 +885,7 @@ public class apiServiceImpl implements apiService {
     public PandoraLimit getPandoraLimit() {
         systemSetting systemSetting = systemService.selectSetting();
         String url = "https://dash.pandoranext.com/api/" + systemSetting.getLicense_id() + "/usage";
-        log.info("将通过这个网址请求PandoraNext余额信息："+ url);
+        log.info("将通过这个网址请求PandoraNext余额信息：" + url);
         try {
             // 创建HttpClient实例
             CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -898,6 +920,54 @@ public class apiServiceImpl implements apiService {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void updateSession() {
+        try {
+            List<token> tokens = selectToken("");
+            token resToken = null;
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime minDateTime = LocalDateTime.parse(tokens.get(0).getUpdateTime(), formatter); // 初始化为列表的第一个日期时间
+            for (token token : tokens) {
+                LocalDateTime currentDateTime = LocalDateTime.parse(token.getUpdateTime(), formatter);
+                if (currentDateTime.isBefore(minDateTime)) {
+                    minDateTime = currentDateTime;
+                    resToken = token;
+                }
+            }
+            log.info("更新的token名为：" + resToken.getName());
+            token s = updateSession(resToken);
+            if(s != null){
+                log.info("更新session_token,access_token和share_token成功！");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 刷新session，更新access_token和share_token
+     * @param token
+     * @return
+     */
+    @Override
+    public token updateSession(token token){
+        String res = autoUpdateSessionToken(token);
+        if(res != null && res.length() > 300){
+            token.setToken(res);
+            token.setSetPoolToken(true);
+            token.setCheckSession(true);
+            try {
+                log.info(token.toString());
+                token resToken = autoUpdateSimpleToken(token);
+                if(resToken != null){
+                    return resToken;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return null;
     }

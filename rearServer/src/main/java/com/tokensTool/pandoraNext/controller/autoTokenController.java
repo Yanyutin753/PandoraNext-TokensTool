@@ -18,8 +18,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api")
 public class autoTokenController {
-
-
     @Autowired
     private com.tokensTool.pandoraNext.service.apiService apiService;
 
@@ -34,21 +32,15 @@ public class autoTokenController {
      * @throws Exception
      */
     @Scheduled(cron = "0 0 3 * * ?")
-    public Result toUpdateToken(){
+    public void toUpdateToken(){
         try {
             log.info("开始自动更新Token..........................");
-            String res = apiService.autoUpdateToken("");
-            if(res.contains("修改Token成功")){
-                try {
-                    return Result.success(res);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
+            Result res = toUpdateAllToken();
+            log.info(res.toString());
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return Result.error("更新失败");
+        log.info(Result.error("自动检查更新access_token,share_token和pool_token失败").toString());
     }
 
     @GetMapping("updateAllToken")
@@ -60,7 +52,7 @@ public class autoTokenController {
                     String s = poolService.refreshAllTokens();
                     return Result.success(res + "\n" + s);
                 } catch (Exception e) {
-                    return Result.success(res +",但是自动更新pool_token失败，请手动点击一键全更新pool_token!");
+                    return Result.success(res +"\n但是自动更新pool_token失败，请手动点击一键全更新pool_token!");
                 }
             }
         } catch (Exception e) {
@@ -97,19 +89,13 @@ public class autoTokenController {
     @PostMapping ("updateSessionToken")
     public Result toUpdateSessionToken(@RequestBody token token){
         try {
-            String res = apiService.autoUpdateSessionToken(token);
-            if(res != null && res.length() > 300){
-                token.setToken(res);
-                token.setSetPoolToken(true);
-                Result update = toUpdateToken(token);
-                if(update.getCode() == 1){
-                    return Result.success(res);
-                }
+            token resToken = apiService.updateSession(token);
+            if(resToken != null){
+                return Result.success("更新session成功");
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return Result.error("刷新session_token失败,请尝重新刷新！");
     }
-
 }

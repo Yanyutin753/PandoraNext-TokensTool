@@ -76,7 +76,9 @@
 
 > **是否分享出来**：开启这个账号会出现在/shared.html中，登录页面会出现它的链接，且之后不能用Token用户名进行登录。
 
-> **是否合成pool_token**： 对于该token是否参与合成pool_token
+> **是否合成pool_token**： 对于该token是否参与合成pool_token,
+* 该项为false的话，会关闭生成session_token，不消耗额度，只能web调用
+* 该项为true的话，会生成session_token,access_token和share_token,并参与pool_token，供web和Api调用
 
 > **进入token的密码**：输入完Token用户名进入输入密码页面输入匹配
 
@@ -94,9 +96,9 @@
 
 > **删除**：字面意思，删除token
 
-> **刷新**：耗费102/108 通过邮箱密码刷新**session_token**,再通过**session_token**转化成**access_token**,**access_token**再转换成**share_token**,这些**tokens**都会在查看中出现，请点击查看。由于使用接口较多，刷新时间较长，请耐心等待！
+> **刷新**：100耗费  通过邮箱密码刷新**session_token**,再通过**session_token**转化成**access_token**,**access_token**再转换成**share_token**,这些**tokens**都会在查看中出现，请点击查看。由于使用接口较多，刷新时间较长，请耐心等待！
 
-> **生成**：耗费 2/8 通过原有的**session_token**转化成**access_token**,**access_token**再转换成**share_token**,这些tokens都会在查看中出现，请点击查看。
+> **生成**：0耗费  通过原有的**session_token**转化成**access_token**,**access_token**再转换成**share_token**,这些tokens都会在查看中出现，请点击查看。
 
 ### 注意事项
 * *刷新获得session_token的正常有效期是：**3个月**，所以请不要盲目刷新*
@@ -120,7 +122,18 @@
 
 ------------
 
+## 6.自定义刷新设置
+<img width="800" height="400" alt="764d2f1534d7a2a3261c6cd833d9470" src="https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/3d70ea4b-59f3-431a-a40b-78dfaf8812a0">
 
+> **是否自动刷新**Session_token***： 是否自动在自定义天数之后的当天凌晨一点更新自定义数量的**session_token**.
+
+> **刷新session的时间**：自定义时间（天），将在几天之后的凌晨一点.
+
+> **刷新session的个数**：自定义数量（个），一次更新多少个**session_token**.
+
+> **PandoraNext的公网访问地址**：填写出你公网能访问到PandoraNext的地址，这样pool_token列表将自动写出你API调用的URl.
+
+------------
 
 ## 接口使用说明
 
@@ -196,8 +209,8 @@
 
 ## 7.tokensTool实现自动刷新access_token、share_token和pool_token的原理介绍
 
-* *1.首先系统会在每天的3点先自动检查token距离现在是否超过了9或10或11的倍数，如果是的话则进行自动生成，将**session_token**重新生成**access_token**和**share_token***
-* *2.其次系统会在每天的凌晨4点左右会重新刷新**pool_token**,将更新好了的和没更新好的一起放入**pool_token**中，完成更新。*
+* 1.*每天在凌晨两点自动把**session_token**重新生成**access_token**和**share_token***，*并刷新相应的pool_token。系统会在这个过程检查**session_token**是否过期，过期则token变黄！*
+* 2.*如开启自动刷新**session_token**,则会搜索所有的**session_token**，并找到时间记录当今最久的几个**session_token**，重新刷新！*
 
 ### 注意事项
 * **由于始皇的接口限制，没到刷新时间，是不会更改access_token的，所以，这样做能尽可能的降低没有及时更新的风险，但是不怕一万就怕万一，如果是在时遇到问题了，还请大家手动按一下按钮进行刷新，谢谢大家的不断支持！**

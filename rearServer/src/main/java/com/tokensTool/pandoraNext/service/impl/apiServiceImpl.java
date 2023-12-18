@@ -929,12 +929,14 @@ public class apiServiceImpl implements apiService {
             List<token> tokens = selectToken("");
             token resToken = null;
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            LocalDateTime minDateTime = LocalDateTime.parse(tokens.get(0).getUpdateTime(), formatter); // 初始化为列表的第一个日期时间
+            LocalDateTime minDateTime = LocalDateTime.parse(tokens.get(0).getUpdateTime(), formatter);
             for (token token : tokens) {
-                LocalDateTime currentDateTime = LocalDateTime.parse(token.getUpdateTime(), formatter);
-                if (currentDateTime.isBefore(minDateTime)) {
-                    minDateTime = currentDateTime;
-                    resToken = token;
+                if(token.isSetPoolToken()){
+                    LocalDateTime currentDateTime = LocalDateTime.parse(token.getUpdateTime(), formatter);
+                    if (currentDateTime.isBefore(minDateTime)) {
+                        minDateTime = currentDateTime;
+                        resToken = token;
+                    }
                 }
             }
             log.info("更新的token名为：" + resToken.getName());

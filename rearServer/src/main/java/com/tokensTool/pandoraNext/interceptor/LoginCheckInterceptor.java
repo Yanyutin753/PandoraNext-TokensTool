@@ -26,7 +26,7 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
     @Override //目标资源方法运行前运行, 返回true: 放行, 放回false, 不放行
     public boolean preHandle(HttpServletRequest req, HttpServletResponse resp, Object handler) throws Exception {
         systemSetting systemSetting = systemService.selectSetting();
-        String password = systemSetting.getLoginPassword();
+        String password = JwtUtils.getJwtPassword();
         String username = systemSetting.getLoginUsername();
 
         //1.获取请求url。

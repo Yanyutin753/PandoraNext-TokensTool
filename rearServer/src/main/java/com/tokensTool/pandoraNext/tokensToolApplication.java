@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.annotation.PostConstruct;
 import java.time.Instant;
+import java.util.UUID;
 
 /**
  * @author YANGYANG
@@ -36,13 +37,19 @@ public class tokensToolApplication {
     private MyTaskUtils myTaskUtils;
 
     public static void main(String[] args) {
-        log.info("PandoraNext-tokensTool v 0.4.9.2版本，增加自定义刷新session_token，" +
-                "每天凌晨2点自动更新access_token,share_token,pool_token," +
-                "并检查session_token,并标记过期session_token");
+        log.info("PandoraNext-tokensTool v 0.4.9.3版本，再次强化JWT令牌" +
+                "并修复相关Web转Api修改，添加，刷新token的bug");
         Instant instant = Instant.now();
         String key = String.valueOf(instant.toEpochMilli());
         JwtUtils.setSignKey(key);
+        log.info("设置专属的signKey成功！");
+        // 初始化UUID
+        String uuidString = UUID.randomUUID().toString();
+        JwtUtils.setJwtPassword(uuidString);
+        log.info("初始化UUID成功！");
+        // 启动
         SpringApplication.run(tokensToolApplication.class, args);
+        log.info("原神tokensTool启动！！！！！！！！！！！！！！！");
     }
 
     @PostConstruct

@@ -37,7 +37,7 @@ public class loginColltroller {
     public Result login(@RequestBody systemSetting setting) {
         boolean res = loginService.login(setting);
         if(res){
-            String password = setting.getLoginPassword();
+            String password = JwtUtils.getJwtPassword().toString();
             String username = setting.getLoginUsername();
             Map<String,Object> chaims = new HashMap<String,Object>();
 
@@ -58,7 +58,7 @@ public class loginColltroller {
     @PostMapping("/loginToken")
     public Result loginToken(@RequestParam("token") String token){
         systemSetting systemSetting = systemService.selectSetting();
-        String password = systemSetting.getLoginPassword();
+        String password = JwtUtils.getJwtPassword();
         String username = systemSetting.getLoginUsername();
 
         if(!StringUtils.hasLength(token)){

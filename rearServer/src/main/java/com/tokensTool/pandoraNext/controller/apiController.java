@@ -400,7 +400,7 @@ public class apiController {
     /**
      * 查询PandoraNext的额度
      */
-    @GetMapping("gePandoraNext")
+    @GetMapping("getPandoraNext")
     public Result getPandoraLimit(){
         try {
             PandoraLimit pandoraLimit = apiService.getPandoraLimit();

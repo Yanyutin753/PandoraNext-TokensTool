@@ -23,6 +23,8 @@ import java.util.Map;
 public class JwtUtils{
     //硬编码的伤
     private static String signKey = "123456";
+    // JWT里的内容
+    private static String JwtPassword = "tokensTool";
     private static Long expire = 43200000L;
 
     /**
@@ -34,6 +36,14 @@ public class JwtUtils{
 
     public static String getSignKey(){
         return signKey;
+    }
+
+    public static void setJwtPassword(String password){
+        JwtPassword = password;
+    }
+
+    public static String getJwtPassword(){
+        return JwtPassword;
     }
 
     /**

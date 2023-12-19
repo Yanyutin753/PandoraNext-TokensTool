@@ -85,7 +85,7 @@ public class systemServiceImpl implements systemService {
             keysAndDefaults.put("proxy_file_service", false);
             keysAndDefaults.put("custom_doh_host", "");
 
-            // 0.4.9.2
+            // 0.4.9.3
             keysAndDefaults.put("auto_updateSession",false);
             keysAndDefaults.put("auto_updateTime",5);
             keysAndDefaults.put("auto_updateNumber",1);
@@ -202,7 +202,7 @@ public class systemServiceImpl implements systemService {
             updateJsonValue(jsonObject,"proxy_file_service",tem.getProxy_file_service());
             updateJsonValue(jsonObject,"custom_doh_host",tem.getCustom_doh_host());
 
-            // 0.4.9.2
+            // 0.4.9.3
             updateJsonValue(jsonObject,"auto_updateSession",tem.getAuto_updateSession());
             updateJsonValue(jsonObject,"auto_updateTime",tem.getAuto_updateTime());
             updateJsonValue(jsonObject,"auto_updateNumber",tem.getAuto_updateNumber());
@@ -292,7 +292,7 @@ public class systemServiceImpl implements systemService {
             config.setProxy_file_service(jsonObject.optBoolean("proxy_file_service"));
             config.setCustom_doh_host(jsonObject.optString("custom_doh_host"));
 
-            // 0.4.9.2
+            // 0.4.9.3
             config.setAuto_updateSession(jsonObject.optBoolean("auto_updateSession"));
             config.setAuto_updateTime(jsonObject.optInt("auto_updateTime"));
             config.setAuto_updateNumber(jsonObject.optInt("auto_updateNumber"));
@@ -334,7 +334,7 @@ public class systemServiceImpl implements systemService {
             String jsonContent = new String(Files.readAllBytes(Paths.get(parent)));
 
             JSONObject jsonObject = new JSONObject(jsonContent);
-            // 0.4.9.2
+            // 0.4.9.3
             updateJsonValue(jsonObject,"auto_updateSession",tem.getAuto_updateSession());
             updateJsonValue(jsonObject,"auto_updateTime",tem.getAuto_updateTime());
             updateJsonValue(jsonObject,"auto_updateNumber",tem.getAuto_updateNumber());

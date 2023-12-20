@@ -2,6 +2,7 @@ package com.tokensTool.pandoraNext;
 
 import com.tokensTool.pandoraNext.pojo.systemSetting;
 import com.tokensTool.pandoraNext.service.impl.apiServiceImpl;
+import com.tokensTool.pandoraNext.service.impl.poolServiceImpl;
 import com.tokensTool.pandoraNext.service.impl.systemServiceImpl;
 import com.tokensTool.pandoraNext.util.JwtUtils;
 import com.tokensTool.pandoraNext.util.MyTaskUtils;
@@ -34,11 +35,16 @@ public class tokensToolApplication {
     private systemServiceImpl systemService;
 
     @Autowired
+    private poolServiceImpl poolServiceImpl;
+
+    @Autowired
     private MyTaskUtils myTaskUtils;
 
     public static void main(String[] args) {
-        log.info("PandoraNext-tokensTool v 0.4.9.3版本，再次强化JWT令牌" +
-                "并修复相关Web转Api修改，添加，刷新token的bug");
+        log.info("PandoraNext-tokensTool v 0.5.1版本\n" +
+                "新增将pool_token传入one-api\n" +
+                "修复相关Web转Api修改，添加，刷新token的bug\n" +
+                "页面优化，更加直观");
         Instant instant = Instant.now();
         String key = String.valueOf(instant.toEpochMilli());
         JwtUtils.setSignKey(key);
@@ -59,6 +65,8 @@ public class tokensToolApplication {
         //初始化检查config.json
         systemService.initializeConfigJson();
         //初始化定时任务
+        poolServiceImpl.initializeCheckPool();
+
         systemSetting setting = systemService.selectSetting();
         if(! setting.getAuto_updateSession()){
             myTaskUtils.stopTask();

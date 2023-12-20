@@ -21,4 +21,9 @@ public interface poolService {
     List<poolToken> selectPoolToken(String name);
 
     String refreshAllTokens();
+
+
+    String verifySimplyPoolToken(poolToken poolToken);
+
+    String verifyAllPoolToken();
 }

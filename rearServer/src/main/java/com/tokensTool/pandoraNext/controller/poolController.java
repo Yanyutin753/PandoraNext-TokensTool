@@ -107,4 +107,31 @@ public class poolController {
             return Result.error("刷新失败");
         }
     }
+
+    @PostMapping("verifySimplyPoolToken")
+    public Result verifySimplyPoolToken(@RequestBody poolToken poolToken){
+        String res = poolService.verifySimplyPoolToken(poolToken);
+        if(res != null){
+            return Result.success(res);
+        }
+        else{
+            return Result.error("poolToken失效或请求网址失效，请刷新或检查请求网址!");
+        }
+    }
+
+    @GetMapping("verifyAllPoolToken")
+    public Result verifyAllPoolToken(){
+        try {
+            String res = poolService.verifyAllPoolToken();
+            if(res != null){
+                return Result.success(res);
+            }
+            else{
+                return Result.error("请确保PandoraNext正常启动且tokensTool填写PandoraNext访问地址正确！");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Result.error("请确保PandoraNext正常启动且tokensTool填写PandoraNext访问地址正确！");
+    }
 }

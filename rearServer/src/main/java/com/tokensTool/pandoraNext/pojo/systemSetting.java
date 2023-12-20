@@ -144,4 +144,14 @@ public class systemSetting {
      * PadoraNext的公网访问地址
      */
     private String pandoraNext_outUrl;
+
+    /**
+     * oneAPi的公网访问地址
+     */
+    private String oneAPi_outUrl;
+
+    /**
+     * oneApi访问令牌
+     */
+    private String oneAPi_intoToken;
 }

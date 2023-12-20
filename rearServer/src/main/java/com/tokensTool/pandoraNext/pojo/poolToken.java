@@ -34,4 +34,18 @@ public class poolToken {
      */
     private String poolTime;
 
+    /**
+     * token 检查checkPool是否过期
+     */
+    private boolean checkPool;
+
+    /**
+     * 是否添加到oneApi里面
+     */
+    private boolean intoOneApi;
+
+    /**
+     * 接入oneApi自定义PandoraNext地址
+     */
+    private String oneApi_pandoraUrl;
 }

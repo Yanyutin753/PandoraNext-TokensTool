@@ -91,6 +91,11 @@ public class systemServiceImpl implements systemService {
             keysAndDefaults.put("auto_updateNumber",1);
             keysAndDefaults.put("pandoraNext_outUrl","");
 
+            // 0.5.0
+
+            keysAndDefaults.put("oneAPi_outUrl","");
+            keysAndDefaults.put("oneAPi_intoToken","");
+
             boolean exist = checkAndSetDefaults(jsonObject, keysAndDefaults);
 
             JSONObject captchaJson = Optional.ofNullable(jsonObject.optJSONObject("captcha")).orElse(new JSONObject());
@@ -202,12 +207,6 @@ public class systemServiceImpl implements systemService {
             updateJsonValue(jsonObject,"proxy_file_service",tem.getProxy_file_service());
             updateJsonValue(jsonObject,"custom_doh_host",tem.getCustom_doh_host());
 
-            // 0.4.9.3
-            updateJsonValue(jsonObject,"auto_updateSession",tem.getAuto_updateSession());
-            updateJsonValue(jsonObject,"auto_updateTime",tem.getAuto_updateTime());
-            updateJsonValue(jsonObject,"auto_updateNumber",tem.getAuto_updateNumber());
-            updateJsonValue(jsonObject,"pandoraNext_outUrl",tem.getPandoraNext_outUrl());
-
             // validation
             validation validation = tem.getValidation();
             JSONObject captchaJson = jsonObject.getJSONObject("captcha");
@@ -298,6 +297,10 @@ public class systemServiceImpl implements systemService {
             config.setAuto_updateNumber(jsonObject.optInt("auto_updateNumber"));
             config.setPandoraNext_outUrl(jsonObject.optString("pandoraNext_outUrl"));
 
+            // 0.5.0
+            config.setOneAPi_outUrl(jsonObject.optString("oneAPi_outUrl"));
+            config.setOneAPi_intoToken(jsonObject.optString("oneAPi_intoToken"));
+
             // 获取 captcha 相关属性
             JSONObject captchaJson = Optional.ofNullable(jsonObject.optJSONObject("captcha")).orElse(new JSONObject());
             validation captchaSetting = new validation(
@@ -339,6 +342,10 @@ public class systemServiceImpl implements systemService {
             updateJsonValue(jsonObject,"auto_updateTime",tem.getAuto_updateTime());
             updateJsonValue(jsonObject,"auto_updateNumber",tem.getAuto_updateNumber());
             updateJsonValue(jsonObject,"pandoraNext_outUrl",tem.getPandoraNext_outUrl());
+            // 0.5.0
+            updateJsonValue(jsonObject,"oneAPi_outUrl",tem.getOneAPi_outUrl());
+            updateJsonValue(jsonObject,"oneAPi_intoToken",tem.getOneAPi_intoToken());
+
             // 将修改后的 JSONObject 转换为格式化的 JSON 字符串
             String updatedJson = jsonObject.toString(2);
             Files.write(Paths.get(parent), updatedJson.getBytes());
@@ -349,5 +356,21 @@ public class systemServiceImpl implements systemService {
         return "修改定时任务和url失败！";
     }
 
+    public String[] selectOneAPi() {
+        String parent = selectFile();
+        try {
+            // 读取 JSON 文件内容
+            String jsonContent = new String(Files.readAllBytes(Paths.get(parent)));
+            // 将 JSON 字符串解析为 JSONObject
+            JSONObject jsonObject = new JSONObject(jsonContent);
+            String[] oneApi = new String[2];
+            oneApi[0] = jsonObject.optString("oneAPi_outUrl");
+            oneApi[1] = jsonObject.optString("oneAPi_intoToken");
+            return oneApi;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
 

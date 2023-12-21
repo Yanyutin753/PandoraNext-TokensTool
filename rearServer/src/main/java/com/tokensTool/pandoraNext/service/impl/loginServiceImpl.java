@@ -29,6 +29,7 @@ public class loginServiceImpl implements loginService {
     /**
      * 新增保存登录信息
      * 通过config.json文件可以实现修改密码，修改数据
+     *
      * @return "登录成功！"
      * "用户名账号错误"
      */
@@ -38,7 +39,7 @@ public class loginServiceImpl implements loginService {
             systemSetting systemSetting = systemService.selectSetting();
             String loginUsername = systemSetting.getLoginUsername();
             String loginPassword = systemSetting.getLoginPassword();
-            if(setting.getLoginUsername().equals(loginUsername) && setting.getLoginPassword().equals(loginPassword)){
+            if (setting.getLoginUsername().equals(loginUsername) && setting.getLoginPassword().equals(loginPassword)) {
                 return true;
             }
         } catch (Exception e) {

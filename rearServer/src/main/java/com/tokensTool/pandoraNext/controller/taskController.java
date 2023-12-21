@@ -18,6 +18,7 @@ public class taskController {
 
     @Autowired
     private systemServiceImpl systemSetting;
+
     @Autowired
     public taskController(MyTaskUtils myTaskUtils) {
         this.myTaskUtils = myTaskUtils;
@@ -26,14 +27,13 @@ public class taskController {
     @PostMapping("/controllerTask")
     public Result controllerTask(@RequestBody systemSetting setting) {
         try {
-            if(! setting.getAuto_updateSession()){
+            if (!setting.getAuto_updateSession()) {
                 myTaskUtils.stopTask();
-            }
-            else{
+            } else {
                 myTaskUtils.changeTask(setting);
             }
             String res = systemSetting.requireTimeTask(setting);
-            if(res.contains("成功")){
+            if (res.contains("成功")) {
                 return Result.success(res);
             }
             return Result.error(res);

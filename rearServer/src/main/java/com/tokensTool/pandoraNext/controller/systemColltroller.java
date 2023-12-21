@@ -18,17 +18,17 @@ public class systemColltroller {
 
     /**
      * 修改config.json里的系统值
+     *
      * @return "修改成功！"or"修改失败"
      */
     @Log
     @PostMapping("requireSetting")
-    public Result requireSetting(@RequestBody systemSetting setting){
+    public Result requireSetting(@RequestBody systemSetting setting) {
         try {
             String res = systemService.requiredSetting(setting);
-            if(res.contains("成功")){
+            if (res.contains("成功")) {
                 return Result.success(res);
-            }
-            else {
+            } else {
                 return Result.error(res);
             }
         } catch (Exception e) {
@@ -39,6 +39,7 @@ public class systemColltroller {
 
     /**
      * 选择config.json里的系统值
+     *
      * @return "修改成功！"or"修改失败"
      */
     @GetMapping("selectSetting")

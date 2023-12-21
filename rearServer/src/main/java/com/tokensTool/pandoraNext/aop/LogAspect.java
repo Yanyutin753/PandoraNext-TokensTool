@@ -21,6 +21,11 @@ public class LogAspect {
      * @拿到controller里的reload()方法
      */
     private apiController controller;
+    /**
+     * @是否开启热重载
+     */
+    @Value("${hotReload}")
+    private String hotReload;
 
     @Autowired
     public void setController(apiController controller) {
@@ -28,25 +33,18 @@ public class LogAspect {
     }
 
     /**
-     * @是否开启热重载
-     */
-    @Value("${hotReload}")
-    private String hotReload;
-
-    /**
      * @在方法之后执行reload
      */
     @After("@annotation(com.tokensTool.pandoraNext.anno.Log)")
-    public void recordLog(){
-        if(Boolean.parseBoolean(hotReload)){
+    public void recordLog() {
+        if (Boolean.parseBoolean(hotReload)) {
             try {
                 log.info(controller.reloadContainer().toString());
             } catch (Exception e) {
                 e.printStackTrace();
                 log.info("热重载失败！");
             }
-        }
-        else{
+        } else {
             log.info("热重载未开启！");
         }
     }

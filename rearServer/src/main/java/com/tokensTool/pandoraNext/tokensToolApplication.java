@@ -41,9 +41,9 @@ public class tokensToolApplication {
     private MyTaskUtils myTaskUtils;
 
     public static void main(String[] args) {
-        log.info("PandoraNext-tokensTool v 0.5.1版本\n" +
-                "新增将pool_token传入one-api\n" +
-                "修复相关Web转Api修改，添加，刷新token的bug\n" +
+        log.info("PandoraNext-tokensTool v 0.5.2版本\n" +
+                "修复相关token修改，添加，刷新的bug\n" +
+                "新增跳转PandoraNext的设置页和主页\n" +
                 "页面优化，更加直观");
         Instant instant = Instant.now();
         String key = String.valueOf(instant.toEpochMilli());
@@ -68,10 +68,9 @@ public class tokensToolApplication {
         poolServiceImpl.initializeCheckPool();
 
         systemSetting setting = systemService.selectSetting();
-        if(! setting.getAuto_updateSession()){
+        if (!setting.getAuto_updateSession()) {
             myTaskUtils.stopTask();
-        }
-        else{
+        } else {
             myTaskUtils.changeTask(setting);
         }
     }

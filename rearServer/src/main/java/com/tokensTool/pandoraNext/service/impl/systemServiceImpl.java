@@ -32,12 +32,11 @@ public class systemServiceImpl implements systemService {
     private String deploy = "default";
 
 
-    public String selectFile(){
+    public String selectFile() {
         String projectRoot;
-        if(deploy.equals(deployPosition)){
+        if (deploy.equals(deployPosition)) {
             projectRoot = System.getProperty("user.dir");
-        }
-        else{
+        } else {
             projectRoot = deployPosition;
         }
         String parent = projectRoot + File.separator + "config.json";
@@ -50,18 +49,17 @@ public class systemServiceImpl implements systemService {
                 Files.createFile(jsonFilePath);
                 // 往 config.json 文件中添加一个空数组，防止重启报错
                 Files.writeString(jsonFilePath, "{}");
-                System.out.println("空数组添加完成");
+                log.info("空数组添加完成");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            System.out.println("config.json创建完成: " + jsonFilePath);
+            log.info("config.json创建完成: " + jsonFilePath);
         }
         return parent;
     }
 
     /**
      * 初始化config.json文件
-     *
      */
     public void initializeConfigJson() {
         String parent = selectFile();
@@ -86,15 +84,15 @@ public class systemServiceImpl implements systemService {
             keysAndDefaults.put("custom_doh_host", "");
 
             // 0.4.9.3
-            keysAndDefaults.put("auto_updateSession",false);
-            keysAndDefaults.put("auto_updateTime",5);
-            keysAndDefaults.put("auto_updateNumber",1);
-            keysAndDefaults.put("pandoraNext_outUrl","");
+            keysAndDefaults.put("auto_updateSession", false);
+            keysAndDefaults.put("auto_updateTime", 5);
+            keysAndDefaults.put("auto_updateNumber", 1);
+            keysAndDefaults.put("pandoraNext_outUrl", "");
 
             // 0.5.0
 
-            keysAndDefaults.put("oneAPi_outUrl","");
-            keysAndDefaults.put("oneAPi_intoToken","");
+            keysAndDefaults.put("oneAPi_outUrl", "");
+            keysAndDefaults.put("oneAPi_intoToken", "");
 
             boolean exist = checkAndSetDefaults(jsonObject, keysAndDefaults);
 
@@ -151,22 +149,22 @@ public class systemServiceImpl implements systemService {
 
     /**
      * 修改config.json里的系统值
+     *
      * @return "修改成功！"or"修改失败"
      */
     @Override
-    public String requiredSetting(systemSetting tem){
+    public String requiredSetting(systemSetting tem) {
         String parent = selectFile();
         try {
             // 读取 JSON 文件内容
             String jsonContent = new String(Files.readAllBytes(Paths.get(parent)));
-
             JSONObject jsonObject = new JSONObject(jsonContent);
-            updateJsonValue(jsonObject,"bind",tem.getBing());
-            updateJsonValue(jsonObject,"timeout",tem.getTimeout());
-            updateJsonValue(jsonObject,"proxy_url",tem.getProxy_url());
-            updateJsonValue(jsonObject,"public_share",tem.getPublic_share());
-            updateJsonValue(jsonObject,"site_password",tem.getSite_password());
-            updateJsonValue(jsonObject,"setup_password",tem.getSetup_password());
+            updateJsonValue(jsonObject, "bind", tem.getBing());
+            updateJsonValue(jsonObject, "timeout", tem.getTimeout());
+            updateJsonValue(jsonObject, "proxy_url", tem.getProxy_url());
+            updateJsonValue(jsonObject, "public_share", tem.getPublic_share());
+            updateJsonValue(jsonObject, "site_password", tem.getSite_password());
+            updateJsonValue(jsonObject, "setup_password", tem.getSetup_password());
             JSONArray jsonArray = null;
             if (tem.getWhitelist() != null && tem.getWhitelist().length() > 0 && tem.getWhitelist() != "null") {
                 String numbersString = tem.getWhitelist().replaceAll("[\\[\\]]", "");
@@ -174,38 +172,37 @@ public class systemServiceImpl implements systemService {
                 // 将数组转换为 List<String>
                 List<String> numbersList = new ArrayList<>(Arrays.asList(numbersArray));
                 jsonArray = new JSONArray(numbersList);
-                jsonObject.put("whitelist",jsonArray);
-            }
-            else {
+                jsonObject.put("whitelist", jsonArray);
+            } else {
                 jsonObject.put("whitelist", JSONObject.NULL);
             }
 
             //4.7.2
-            if(! tem.getLoginPassword().equals(jsonObject.optString("loginPassword"))
-                    || ! tem.getLoginUsername().equals(jsonObject.optString("loginUsername"))){
+            if (!tem.getLoginPassword().equals(jsonObject.optString("loginPassword"))
+                    || !tem.getLoginUsername().equals(jsonObject.optString("loginUsername"))) {
                 Instant instant = Instant.now();
                 //时间戳
                 String key = String.valueOf(instant.toEpochMilli());
                 JwtUtils.setSignKey(key);
             }
 
-            updateJsonValue(jsonObject,"loginUsername",tem.getLoginUsername());
-            updateJsonValue(jsonObject,"loginPassword",tem.getLoginPassword());
+            updateJsonValue(jsonObject, "loginUsername", tem.getLoginUsername());
+            updateJsonValue(jsonObject, "loginPassword", tem.getLoginPassword());
 
-            updateJsonValue(jsonObject,"license_id",tem.getLicense_id());
-            updateJsonValue(jsonObject,"autoToken_url",tem.getAutoToken_url());
-            updateJsonValue(jsonObject,"isGetToken",tem.getIsGetToken());
-            updateJsonValue(jsonObject,"getTokenPassword",tem.getGetTokenPassword());
-            updateJsonValue(jsonObject,"containerName",tem.getContainerName());
+            updateJsonValue(jsonObject, "license_id", tem.getLicense_id());
+            updateJsonValue(jsonObject, "autoToken_url", tem.getAutoToken_url());
+            updateJsonValue(jsonObject, "isGetToken", tem.getIsGetToken());
+            updateJsonValue(jsonObject, "getTokenPassword", tem.getGetTokenPassword());
+            updateJsonValue(jsonObject, "containerName", tem.getContainerName());
 
-            updateJsonValue(jsonObject,"isolated_conv_title",tem.getIsolated_conv_title());
-            updateJsonValue(jsonObject,"proxy_api_prefix",tem.getProxy_api_prefix());
+            updateJsonValue(jsonObject, "isolated_conv_title", tem.getIsolated_conv_title());
+            updateJsonValue(jsonObject, "proxy_api_prefix", tem.getProxy_api_prefix());
 
             // 4,9
-            updateJsonValue(jsonObject,"disable_signup",tem.getDisable_signup());
-            updateJsonValue(jsonObject,"auto_conv_arkose",tem.getAuto_conv_arkose());
-            updateJsonValue(jsonObject,"proxy_file_service",tem.getProxy_file_service());
-            updateJsonValue(jsonObject,"custom_doh_host",tem.getCustom_doh_host());
+            updateJsonValue(jsonObject, "disable_signup", tem.getDisable_signup());
+            updateJsonValue(jsonObject, "auto_conv_arkose", tem.getAuto_conv_arkose());
+            updateJsonValue(jsonObject, "proxy_file_service", tem.getProxy_file_service());
+            updateJsonValue(jsonObject, "custom_doh_host", tem.getCustom_doh_host());
 
             // validation
             validation validation = tem.getValidation();
@@ -236,22 +233,23 @@ public class systemServiceImpl implements systemService {
     }
 
     private void updateJsonValue(JSONObject jsonObject, String key, Object value) {
-        if(value == null) {
+        if (value == null) {
             return;
         }
         try {
             if (value != null && value.toString().length() > 0) {
                 jsonObject.put(key, value);
-            }
-            else if(value.toString().length() == 0) {
+            } else if (value.toString().length() == 0) {
                 jsonObject.put(key, "");
             }
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
     }
+
     /**
      * 查询config.json里的系统值
+     *
      * @return systemSettings类
      */
     public systemSetting selectSetting() {
@@ -330,7 +328,7 @@ public class systemServiceImpl implements systemService {
     }
 
 
-    public String requireTimeTask(systemSetting tem){
+    public String requireTimeTask(systemSetting tem) {
         String parent = selectFile();
         try {
             // 读取 JSON 文件内容
@@ -338,13 +336,13 @@ public class systemServiceImpl implements systemService {
 
             JSONObject jsonObject = new JSONObject(jsonContent);
             // 0.4.9.3
-            updateJsonValue(jsonObject,"auto_updateSession",tem.getAuto_updateSession());
-            updateJsonValue(jsonObject,"auto_updateTime",tem.getAuto_updateTime());
-            updateJsonValue(jsonObject,"auto_updateNumber",tem.getAuto_updateNumber());
-            updateJsonValue(jsonObject,"pandoraNext_outUrl",tem.getPandoraNext_outUrl());
+            updateJsonValue(jsonObject, "auto_updateSession", tem.getAuto_updateSession());
+            updateJsonValue(jsonObject, "auto_updateTime", tem.getAuto_updateTime());
+            updateJsonValue(jsonObject, "auto_updateNumber", tem.getAuto_updateNumber());
+            updateJsonValue(jsonObject, "pandoraNext_outUrl", tem.getPandoraNext_outUrl());
             // 0.5.0
-            updateJsonValue(jsonObject,"oneAPi_outUrl",tem.getOneAPi_outUrl());
-            updateJsonValue(jsonObject,"oneAPi_intoToken",tem.getOneAPi_intoToken());
+            updateJsonValue(jsonObject, "oneAPi_outUrl", tem.getOneAPi_outUrl());
+            updateJsonValue(jsonObject, "oneAPi_intoToken", tem.getOneAPi_intoToken());
 
             // 将修改后的 JSONObject 转换为格式化的 JSON 字符串
             String updatedJson = jsonObject.toString(2);

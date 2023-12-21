@@ -16,42 +16,42 @@ import java.util.Map;
  */
 
 
-
 @Slf4j
 @Data
 @NoArgsConstructor
-public class JwtUtils{
+public class JwtUtils {
     //硬编码的伤
     private static String signKey = "123456";
     // JWT里的内容
     private static String JwtPassword = "tokensTool";
     private static Long expire = 43200000L;
 
-    /**
-     * 更换signkey的值
-     */
-    public static void setSignKey(String key){
-        signKey = key;
-    }
-
-    public static String getSignKey(){
+    public static String getSignKey() {
         return signKey;
     }
 
-    public static void setJwtPassword(String password){
-        JwtPassword = password;
+    /**
+     * 更换signkey的值
+     */
+    public static void setSignKey(String key) {
+        signKey = key;
     }
 
-    public static String getJwtPassword(){
+    public static String getJwtPassword() {
         return JwtPassword;
+    }
+
+    public static void setJwtPassword(String password) {
+        JwtPassword = password;
     }
 
     /**
      * 生成JWT令牌
+     *
      * @param claims JWT第二部分负载 payload 中存储的内容
      * @return
      */
-    public static String generateJwt(Map<String, Object> claims){
+    public static String generateJwt(Map<String, Object> claims) {
         String jwt = Jwts.builder()
                 .addClaims(claims)
                 .signWith(SignatureAlgorithm.HS256, getSignKey())
@@ -62,10 +62,11 @@ public class JwtUtils{
 
     /**
      * 解析JWT令牌
+     *
      * @param jwt JWT令牌
      * @return JWT第二部分负载 payload 中存储的内容
      */
-    public static Claims parseJWT(String jwt){
+    public static Claims parseJWT(String jwt) {
         Claims claims = Jwts.parser()
                 .setSigningKey(getSignKey())
                 .parseClaimsJws(jwt)

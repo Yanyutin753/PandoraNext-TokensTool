@@ -14,12 +14,12 @@ import java.util.concurrent.ScheduledFuture;
 @Slf4j
 @Service
 public class MyTaskUtils {
+    private final TaskScheduler taskScheduler;
     @Autowired
     private apiServiceImpl apiService;
     @Autowired
     private systemService systemService;
     private ScheduledFuture<?> future;
-    private final TaskScheduler taskScheduler;
 
     public MyTaskUtils(TaskScheduler taskScheduler) {
         this.taskScheduler = taskScheduler;
@@ -33,7 +33,7 @@ public class MyTaskUtils {
         }
     }
 
-    public void changeTask(systemSetting setting){
+    public void changeTask(systemSetting setting) {
         try {
             if (future != null) {
                 future.cancel(true);
@@ -42,7 +42,7 @@ public class MyTaskUtils {
             future = taskScheduler.schedule(() -> {
                 // 这里是任务内容
                 System.out.println("自定义定时更新session_token开始进行...................");
-                for(int i = 0 ; i < setting.getAuto_updateNumber() ;i++){
+                for (int i = 0; i < setting.getAuto_updateNumber(); i++) {
                     apiService.updateSession();
                     log.info("更新session_token开始完成");
                 }

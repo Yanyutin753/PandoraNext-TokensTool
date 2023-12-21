@@ -20,32 +20,32 @@ import org.json.JSONObject;
 public class validation {
 
     /**
-     *验证码提供商
+     * 验证码提供商
      */
     private String provider;
     /**
-     *验证码供应商后台获取的网站参数，是可以公布的信息
+     * 验证码供应商后台获取的网站参数，是可以公布的信息
      */
     private String site_key;
     /**
-     *验证码供应商后台获取的秘密参数，不要公布出来。有些供应商也称作API Key
+     * 验证码供应商后台获取的秘密参数，不要公布出来。有些供应商也称作API Key
      */
     private String site_secret;
 
     /**
-     *在全站密码登录页面显示
+     * 在全站密码登录页面显示
      */
     private boolean site_login;
     /**
-     *在设置登录页面显示
+     * 在设置登录页面显示
      */
     private boolean setup_login;
     /**
-     *在输入用户名页面显示
+     * 在输入用户名页面显示
      */
     private boolean oai_username;
     /**
-     *在输入密码页面显示
+     * 在输入密码页面显示
      */
     private boolean oai_password;
 

@@ -46,21 +46,16 @@ import java.util.regex.Pattern;
 @Slf4j
 public class poolServiceImpl implements poolService {
 
+    private static String openAiChat = "/v1/chat/completions";
+    private static String oneApiSelect = "/api/channel/?p=0";
+    private static String oneAPiChannel = "/api/channel/";
     @Value("${deployPosition}")
     private String deployPosition;
     private String deploy = "default";
-
     @Autowired
     private apiServiceImpl apiService;
-
     @Autowired
     private systemServiceImpl systemService;
-
-    private static String openAiChat = "/v1/chat/completions";
-
-    private static String oneApiSelect = "/api/channel/?p=0";
-
-    private static String oneAPiChannel = "/api/channel/";
 
     /**
      * 遍历文件
@@ -100,7 +95,6 @@ public class poolServiceImpl implements poolService {
     public String initializeCheckPool() {
         try {
             String parent = selectFile();
-            log.info(parent);
             ObjectMapper objectMapper = new ObjectMapper();
 
             // 读取JSON文件并获取根节点
@@ -169,7 +163,6 @@ public class poolServiceImpl implements poolService {
         List<poolToken> res = new ArrayList<>();
         try {
             String parent = selectFile();
-            log.info(parent);
             ObjectMapper objectMapper = new ObjectMapper();
             // 读取JSON文件并获取根节点
             JsonNode rootNode = objectMapper.readTree(new File(parent));
@@ -219,7 +212,6 @@ public class poolServiceImpl implements poolService {
     public String requirePoolToken(poolToken poolToken) {
         try {
             String parent = selectFile();
-            log.info(parent);
             ObjectMapper objectMapper = new ObjectMapper();
             // 读取JSON文件并获取根节点
             JsonNode rootNode = objectMapper.readTree(new File(parent));
@@ -240,16 +232,16 @@ public class poolServiceImpl implements poolService {
 
                 //仅支持修改poolToken的时间和值
                 LocalDateTime now = LocalDateTime.now();
-                nodeToModifyInNew.put("checkPool",poolToken.isCheckPool());
+                nodeToModifyInNew.put("checkPool", poolToken.isCheckPool());
                 nodeToModifyInNew.put("poolToken", poolToken.getPoolToken());
                 nodeToModifyInNew.put("poolTime", now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
                 // 将修改后的 newObjectNode 写回文件
                 objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(parent), newObjectNode);
-                log.info("修改成功");
+                log.info("修改成功!");
                 return "修改成功！";
             } else {
-                System.out.println("节点未找到或不是对象,请检查pool.json！ " + nodeNameToModify);
+                log.info("节点未找到或不是对象,请检查pool.json！ " + nodeNameToModify);
                 return "节点未找到或不是对象！";
             }
         } catch (Exception e) {
@@ -260,7 +252,6 @@ public class poolServiceImpl implements poolService {
     public String requireCheckPoolToken(poolToken poolToken) {
         try {
             String parent = selectFile();
-            log.info(parent);
             ObjectMapper objectMapper = new ObjectMapper();
             // 读取JSON文件并获取根节点
             JsonNode rootNode = objectMapper.readTree(new File(parent));
@@ -276,13 +267,13 @@ public class poolServiceImpl implements poolService {
                 ObjectNode nodeToModifyInNew = newObjectNode.with(nodeNameToModify);
                 //仅支持修改poolToken的时间和值
                 LocalDateTime now = LocalDateTime.now();
-                nodeToModifyInNew.put("checkPool",poolToken.isCheckPool());
+                nodeToModifyInNew.put("checkPool", poolToken.isCheckPool());
                 // 将修改后的 newObjectNode 写回文件
                 objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(parent), newObjectNode);
-                log.info("修改成功");
+                log.info("修改成功!");
                 return "修改成功！";
             } else {
-                System.out.println("节点未找到或不是对象,请检查pool.json！ " + nodeNameToModify);
+                log.info("节点未找到或不是对象,请检查pool.json！ " + nodeNameToModify);
                 return "节点未找到或不是对象！";
             }
         } catch (Exception e) {
@@ -300,7 +291,6 @@ public class poolServiceImpl implements poolService {
         String resPoolToken;
         try {
             String shareTokens = getShareTokens(poolToken.getShareTokens());
-            log.info(shareTokens);
             String temPoolToken = poolToken.getPoolToken();
             if (temPoolToken != null && temPoolToken.contains("pk")) {
                 resPoolToken = apiService.getPoolToken(temPoolToken, shareTokens);
@@ -315,13 +305,12 @@ public class poolServiceImpl implements poolService {
                 return "pool_token数据添加失败，请开启登录生成";
             }
             poolToken.setPoolToken(resPoolToken);
-            if(poolToken.isIntoOneApi()){
+            if (poolToken.isIntoOneApi()) {
                 String[] strings = systemService.selectOneAPi();
                 boolean b = addKey(poolToken, strings);
-                if(b == true){
+                if (b == true) {
                     log.info("pool_token进one-Api成功！");
-                }
-                else{
+                } else {
                     return "pool_token添加进one-api失败！";
                 }
             }
@@ -353,9 +342,9 @@ public class poolServiceImpl implements poolService {
             }
             newData.set("shareTokens", arrayNode);
             //0.5.0
-            newData.put("checkPool",true);
+            newData.put("checkPool", true);
             newData.put("intoOneApi", poolToken.isIntoOneApi());
-            newData.put("oneApi_pandoraUrl",poolToken.getOneApi_pandoraUrl());
+            newData.put("oneApi_pandoraUrl", poolToken.getOneApi_pandoraUrl());
 
             LocalDateTime now = LocalDateTime.now();
             newData.put("poolTime", now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
@@ -382,7 +371,6 @@ public class poolServiceImpl implements poolService {
             String name = poolToken.getPoolName();
             String parent = selectFile();
             String deletePoolToken = poolToken.getPoolToken();
-            log.info(parent);
             //确保注销成功！
             if (deletePoolToken != null && deletePoolToken.contains("pk")) {
                 String s = apiService.deletePoolToken(deletePoolToken);
@@ -390,10 +378,10 @@ public class poolServiceImpl implements poolService {
                     log.info("删除失败，看看自己的poolToken是否合法");
                 }
             }
-            if(poolToken.isIntoOneApi()){
+            if (poolToken.isIntoOneApi()) {
                 String[] strings = systemService.selectOneAPi();
                 boolean b = deleteKeyId(poolToken, strings);
-                if(b != true){
+                if (b != true) {
                     return "删除oneApi中的poolToken失败！";
                 }
             }
@@ -435,7 +423,7 @@ public class poolServiceImpl implements poolService {
             List<token> tokens = apiService.selectToken("");
             HashMap<String, String> tokensHashMap = new HashMap<>();
             for (token tem : tokens) {
-                if(tem.isSetPoolToken() && tem.isCheckSession()){
+                if (tem.isSetPoolToken() && tem.isCheckSession()) {
                     tokensHashMap.put(tem.getName(), tem.getShare_token());
                 }
             }
@@ -443,7 +431,7 @@ public class poolServiceImpl implements poolService {
                 try {
                     String temShareToken = tokensHashMap.get(temShareName);
                     String regex = "fk-[0-9a-zA-Z_\\-]{43}";
-                    if (temShareToken != null && Pattern.matches(regex, temShareToken)){
+                    if (temShareToken != null && Pattern.matches(regex, temShareToken)) {
                         resToken.append(temShareToken + "\n");
                     }
                 } catch (Exception e) {
@@ -542,19 +530,18 @@ public class poolServiceImpl implements poolService {
             String res = null;
             try {
                 String resPoolToken = apiService.getPoolToken("", getShareTokens(poolToken.getShareTokens()));
-                if(poolToken.isIntoOneApi()){
+                if (poolToken.isIntoOneApi()) {
                     String[] strings = systemService.selectOneAPi();
-                    boolean temkeyId = deleteKeyId(poolToken,strings);
-                    if(temkeyId == false){
+                    boolean temkeyId = deleteKeyId(poolToken, strings);
+                    if (temkeyId == false) {
                         return "删除oneAPi里的poolToken失败！";
-                    }
-                    else{
+                    } else {
                         try {
                             poolToken.setPoolToken(resPoolToken);
                             poolToken.setCheckPool(true);
                             res = requirePoolToken(poolToken);
                             boolean b = addKey(poolToken, strings);
-                            if(b == true && res.contains("成功")){
+                            if (b == true && res.contains("成功")) {
                                 return res;
                             }
                         } catch (Exception e) {
@@ -584,21 +571,21 @@ public class poolServiceImpl implements poolService {
             String openAiUrl = getOpenaiUrl() + openAiChat;
             List<poolToken> poolTokens = selectPoolToken("");
             int count = 0;
-            for(poolToken poolToken : poolTokens) {
+            for (poolToken poolToken : poolTokens) {
                 String res = verifyPoolToken(poolToken, openAiUrl);
-                if(res.contains("请确保")){
+                if (res.contains("请确保")) {
                     return res;
-                }
-                else if(res != null && res.contains("正常")){
-                    count ++;
+                } else if (res != null && res.contains("正常")) {
+                    count++;
                 }
             }
-            return "poolToken验证成功：" + count+"，失败：" + (poolTokens.size() - count);
+            return "poolToken验证成功：" + count + "，失败：" + (poolTokens.size() - count);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
+
     /**
      * 检查单个pool_token
      * 是否过期或者出现问题
@@ -609,7 +596,7 @@ public class poolServiceImpl implements poolService {
             String openAiUrl = getOpenaiUrl();
             log.info(openAiUrl);
             String res = verifyPoolToken(poolToken, openAiUrl + openAiChat);
-            if(res != null){
+            if (res != null) {
                 return res;
             }
         } catch (Exception e) {
@@ -652,15 +639,13 @@ public class poolServiceImpl implements poolService {
                     e.printStackTrace();
                     return "请确保PandoraNext正常启动且tokensTool填写PandoraNext访问地址正确！";
                 }
-                log.info(result);
                 JSONObject jsonResponse = new JSONObject(result);
-                if(!jsonResponse.has("choices")) {
+                if (!jsonResponse.has("choices")) {
                     poolToken.setCheckPool(false);
                     String s = requireCheckPoolToken(poolToken);
-                    if(s.contains("成功")){
-                        return "pool_token过期，请重新刷新，"+ s;
-                    }
-                    else{
+                    if (s.contains("成功")) {
+                        return "pool_token过期，请重新刷新，" + s;
+                    } else {
                         log.info("已为你自动标记过期poolToken!");
                         return "pool_token过期，请重新刷新！";
                     }
@@ -687,7 +672,7 @@ public class poolServiceImpl implements poolService {
         return null;
     }
 
-    public String getOpenaiUrl(){
+    public String getOpenaiUrl() {
         try {
             systemSetting systemSetting = systemService.selectSetting();
             String pandoraNextOutUrl = systemSetting.getPandoraNext_outUrl();
@@ -705,10 +690,11 @@ public class poolServiceImpl implements poolService {
     /**
      * 添加Key值
      * 会通过Post方法访问One-Api接口/api/channel/,添加新keys
+     *
      * @return "true"or"false"
      */
-    public boolean addKey(poolToken addKeyPojo,String[] systemSetting) {
-        if(!addKeyPojo.isIntoOneApi()){
+    public boolean addKey(poolToken addKeyPojo, String[] systemSetting) {
+        if (!addKeyPojo.isIntoOneApi()) {
             return false;
         }
         String url = systemSetting[0] + oneAPiChannel;
@@ -728,14 +714,12 @@ public class poolServiceImpl implements poolService {
             jsonObject.put("groups", new JSONArray().put("default"));
             // 将JSON对象转换为字符串
             String json = jsonObject.toString();
-            log.info(json);
             HttpClient httpClient = HttpClients.createDefault();
             HttpPost addPutKey = new HttpPost(url);
-            addPutKey.addHeader("Authorization", "Bearer "+ systemSetting[1]);
+            addPutKey.addHeader("Authorization", "Bearer " + systemSetting[1]);
             addPutKey.setEntity(new StringEntity(json, "UTF-8"));
             // 发送请求
             HttpResponse response = httpClient.execute(addPutKey);
-            log.info(response.toString());
             // 处理响应
             int statusCode = response.getStatusLine().getStatusCode();
             // 获得响应消息
@@ -745,13 +729,12 @@ public class poolServiceImpl implements poolService {
             // 提取返回的数据
             log.info(jsonResponse.toString());
             boolean success = jsonResponse.getBoolean("success");
-            log.info(success+"");
             if (statusCode == 200 && success) {
-                System.out.println("Request was successful");
+                log.info("请求one-api成功！");
                 return true;
             } else {
                 // 请求失败
-                System.out.println("Request failed with status code: " + statusCode);
+                log.info("请求one-api失败，失败码: " + statusCode);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -759,16 +742,15 @@ public class poolServiceImpl implements poolService {
         return false;
     }
 
-    public boolean deleteKeyId(poolToken poolToken,String[] systemSetting) {
+    public boolean deleteKeyId(poolToken poolToken, String[] systemSetting) {
         String url = systemSetting[0] + oneApiSelect;
         log.info(url);
         try {
             HttpClient httpClient = HttpClients.createDefault();
             HttpGet selectKeys = new HttpGet(url);
-            selectKeys.addHeader("Authorization", "Bearer "+ systemSetting[1]);
+            selectKeys.addHeader("Authorization", "Bearer " + systemSetting[1]);
             // 发送请求
             HttpResponse response = httpClient.execute(selectKeys);
-            log.info(response.toString());
             // 处理响应
             int statusCode = response.getStatusLine().getStatusCode();
             // 获得响应消息
@@ -783,12 +765,10 @@ public class poolServiceImpl implements poolService {
                 String name = dataObject.getString("name");
                 if (name.equals(poolToken.getPoolName())) {
                     id = dataObject.getInt("id");
-                    log.info("相应的key名 = " + id);
                     break;
                 }
             }
             if (statusCode == 200 && id > 0) {
-                System.out.println("找到相应的key名");
                 boolean res = deleteKey(systemSetting, id);
                 return res;
             } else {
@@ -801,13 +781,13 @@ public class poolServiceImpl implements poolService {
         return false;
     }
 
-    public boolean deleteKey(String[] systemSetting ,int keyId){
+    public boolean deleteKey(String[] systemSetting, int keyId) {
         String url = systemSetting[0] + oneAPiChannel + keyId;
-        log.info(url);
+        log.info("请求one-api的网址为：" + url);
         try {
             HttpClient httpClient = HttpClients.createDefault();
             HttpDelete deleteKey = new HttpDelete(url);
-            deleteKey.addHeader("Authorization", "Bearer "+ systemSetting[1]);
+            deleteKey.addHeader("Authorization", "Bearer " + systemSetting[1]);
             // 发送请求
             HttpResponse response = httpClient.execute(deleteKey);
             log.info(response.toString());
@@ -820,15 +800,14 @@ public class poolServiceImpl implements poolService {
             // 提取返回的数据
             log.info(jsonResponse.toString());
             boolean success = jsonResponse.getBoolean("success");
-            log.info(success+"");
+            log.info(success + "");
             if (statusCode == 200 && success) {
                 log.info("key删除成功！");
                 return true;
-            }
-            else {
+            } else {
                 log.info("未找到当前的key，浏览器状态为: " + statusCode);
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return false;

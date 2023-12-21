@@ -1,10 +1,10 @@
 package com.tokensTool.pandoraNext.controller;
 
-import com.tokensTool.pandoraNext.pojo.systemSetting;
-import com.tokensTool.pandoraNext.util.JwtUtils;
 import com.tokensTool.pandoraNext.pojo.Result;
+import com.tokensTool.pandoraNext.pojo.systemSetting;
 import com.tokensTool.pandoraNext.service.impl.systemServiceImpl;
 import com.tokensTool.pandoraNext.service.loginService;
+import com.tokensTool.pandoraNext.util.JwtUtils;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,18 +31,19 @@ public class loginColltroller {
 
     /**
      * 登录用户接口
+     *
      * @return "jwt令牌！"or"NOT_LOGIN"
      */
     @PostMapping("/login")
     public Result login(@RequestBody systemSetting setting) {
         boolean res = loginService.login(setting);
-        if(res){
+        if (res) {
             String password = JwtUtils.getJwtPassword().toString();
             String username = setting.getLoginUsername();
-            Map<String,Object> chaims = new HashMap<String,Object>();
+            Map<String, Object> chaims = new HashMap<String, Object>();
 
-            chaims.put("password",password);
-            chaims.put("username",username);
+            chaims.put("password", password);
+            chaims.put("username", username);
 
             String s = JwtUtils.generateJwt(chaims);
             log.info("登录成功");
@@ -53,15 +54,16 @@ public class loginColltroller {
 
     /**
      * 验证是否登录成功
+     *
      * @return 没登陆成功否则返回"NOT_LOGIN"
      */
     @PostMapping("/loginToken")
-    public Result loginToken(@RequestParam("token") String token){
+    public Result loginToken(@RequestParam("token") String token) {
         systemSetting systemSetting = systemService.selectSetting();
         String password = JwtUtils.getJwtPassword();
         String username = systemSetting.getLoginUsername();
 
-        if(!StringUtils.hasLength(token)){
+        if (!StringUtils.hasLength(token)) {
             log.info("请求头token为空,返回未登录的信息");
             return Result.error("NOT_LOGIN");
         }
@@ -69,7 +71,7 @@ public class loginColltroller {
             Claims claims = JwtUtils.parseJWT(token);
             String resPassword = claims.get("password").toString();
             String resUsername = claims.get("username").toString();
-            if(resPassword.equals(password) && resUsername.equals(username)){
+            if (resPassword.equals(password) && resUsername.equals(username)) {
                 log.info("令牌合法，可以正常登录");
                 return Result.success("YES_LOGIN");
             }

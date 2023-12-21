@@ -26,46 +26,57 @@ import java.util.List;
 @RestController()
 @RequestMapping("/api")
 public class apiController {
+    /**
+     * 重载接口
+     */
+    private final static String reloadUrl = "/api/setup/reload";
+    /**
+     * 主机先前IP
+     */
+    private static String previousIPAddress = "";
+    public String deploy = "default";
     private systemService systemService;
+    @Value("${deployPosition}")
+    private String deployPosition;
+    private apiService apiService;
+    /**
+     * 部署方法
+     */
+    @Value("${deployWay}")
+    private String deployWay;
+    @Value("${pandoara_Ip}")
+    private String pandoara_Ip;
+
+    private static boolean isContainerStopped(DockerClient dockerClient, String containerIdOrName) {
+        try {
+            // 获取容器状态
+            String containerStatus = dockerClient.inspectContainerCmd(containerIdOrName).exec().getState().getStatus();
+            // 判断容器状态是否为 "exited"
+            return containerStatus.equals("exited");
+        } catch (DockerException e) {
+            e.printStackTrace();
+            // 处理异常情况，例如容器不存在等
+            return false;
+        }
+    }
 
     @Autowired
     public void setSystemService(systemService systemService) {
         this.systemService = systemService;
     }
 
-    @Value("${deployPosition}")
-    private String deployPosition;
-
-    public String deploy = "default";
-
-    private apiService apiService;
-
-    /**
-     * 部署方法
-     */
-    @Value("${deployWay}")
-    private String deployWay;
-
-    /**
-     * 重载接口
-     */
-    private final static String reloadUrl = "/api/setup/reload";
-
     @Autowired
     public void setSystemService(apiService apiService) {
         this.apiService = apiService;
     }
-    /**
-     * 主机先前IP
-     */
-    private static String previousIPAddress = "";
+
     /**
      * @param name
      * @return 通过name获取到（tokens.json）文件里的全部值
      */
 
     @GetMapping("selectToken")
-    public Result selectToken(@RequestParam("name") String name){
+    public Result selectToken(@RequestParam("name") String name) {
         try {
             List<token> res = apiService.selectToken(name);
             return Result.success(res);
@@ -81,16 +92,14 @@ public class apiController {
      */
     @Log
     @PostMapping("addToken")
-    public Result addToken(@RequestBody token token){
+    public Result addToken(@RequestBody token token) {
         try {
             String res = apiService.addToken(token);
-            if(res.length() > 300){
+            if (res.length() > 300) {
                 return Result.success(res);
-            }
-            else if(res.length() == 0){
+            } else if (res.length() == 0) {
                 return Result.success("添加成功，已装填你的token");
-            }
-            else{
+            } else {
                 return Result.error(res);
             }
         } catch (Exception e) {
@@ -99,20 +108,18 @@ public class apiController {
         }
     }
 
-
     /**
      * @param token
      * @return 通过传入token，修改（tokens.json）文件里的值
      */
     @Log
     @PostMapping("requiredToken")
-    public Result requiredToken(@RequestBody token token){
+    public Result requiredToken(@RequestBody token token) {
         try {
             String res = apiService.requiredToken(token);
-            if(res.equals("修改成功！")){
+            if (res.equals("修改成功！")) {
                 return Result.success(res);
-            }
-            else{
+            } else {
                 return Result.error(res);
             }
         } catch (Exception e) {
@@ -127,7 +134,7 @@ public class apiController {
      */
     @Log
     @PutMapping("deleteToken")
-    public Result deleteToken(@RequestParam String name){
+    public Result deleteToken(@RequestParam String name) {
         try {
             String res = apiService.deleteToken(name);
             log.info(res);
@@ -151,6 +158,7 @@ public class apiController {
             return Result.error("重启PandoraNext镜像失败！");
         }
     }
+
     /**
      * @return 通过访问close，关闭PandoraNext服务
      */
@@ -159,45 +167,29 @@ public class apiController {
         String containerName = systemService.selectSetting().getContainerName();
         if (deployWay.contains("docker")) {
             try {
-                docker(containerName,"stop");
+                docker(containerName, "stop");
                 return Result.success("暂停PandoraNext镜像成功");
             } catch (Exception e) {
                 e.printStackTrace();
             }
             return Result.error("暂停PandoraNext镜像失败");
-        }
-        else if (deployWay.equals("releases")) {
+        } else if (deployWay.equals("releases")) {
             try {
                 closeRelease(containerName);
                 return Result.success("暂停PandoraNext应用成功");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }
-        else {
+        } else {
             return Result.error("jar用错名称");
         }
     }
-
-    private static boolean isContainerStopped(DockerClient dockerClient, String containerIdOrName) {
-        try {
-            // 获取容器状态
-            String containerStatus = dockerClient.inspectContainerCmd(containerIdOrName).exec().getState().getStatus();
-            // 判断容器状态是否为 "exited"
-            return containerStatus.equals("exited");
-        } catch (DockerException e) {
-            e.printStackTrace();
-            // 处理异常情况，例如容器不存在等
-            return false;
-        }
-    }
-
 
     /**
      * @return 通过访问open，开启PandoraNext服务
      */
     @GetMapping("/open")
-    public Result openContainer(){
+    public Result openContainer() {
         // 要检查的容器ID或名称
         String containerName = systemService.selectSetting().getContainerName();
         if (deployWay.contains("docker")) {
@@ -208,7 +200,7 @@ public class apiController {
                 boolean isPaused = isContainerStopped(dockerClient, containerName);
                 if (isPaused) {
                     log.info("容器 " + containerName + " 已停止。");
-                    docker(containerName,"start");
+                    docker(containerName, "start");
                     return Result.success("开启PandoraNext镜像成功");
                 }
                 // 关闭 Docker 客户端连接
@@ -217,41 +209,38 @@ public class apiController {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }
-        else if (deployWay.equals("releases")) {
+        } else if (deployWay.equals("releases")) {
             try {
                 openRelease(containerName);
                 return Result.success("开启PandoraNext镜像成功");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }
-        else {
+        } else {
             return Result.success("jar用错名称");
         }
     }
-
 
     /**
      * @return 通过访问open，重载PandoraNext服务
      */
     @GetMapping("/reload")
-    public Result reloadContainer(){
+    public Result reloadContainer() {
         try {
             String externalIP = previousIPAddress;
             systemSetting systemSetting = systemService.selectSetting();
             String bingUrl = systemSetting.getBing();
             String[] parts = bingUrl.split(":");
-            String baseUrlWithoutPath = "http://" + externalIP + ":" + parts[1] + "/" +systemSetting.getProxy_api_prefix();
+            String baseUrlWithoutPath = "http://" + externalIP + ":" + parts[1] + "/" + systemSetting.getProxy_api_prefix();
             if (parts.length != 2) {
                 return Result.error("bind填写有误，无法提取port");
             }
-            log.info("重载的PandoraNext服务Url:"+baseUrlWithoutPath);
+            log.info("重载的PandoraNext服务Url:" + baseUrlWithoutPath);
 
             String reloadCommand = "curl -i -X POST " + baseUrlWithoutPath + reloadUrl;
             // 执行重载进程的命令
             Process reloadProcess = executeCommand(reloadCommand);
-            log.info("重载命令:"+reloadCommand);
+            log.info("重载命令:" + reloadCommand);
             // 等待重载进程完成
             try {
                 int exitCode = reloadProcess.waitFor();
@@ -268,17 +257,17 @@ public class apiController {
         }
         return Result.success("无法重载PandoraNext服务");
     }
+
     /**
      * containerName
      * 重启containerName的容器
      * 分为docker和releases
      */
-    public void restartContainer(String containerName){
+    public void restartContainer(String containerName) {
         log.info(deployWay);
         if (deployWay.contains("docker")) {
-          docker(containerName,"restart");
-        }
-        else if (deployWay.equals("releases")) {
+            docker(containerName, "restart");
+        } else if (deployWay.equals("releases")) {
             try {
                 try {
                     //先确保是开启状态
@@ -296,8 +285,7 @@ public class apiController {
                 log.info("无法重启PandoraNext服务");
                 throw new RuntimeException(e);
             }
-        }
-        else {
+        } else {
             log.info("jar包填错信息");
         }
     }
@@ -307,7 +295,7 @@ public class apiController {
      * containeeName：容器名
      * 关闭容器项目
      */
-    public void closeRelease(String containName){
+    public void closeRelease(String containName) {
         try {
             String killCommand = "pkill " + containName;
             log.info(killCommand);
@@ -339,14 +327,13 @@ public class apiController {
      * containeeName：容器名
      * 开启容器项目
      */
-    public void openRelease(String containerName){
+    public void openRelease(String containerName) {
         try {
             String projectRoot;
-            if(deploy.equals(deployPosition)){
+            if (deploy.equals(deployPosition)) {
                 projectRoot = System.getProperty("user.dir");
                 log.info(projectRoot);
-            }
-            else{
+            } else {
                 projectRoot = deployPosition;
             }
             String startCommand = "cd " + projectRoot + " && nohup ./" + containerName + " > output.log 2>&1 & echo $! > pid.txt";
@@ -368,16 +355,16 @@ public class apiController {
      * containeeName：容器名
      * way:命令方法（启动：start 暂停：stop 重启：restart）
      */
-    public void docker(String containerName,String way){
+    public void docker(String containerName, String way) {
         try {
-            String dockerCommand = "docker "+ way + " " + containerName;
+            String dockerCommand = "docker " + way + " " + containerName;
             Process process = executeCommand(dockerCommand);
             int exitCode = process.waitFor();
             if (exitCode != 0) {
-                log.info("无法"+way+"PandoraNext服务");
-                throw new RuntimeException("无法"+way+"PandoraNext服务");
+                log.info("无法" + way + "PandoraNext服务");
+                throw new RuntimeException("无法" + way + "PandoraNext服务");
             }
-            log.info(way+"PandoraNext服务");
+            log.info(way + "PandoraNext服务");
         } catch (Exception e) {
             throw new RuntimeException();
         }
@@ -388,7 +375,7 @@ public class apiController {
      * command：命令
      * 用 bash ,-c ，来包裹命令增加其稳定性
      */
-    public Process executeCommand(String command){
+    public Process executeCommand(String command) {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", command);
             return processBuilder.start();
@@ -401,13 +388,12 @@ public class apiController {
      * 查询PandoraNext的额度
      */
     @GetMapping("getPandoraNext")
-    public Result getPandoraLimit(){
+    public Result getPandoraLimit() {
         try {
             PandoraLimit pandoraLimit = apiService.getPandoraLimit();
-            if(pandoraLimit != null){
+            if (pandoraLimit != null) {
                 return Result.success(pandoraLimit);
-            }
-            else{
+            } else {
                 return Result.error("查询PandoraNext余额失败，请检查ip绑定是否成功!");
             }
         } catch (Exception e) {
@@ -415,26 +401,22 @@ public class apiController {
         }
     }
 
-
-    @Value("${pandoara_Ip}")
-    private String pandoara_Ip;
-
     /**
      * pandoara_Ip要是填写的是default
      * 每隔60分钟刷新一次ip,若地址发生变化并重新验证
      * 如不是则放回："Ip将采用用户设置："+pandoara_Ip
      */
     @Scheduled(fixedRate = 3600000)
-    public void autoCheckIp(){
-        if(! pandoara_Ip.equals("default")){
-            if(previousIPAddress != pandoara_Ip){
+    public void autoCheckIp() {
+        if (!pandoara_Ip.equals("default")) {
+            if (previousIPAddress != pandoara_Ip) {
                 previousIPAddress = pandoara_Ip;
             }
-            log.info("Ip将采用用户设置："+pandoara_Ip);
+            log.info("Ip将采用用户设置：" + pandoara_Ip);
             return;
         }
         String currentIPAddress = apiService.getIp();
-        if(currentIPAddress == "失败"){
+        if (currentIPAddress == "失败") {
             log.info("获取IP失败！");
             return;
         }

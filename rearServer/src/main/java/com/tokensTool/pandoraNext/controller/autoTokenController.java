@@ -28,11 +28,12 @@ public class autoTokenController {
      * 自动更新access_Token和share_token
      * 更换tokens.json里存储的Tokens
      * 自动重启
+     *
      * @return "更新成功" or "更新失败"
      * @throws Exception
      */
     @Scheduled(cron = "0 0 3 * * ?")
-    public void toUpdateToken(){
+    public void toUpdateToken() {
         try {
             log.info("开始自动更新Token..........................");
             Result res = toUpdateAllToken();
@@ -44,15 +45,15 @@ public class autoTokenController {
     }
 
     @GetMapping("updateAllToken")
-    public Result toUpdateAllToken(){
+    public Result toUpdateAllToken() {
         try {
             String res = apiService.autoUpdateToken("");
-            if(res.contains("生成Token成功")){
+            if (res.contains("生成Token成功")) {
                 try {
                     String s = poolService.refreshAllTokens();
                     return Result.success(res + "\n" + s);
                 } catch (Exception e) {
-                    return Result.success(res +"\n但是自动更新pool_token失败，请手动点击一键全更新pool_token!");
+                    return Result.success(res + "\n但是自动更新pool_token失败，请手动点击一键全更新pool_token!");
                 }
             }
         } catch (Exception e) {
@@ -64,14 +65,15 @@ public class autoTokenController {
 
     /**
      * 自动更新指定用户名的access_token和share_token
+     *
      * @return "更新成功" or "刷新Token失败,请尝重新刷新！”
      * @throws Exception
      */
-    @PostMapping ("updateToken")
-    public Result toUpdateToken(@RequestBody token token){
+    @PostMapping("updateToken")
+    public Result toUpdateToken(@RequestBody token token) {
         try {
             token res = apiService.autoUpdateSimpleToken(token);
-            if(res != null){
+            if (res != null) {
                 return Result.success(res);
             }
         } catch (Exception e) {
@@ -82,15 +84,16 @@ public class autoTokenController {
 
     /**
      * 自动更新指定用户名的session
+     *
      * @return "更新成功" or "刷新Token失败,请尝重新刷新！”
      * @throws Exception
      */
     @Log
-    @PostMapping ("updateSessionToken")
-    public Result toUpdateSessionToken(@RequestBody token token){
+    @PostMapping("updateSessionToken")
+    public Result toUpdateSessionToken(@RequestBody token token) {
         try {
             token resToken = apiService.updateSession(token);
-            if(resToken != null){
+            if (resToken != null) {
                 return Result.success("更新session成功");
             }
         } catch (Exception e) {

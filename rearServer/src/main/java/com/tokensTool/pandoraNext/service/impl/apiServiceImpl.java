@@ -44,34 +44,30 @@ import java.util.Map;
 @Slf4j
 @Service
 public class apiServiceImpl implements apiService {
-    @Value("${deployPosition}")
-    private String deployPosition;
-
     /**
      * 登录接口获取session_token或者access_token
      */
     private final String loginToken = "/api/auth/login";
-
     /**
      * 把session_token转化成access_token
      */
     private final String accessToken = "/api/auth/session";
-
     /**
      * 把access_token转化为share_token
      */
     private final String shareToken = "/api/token/register";
-
     /**
      * 把share_token转化成pool_token
      */
     private final String poolToken = "/api/pool/update";
-
+    @Value("${deployPosition}")
+    private String deployPosition;
     /**
      * 部署路径为默认的话，自动识别jar包路径下的文件
      */
     private String deploy = "default";
-
+    @Autowired
+    private systemServiceImpl systemService;
 
     /**
      * 通过判断是否需要自定义查询tokens.json文件位置
@@ -111,13 +107,13 @@ public class apiServiceImpl implements apiService {
         List<token> res = new ArrayList<>();
         try {
             String parent = selectFile();
-            log.info(parent);
+            log.info("将通过这个路径进行查询token：" + parent);
             File jsonFile = new File(parent);
             ObjectMapper objectMapper = new ObjectMapper();
             // 如果 JSON 文件不存在或为空，则创建一个新的 JSON 对象并写入空数组
             if (!jsonFile.exists() || jsonFile.length() == 0) {
                 Files.writeString(Paths.get(parent), "{}");
-                log.info("新建tokens.json，并初始化tokens.json成功！");
+                log.info("未找到tokens.json,新建tokens.json并初始化tokens.json成功！");
                 return res;
             }
             // 读取JSON文件并获取根节点
@@ -159,10 +155,9 @@ public class apiServiceImpl implements apiService {
      * 添加checkSession变量,初始化为true
      * 启动的时候自动全部添加
      */
-    public String initializeCheckSession(){
+    public String initializeCheckSession() {
         try {
             String parent = selectFile();
-            log.info(parent);
             ObjectMapper objectMapper = new ObjectMapper();
 
             // 读取JSON文件并获取根节点
@@ -192,7 +187,7 @@ public class apiServiceImpl implements apiService {
                         ObjectNode nodeToModifyInNew = newObjectNode.with(nodeName);
 
                         // 初始化checkSession的值为true
-                        if(!nodeToModifyInNew.has("checkSession")){
+                        if (!nodeToModifyInNew.has("checkSession")) {
                             nodeToModifyInNew.put("checkSession", true);
                             log.info("为节点 " + nodeName + " 添加 checkSession 变量成功！");
                         }
@@ -271,7 +266,7 @@ public class apiServiceImpl implements apiService {
             newData.put("show_user_info", token.isShow_user_info());
             newData.put("plus", token.isPlus());
             newData.put("setPoolToken", token.isSetPoolToken());
-            newData.put("checkSession",true);
+            newData.put("checkSession", true);
 
             // 检查是否需要 TokenPassword
             if (token.getPassword() != null && token.getPassword().length() > 0) {
@@ -285,7 +280,6 @@ public class apiServiceImpl implements apiService {
             rootNode.put(token.getName(), newData);
             // 将修改后的数据写回到文件
             objectMapper.writerWithDefaultPrettyPrinter().writeValue(jsonFile, rootNode);
-            log.info("数据成功添加到 JSON 文件中。");
             return res;
         } catch (IOException e) {
             e.printStackTrace();
@@ -293,16 +287,15 @@ public class apiServiceImpl implements apiService {
         }
     }
 
-
     /**
      * 修改token值或者其他
+     *
      * @return "修改成功！"or"修改失败"or修改失败,检查你的token是否正确！
      */
     @Override
     public String requiredToken(token tem) {
         try {
             String parent = selectFile();
-            log.info(parent);
             ObjectMapper objectMapper = new ObjectMapper();
             // 读取JSON文件并获取根节点
             JsonNode rootNode = objectMapper.readTree(new File(parent));
@@ -331,7 +324,7 @@ public class apiServiceImpl implements apiService {
                 nodeToModifyInNew.put("setPoolToken", tem.isSetPoolToken());
                 nodeToModifyInNew.put("access_token", tem.getAccess_token());
                 nodeToModifyInNew.put("share_token", tem.getShare_token());
-                nodeToModifyInNew.put("checkSession",tem.isCheckSession());
+                nodeToModifyInNew.put("checkSession", tem.isCheckSession());
                 if (tem.getPassword() != null && tem.getPassword().length() > 0) {
                     nodeToModifyInNew.put("password", tem.getPassword());
                 } else {
@@ -342,14 +335,14 @@ public class apiServiceImpl implements apiService {
                 if (!previousToken.equals(tem.getToken())
                         && tem.getToken().contains("eyJhbG")
                         && tem.isSetPoolToken()) {
-                    require_UpdateToken(tem,nodeToModifyInNew);
+                    require_UpdateToken(tem, nodeToModifyInNew);
                 }
-                if(tem.isSetPoolToken() && previousSetPoolToken == false){
+                if (tem.isSetPoolToken() && previousSetPoolToken == false) {
                     String resSessionToken = updateSessionToken(tem);
-                    if(resSessionToken != null){
+                    if (resSessionToken != null) {
                         tem.setToken(resSessionToken);
                         nodeToModifyInNew.put("token", resSessionToken);
-                        require_UpdateToken(tem,nodeToModifyInNew);
+                        require_UpdateToken(tem, nodeToModifyInNew);
                     }
                 }
                 //如果不能生成API
@@ -364,7 +357,7 @@ public class apiServiceImpl implements apiService {
                 objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(parent), newObjectNode);
                 return "修改成功！";
             } else {
-                System.out.println("节点未找到或不是对象,请检查tokens.json！ " + nodeNameToModify);
+                log.info("节点未找到或不是对象,请检查tokens.json！ " + nodeNameToModify);
                 return "节点未找到或不是对象！";
             }
         } catch (IOException e) {
@@ -373,14 +366,14 @@ public class apiServiceImpl implements apiService {
         return "修改失败！";
     }
 
-    public void require_UpdateToken(token tem,ObjectNode nodeToModifyInNew){
+    public void require_UpdateToken(token tem, ObjectNode nodeToModifyInNew) {
         try {
             String access_token = getAccessToken(tem);
             if (access_token != null) {
                 tem.setAccess_token(access_token);
                 String share_token = getShareToken(tem);
                 nodeToModifyInNew.put("access_token", access_token);
-                nodeToModifyInNew.put("checkSession",true);
+                nodeToModifyInNew.put("checkSession", true);
                 if (share_token != null) {
                     nodeToModifyInNew.put("share_token", share_token);
                 } else {
@@ -388,7 +381,7 @@ public class apiServiceImpl implements apiService {
                 }
             } else {
                 nodeToModifyInNew.put("access_token", "检查session是否过期，请重新刷新获取");
-                nodeToModifyInNew.put("checkSession",false);
+                nodeToModifyInNew.put("checkSession", false);
             }
             LocalDateTime now = LocalDateTime.now();
             nodeToModifyInNew.put("updateTime", now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
@@ -407,8 +400,6 @@ public class apiServiceImpl implements apiService {
     public String deleteToken(String name) {
         try {
             String parent = selectFile();
-            log.info(parent);
-
             ObjectMapper objectMapper = new ObjectMapper();
             // 读取JSON文件并获取根节点
             JsonNode rootNode = objectMapper.readTree(new File(parent));
@@ -419,17 +410,13 @@ public class apiServiceImpl implements apiService {
                 // 创建新的 ObjectNode，并复制原始节点内容
                 ObjectNode newObjectNode = JsonNodeFactory.instance.objectNode();
                 newObjectNode.setAll((ObjectNode) rootNode);
-
                 // 删除节点
                 newObjectNode.remove(name);
-
                 // 将修改后的 newObjectNode 写回文件
                 objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(parent), newObjectNode);
-
-                log.info("删除成功");
                 return "删除成功！";
             } else {
-                System.out.println("Node not found: " + name);
+                log.info("节点未找到: " + name);
                 return "节点未找到！";
             }
         } catch (IOException e) {
@@ -438,9 +425,6 @@ public class apiServiceImpl implements apiService {
         return "删除失败";
     }
 
-
-    @Autowired
-    private systemServiceImpl systemService;
     /**
      * 自动更新Token方法
      * 通过api/auth/login拿到session_token
@@ -469,17 +453,14 @@ public class apiServiceImpl implements apiService {
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.addTextBody("username", token.getUsername(), ContentType.TEXT_PLAIN);
             builder.addTextBody("password", token.getUserPassword(), ContentType.TEXT_PLAIN);
-
             // 设置请求实体
             httpPost.setEntity(builder.build());
-
             //设置用户代理
             String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36";
             httpPost.setHeader("User-Agent", userAgent);
 
             // 执行HTTP请求
             HttpResponse response = httpClient.execute(httpPost);
-            log.info(response.toString());
             int statusCode = response.getStatusLine().getStatusCode();
             // 获得响应数据
             String responseContent = EntityUtils.toString(response.getEntity());
@@ -487,8 +468,6 @@ public class apiServiceImpl implements apiService {
             String resToken = null;
             try {
                 JSONObject jsonResponse = new JSONObject(responseContent);
-                // 提取返回的数据
-                log.info(jsonResponse.toString());
                 resToken = jsonResponse.getString("session_token");
                 httpClient.close();
             } catch (JSONException e) {
@@ -497,8 +476,6 @@ public class apiServiceImpl implements apiService {
             }
             //关闭进程
             if (statusCode == 200 && resToken.length() > 400) {
-                //用来防止请求的token出现问题，回退token值
-                log.info("Request was successful");
                 return resToken;
             }
         } catch (Exception e) {
@@ -533,7 +510,6 @@ public class apiServiceImpl implements apiService {
 
             // 执行HTTP请求
             HttpResponse response = httpClient.execute(httpPost);
-            log.info(response.toString());
             int statusCode = response.getStatusLine().getStatusCode();
             // 获得响应数据
             String responseContent = EntityUtils.toString(response.getEntity());
@@ -541,8 +517,6 @@ public class apiServiceImpl implements apiService {
             String resToken = null;
             try {
                 JSONObject jsonResponse = new JSONObject(responseContent);
-                // 提取返回的数据
-                log.info(jsonResponse.toString());
                 resToken = jsonResponse.getString("access_token");
                 httpClient.close();
             } catch (JSONException e) {
@@ -551,8 +525,6 @@ public class apiServiceImpl implements apiService {
             }
             //关闭进程
             if (statusCode == 200 && resToken.length() > 400) {
-                //用来防止请求的token出现问题，回退token值
-                log.info("请求成功，Url的路径为：" + url);
                 return resToken;
             }
         } catch (Exception e) {
@@ -655,7 +627,6 @@ public class apiServiceImpl implements apiService {
                         resToken.append(token.getShare_token() + "\n");
                     }
                 }
-                log.info("更新之前pool_token为：" + pool_token);
                 builder.addTextBody("share_tokens", resToken.toString(), ContentType.TEXT_PLAIN);
                 builder.addTextBody("pool_token", pool_token, ContentType.TEXT_PLAIN);
             } else {
@@ -666,7 +637,6 @@ public class apiServiceImpl implements apiService {
             httpPost.setEntity(builder.build());
             // 执行HTTP请求
             HttpResponse response = httpClient.execute(httpPost);
-            log.info(response.toString());
             int statusCode = response.getStatusLine().getStatusCode();
             // 获得响应数据
             String responseContent = EntityUtils.toString(response.getEntity());
@@ -674,10 +644,7 @@ public class apiServiceImpl implements apiService {
             String resPoolToken = null;
             try {
                 JSONObject jsonResponse = new JSONObject(responseContent);
-                // 提取返回的数据
-                log.info(jsonResponse.toString());
                 resPoolToken = jsonResponse.getString("pool_token");
-                log.info("pool_token更新为：" + resPoolToken);
                 log.info("一共运行了" + jsonResponse.getString("count") + "条share_token");
                 httpClient.close();
             } catch (JSONException e) {
@@ -687,7 +654,7 @@ public class apiServiceImpl implements apiService {
             //关闭进程
             if (statusCode == 200 && resPoolToken.contains("pk")) {
                 //用来防止请求的token出现问题，回退token值
-                log.info("请求pool_token成功，Url的路径为：" + url);
+                log.info("pool_token更新为：" + resPoolToken);
                 return resPoolToken;
             }
         } catch (Exception e) {
@@ -718,7 +685,6 @@ public class apiServiceImpl implements apiService {
             if (share_token != null) {
                 token.setCheckSession(true);
                 String res = requiredToken(token);
-                log.info(res);
                 if (res.contains("成功")) {
                     return token;
                 }
@@ -737,6 +703,7 @@ public class apiServiceImpl implements apiService {
      * 自动更新Token
      * 更换tokensTool里存储的Token的access_token和share_token
      * 并自动检查session是否过期
+     *
      * @return "更新成功" or "更新失败"
      */
     public String autoUpdateToken(String name) {
@@ -881,7 +848,7 @@ public class apiServiceImpl implements apiService {
             //关闭进程
             if (statusCode == 200 && resPoolToken.length() > 0) {
                 //用来防止请求的token出现问题，回退token值
-                log.info("注销pool_token成功，Url的路径为：" + url);
+                log.info("注销pool_token成功!");
                 return resPoolToken;
             }
         } catch (Exception e) {
@@ -900,7 +867,6 @@ public class apiServiceImpl implements apiService {
             CloseableHttpClient httpClient = HttpClients.createDefault();
             // 创建HttpPost请求
             HttpGet httpGet = new HttpGet(url);
-
             // 执行HTTP请求
             HttpResponse response = httpClient.execute(httpGet);
             int statusCode = response.getStatusLine().getStatusCode();
@@ -940,7 +906,7 @@ public class apiServiceImpl implements apiService {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             LocalDateTime minDateTime = LocalDateTime.parse(tokens.get(0).getUpdateTime(), formatter);
             for (token token : tokens) {
-                if(token.isSetPoolToken()){
+                if (token.isSetPoolToken()) {
                     LocalDateTime currentDateTime = LocalDateTime.parse(token.getUpdateTime(), formatter);
                     if (currentDateTime.isBefore(minDateTime)) {
                         minDateTime = currentDateTime;
@@ -948,9 +914,8 @@ public class apiServiceImpl implements apiService {
                     }
                 }
             }
-            log.info("更新的token名为：" + resToken.getName());
             token s = updateSession(resToken);
-            if(s != null){
+            if (s != null) {
                 log.info("更新session_token,access_token和share_token成功！");
             }
         } catch (Exception e) {
@@ -960,20 +925,20 @@ public class apiServiceImpl implements apiService {
 
     /**
      * 刷新session，更新access_token和share_token
+     *
      * @param token
      * @return
      */
     @Override
-    public token updateSession(token token){
+    public token updateSession(token token) {
         String res = autoUpdateSessionToken(token);
-        if(res != null && res.length() > 300){
+        if (res != null && res.length() > 300) {
             token.setToken(res);
             token.setSetPoolToken(true);
             token.setCheckSession(true);
             try {
-                log.info(token.toString());
                 token resToken = autoUpdateSimpleToken(token);
-                if(resToken != null){
+                if (resToken != null) {
                     return resToken;
                 }
             } catch (Exception e) {

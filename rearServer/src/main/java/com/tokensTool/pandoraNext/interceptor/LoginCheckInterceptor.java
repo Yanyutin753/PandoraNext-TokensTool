@@ -31,8 +31,8 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
 
         //1.获取请求url。
         String url = req.getRequestURL().toString();
-        log.info("请求的url: {}",url);
-        if(url.contains("login")){
+        log.info("请求的url: {}", url);
+        if (url.contains("login")) {
             log.info("登录操作, 放行...");
             return true;
         }
@@ -41,7 +41,7 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         String jwt = req.getHeader("Authorization");
 
         //4.判断令牌是否存在，如果不存在，返回错误结果（未登录）。
-        if(!StringUtils.hasLength(jwt) || !jwt.startsWith("Bearer ")){
+        if (!StringUtils.hasLength(jwt) || !jwt.startsWith("Bearer ")) {
             log.info("请求头token空或没有Bearer ,返回未登录的信息");
             Result error = Result.error("NOT_LOGIN");
             //手动转换 对象--json --------> 阿里巴巴fastJSON
@@ -67,7 +67,7 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
                 resp.getWriter().write(notLogin);
                 return false;
             }
-            if(!resPassword.equals(password) || !username.equals(resName)){
+            if (!resPassword.equals(password) || !username.equals(resName)) {
                 log.info("解析令牌失败, 返回未登录错误信息");
                 Result error = Result.error("NOT_LOGIN");
                 //手动转换 对象--json --------> 阿里巴巴fastJSON

@@ -28,6 +28,8 @@
 
 9.**新增获取多个pool_tokens**,方便使用
 
+10.**新增连接one-api，使得生成的pool_token能发送到one-api，实现同步更新**
+
 - 现如今只支持账号密码登录，希望大佬能扩充！
 
 #### 初始用户名：root 初始密码值:123456 
@@ -337,7 +339,9 @@ docker-compose up -d
 
 ### 请给我一个免费的⭐吧！！！
 
-![star-history-2023123](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/71108198-87e4-4c05-af1b-c03a3818084e)
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Yanyutin753/PandoraNext-TokensTool&type=Date)](https://star-history.com/#Yanyutin753/PandoraNext-TokensTool&Date)
 
 
 

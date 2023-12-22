@@ -6,7 +6,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.7.15</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
     </parent>
     <groupId>com.yyandywt99</groupId>
     <artifactId>pandoraNext</artifactId>
@@ -81,14 +81,6 @@
             <artifactId>netty-common</artifactId>
             <version>4.1.97.Final</version>
         </dependency>
-
-        <!--        加密-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.mindrot</groupId>-->
-        <!--            <artifactId>jbcrypt</artifactId>-->
-        <!--            <version>0.4</version>-->
-        <!--        </dependency>-->
-
     </dependencies>
 
     <build>
@@ -104,8 +96,14 @@
                         </exclude>
                     </excludes>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
-
 </project>

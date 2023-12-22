@@ -45,6 +45,12 @@ import java.util.regex.Pattern;
 @Service
 @Slf4j
 public class poolServiceImpl implements poolService {
+    private static final String gpt3Models = "gpt-3.5-turbo,gpt-3.5-turbo-0301,gpt-3.5-turbo-0613," +
+            "gpt-3.5-turbo-16k,gpt-3.5-turbo-16k-0613,gpt-3.5-turbo-instruct";
+
+    private static final String gpt4Models = "gpt-3.5-turbo,gpt-3.5-turbo-0301,gpt-3.5-turbo-0613," +
+            "gpt-3.5-turbo-16k,gpt-3.5-turbo-16k-0613,gpt-3.5-turbo-instruct,gpt-4," +
+            "gpt-4-0314,gpt-4-0613,gpt-4-32k,gpt-4-32k-0314,gpt-4-32k-0613";
 
     private static String openAiChat = "/v1/chat/completions";
     private static String oneApiSelect = "/api/channel/?p=0";
@@ -96,51 +102,45 @@ public class poolServiceImpl implements poolService {
         try {
             String parent = selectFile();
             ObjectMapper objectMapper = new ObjectMapper();
-
             // 读取JSON文件并获取根节点
             JsonNode rootNode = objectMapper.readTree(new File(parent));
-
             // 遍历根节点的所有子节点
             if (rootNode.isObject()) {
                 ObjectNode rootObjectNode = (ObjectNode) rootNode;
-
                 // 遍历所有子节点
                 Iterator<Map.Entry<String, JsonNode>> fields = rootObjectNode.fields();
                 while (fields.hasNext()) {
                     Map.Entry<String, JsonNode> entry = fields.next();
-
                     // 获取子节点的名称
                     String nodeName = entry.getKey();
-
                     // 获取子节点
                     JsonNode nodeToModify = entry.getValue();
-
                     if (nodeToModify != null && nodeToModify.isObject()) {
                         // 创建新的 ObjectNode，并复制原始节点内容
                         ObjectNode newObjectNode = JsonNodeFactory.instance.objectNode();
                         newObjectNode.setAll(rootObjectNode);
-
                         // 获取要修改的节点
                         ObjectNode nodeToModifyInNew = newObjectNode.with(nodeName);
-
                         // 初始化checkSession的值为true
                         if (!nodeToModifyInNew.has("checkPool")) {
                             nodeToModifyInNew.put("checkPool", true);
                             log.info("为节点 " + nodeName + " 添加 checkPool 变量成功！");
                         }
-
-                        // 初始化checkSession的值为true
+                        // 初始化intoOneApi的值为false
                         if (!nodeToModifyInNew.has("intoOneApi")) {
                             nodeToModifyInNew.put("intoOneApi", false);
                             log.info("为节点 " + nodeName + " 添加 intoOneApi 变量成功！");
                         }
-
-                        // 初始化checkSession的值为true
+                        // 初始化isPandoraNextGpt4的值为false
+                        if (!nodeToModifyInNew.has("isPandoraNextGpt4")) {
+                            nodeToModifyInNew.put("isPandoraNextGpt4", false);
+                            log.info("为节点 " + nodeName + " 添加 isPandoraNextGpt4 变量成功！");
+                        }
+                        // 初始化oneApi_pandoraUrl的值为""
                         if (!nodeToModifyInNew.has("oneApi_pandoraUrl")) {
                             nodeToModifyInNew.put("oneApi_pandoraUrl", "");
                             log.info("为节点 " + nodeName + " 添加 oneApi_pandoraUrl 变量成功！");
                         }
-
                         // 将修改后的 newObjectNode 写回文件
                         objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(parent), newObjectNode);
                     }
@@ -344,6 +344,7 @@ public class poolServiceImpl implements poolService {
             //0.5.0
             newData.put("checkPool", true);
             newData.put("intoOneApi", poolToken.isIntoOneApi());
+            newData.put("isPandoraNextGpt4",poolToken.isPandoraNextGpt4());
             newData.put("oneApi_pandoraUrl", poolToken.getOneApi_pandoraUrl());
 
             LocalDateTime now = LocalDateTime.now();
@@ -706,9 +707,12 @@ public class poolServiceImpl implements poolService {
             jsonObject.put("name", addKeyPojo.getPoolName());
             jsonObject.put("base_url", getOpenaiUrl());
             jsonObject.put("other", "");
-            jsonObject.put("models", "gpt-3.5-turbo,gpt-3.5-turbo-0301,gpt-3.5-turbo-0613," +
-                    "gpt-3.5-turbo-16k,gpt-3.5-turbo-16k-0613,gpt-3.5-turbo-instruct,gpt-4," +
-                    "gpt-4-0314,gpt-4-0613,gpt-4-32k,gpt-4-32k-0314,gpt-4-32k-0613");
+            if(addKeyPojo.isPandoraNextGpt4()){
+                jsonObject.put("models", gpt4Models);
+            }
+            else{
+                jsonObject.put("models", gpt3Models);
+            }
             jsonObject.put("group", "default");
             jsonObject.put("model_mapping", "");
             jsonObject.put("groups", new JSONArray().put("default"));

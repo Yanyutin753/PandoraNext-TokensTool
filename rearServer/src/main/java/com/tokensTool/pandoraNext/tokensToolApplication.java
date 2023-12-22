@@ -41,9 +41,9 @@ public class tokensToolApplication {
     private MyTaskUtils myTaskUtils;
 
     public static void main(String[] args) {
-        log.info("PandoraNext-tokensTool v 0.5.2版本\n" +
-                "修复相关token修改，添加，刷新的bug\n" +
-                "新增跳转PandoraNext的设置页和主页\n" +
+        log.info("PandoraNext-tokensTool v 0.5.3版本\n" +
+                "新增pool_token的上传模型开关，是否选择添加GPT4模型\n" +
+                "新增跳转PandoraNext的分享页\n" +
                 "页面优化，更加直观");
         Instant instant = Instant.now();
         String key = String.valueOf(instant.toEpochMilli());

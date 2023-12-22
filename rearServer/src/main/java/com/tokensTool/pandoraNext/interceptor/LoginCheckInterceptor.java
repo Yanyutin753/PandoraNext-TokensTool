@@ -33,7 +33,6 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         String url = req.getRequestURL().toString();
         log.info("请求的url: {}", url);
         if (url.contains("login")) {
-            log.info("登录操作, 放行...");
             return true;
         }
 
@@ -83,7 +82,6 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
             resp.getWriter().write(notLogin);
             return false;
         }
-        log.info("令牌合法, 放行");
         return true;
     }
 

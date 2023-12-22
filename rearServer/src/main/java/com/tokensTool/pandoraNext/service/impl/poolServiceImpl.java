@@ -131,10 +131,10 @@ public class poolServiceImpl implements poolService {
                             nodeToModifyInNew.put("intoOneApi", false);
                             log.info("为节点 " + nodeName + " 添加 intoOneApi 变量成功！");
                         }
-                        // 初始化isPandoraNextGpt4的值为false
-                        if (!nodeToModifyInNew.has("isPandoraNextGpt4")) {
-                            nodeToModifyInNew.put("isPandoraNextGpt4", false);
-                            log.info("为节点 " + nodeName + " 添加 isPandoraNextGpt4 变量成功！");
+                        // 初始化pandoraNextGpt4的值为false
+                        if (!nodeToModifyInNew.has("pandoraNextGpt4")) {
+                            nodeToModifyInNew.put("pandoraNextGpt4", false);
+                            log.info("为节点 " + nodeName + " 添加 pandoraNextGpt4 变量成功！");
                         }
                         // 初始化oneApi_pandoraUrl的值为""
                         if (!nodeToModifyInNew.has("oneApi_pandoraUrl")) {
@@ -189,6 +189,7 @@ public class poolServiceImpl implements poolService {
                     temRes.setCheckPool(temNode.has("checkPool") ? temNode.get("checkPool").asBoolean() : true);
                     //0.5.0
                     temRes.setIntoOneApi(temNode.has("intoOneApi") ? temNode.get("intoOneApi").asBoolean() : false);
+                    temRes.setPandoraNextGpt4(temNode.has("pandoraNextGpt4") ? temNode.get("pandoraNextGpt4").asBoolean() : false);
                     temRes.setOneApi_pandoraUrl(temNode.has("oneApi_pandoraUrl") ? temNode.get("oneApi_pandoraUrl").asText() : "");
                     res.add(temRes);
                 }
@@ -305,6 +306,7 @@ public class poolServiceImpl implements poolService {
                 return "pool_token数据添加失败，请开启登录生成";
             }
             poolToken.setPoolToken(resPoolToken);
+            System.out.println(poolToken.isPandoraNextGpt4());
             if (poolToken.isIntoOneApi()) {
                 String[] strings = systemService.selectOneAPi();
                 boolean b = addKey(poolToken, strings);
@@ -344,7 +346,7 @@ public class poolServiceImpl implements poolService {
             //0.5.0
             newData.put("checkPool", true);
             newData.put("intoOneApi", poolToken.isIntoOneApi());
-            newData.put("isPandoraNextGpt4",poolToken.isPandoraNextGpt4());
+            newData.put("pandoraNextGpt4",poolToken.isPandoraNextGpt4());
             newData.put("oneApi_pandoraUrl", poolToken.getOneApi_pandoraUrl());
 
             LocalDateTime now = LocalDateTime.now();

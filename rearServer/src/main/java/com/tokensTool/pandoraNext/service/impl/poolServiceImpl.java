@@ -306,7 +306,6 @@ public class poolServiceImpl implements poolService {
                 return "pool_token数据添加失败，请开启登录生成";
             }
             poolToken.setPoolToken(resPoolToken);
-            System.out.println(poolToken.isPandoraNextGpt4());
             if (poolToken.isIntoOneApi()) {
                 String[] strings = systemService.selectOneAPi();
                 boolean b = addKey(poolToken, strings);
@@ -416,7 +415,6 @@ public class poolServiceImpl implements poolService {
 
     /**
      * 从poolToken里拿到share_tokens的集合，传参给share_token
-     *
      * @param shareName
      * @return
      */
@@ -450,7 +448,6 @@ public class poolServiceImpl implements poolService {
 
     /**
      * 定时任务每五天后的凌晨4点0分重新更新poolToken
-     *
      * @return
      */
     @Scheduled(cron = "0 0 4 * * ?")
@@ -476,7 +473,7 @@ public class poolServiceImpl implements poolService {
                 }
             }
         }
-        log.info("(\"\npool_token刷新成功:\"+count+\"\n失败:\"+ (poolTokens.size() - count))");
+        log.info("pool_token刷新成功:"+count+ "失败:"+ (poolTokens.size() - count));
         return ("\npool_token刷新成功:" + count + "\n失败:" + (poolTokens.size() - count));
     }
 
@@ -638,6 +635,7 @@ public class poolServiceImpl implements poolService {
                 String result = null;
                 try {
                     result = EntityUtils.toString(responseEntity);
+                    log.info(result);
                 } catch (Exception e) {
                     e.printStackTrace();
                     return "请确保PandoraNext正常启动且tokensTool填写PandoraNext访问地址正确！";

@@ -13,7 +13,6 @@ import com.tokensTool.pandoraNext.service.systemService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,9 +34,12 @@ public class apiController {
      */
     private static String previousIPAddress = "";
     public String deploy = "default";
+
     private systemService systemService;
+
     @Value("${deployPosition}")
     private String deployPosition;
+
     private apiService apiService;
     /**
      * 部署方法
@@ -95,11 +97,10 @@ public class apiController {
     public Result addToken(@RequestBody token token) {
         try {
             String res = apiService.addToken(token);
-            if (res.length() > 300) {
+            if (res.contains("成功")) {
                 return Result.success(res);
-            } else if (res.length() == 0) {
-                return Result.success("添加成功，已装填你的token");
-            } else {
+            }
+            else {
                 return Result.error(res);
             }
         } catch (Exception e) {
@@ -227,20 +228,22 @@ public class apiController {
     @GetMapping("/reload")
     public Result reloadContainer() {
         try {
-            String externalIP = previousIPAddress;
-            systemSetting systemSetting = systemService.selectSetting();
+            String baseUrlWithoutPath;
+            systemSetting systemSetting = systemService.selectSettingUrl();
             String bingUrl = systemSetting.getBing();
             String[] parts = bingUrl.split(":");
-            String baseUrlWithoutPath = "http://" + externalIP + ":" + parts[1] + "/" + systemSetting.getProxy_api_prefix();
+            if (systemSetting.getAutoToken_url().equals("default")) {
+                baseUrlWithoutPath = "http://127.0.0.1" + ":" + parts[1] + "/" + systemSetting.getProxy_api_prefix() + reloadUrl;
+            } else {
+                baseUrlWithoutPath = systemSetting.getAutoToken_url() + reloadUrl;
+            }
             if (parts.length != 2) {
                 return Result.error("bind填写有误，无法提取port");
             }
-            log.info("重载的PandoraNext服务Url:" + baseUrlWithoutPath);
-
-            String reloadCommand = "curl -i -X POST " + baseUrlWithoutPath + reloadUrl;
+            String reloadCommand = "curl -i -X POST " + baseUrlWithoutPath;
+            log.info("重载命令:" + reloadCommand);
             // 执行重载进程的命令
             Process reloadProcess = executeCommand(reloadCommand);
-            log.info("重载命令:" + reloadCommand);
             // 等待重载进程完成
             try {
                 int exitCode = reloadProcess.waitFor();
@@ -402,29 +405,30 @@ public class apiController {
     }
 
     /**
+     * 该功能目前已弃用
      * pandoara_Ip要是填写的是default
      * 每隔60分钟刷新一次ip,若地址发生变化并重新验证
      * 如不是则放回："Ip将采用用户设置："+pandoara_Ip
      */
-    @Scheduled(fixedRate = 3600000)
-    public void autoCheckIp() {
-        if (!pandoara_Ip.equals("default")) {
-            if (previousIPAddress != pandoara_Ip) {
-                previousIPAddress = pandoara_Ip;
-            }
-            log.info("Ip将采用用户设置：" + pandoara_Ip);
-            return;
-        }
-        String currentIPAddress = apiService.getIp();
-        if (currentIPAddress == "失败") {
-            log.info("获取IP失败！");
-            return;
-        }
-        if (!currentIPAddress.equals(previousIPAddress)) {
-            log.info("IP地址已变化，新的IP地址是：" + currentIPAddress);
-            previousIPAddress = currentIPAddress;
-        } else {
-            log.info("IP地址未发生变化。");
-        }
-    }
+//    @Scheduled(fixedRate = 3600000)
+//    public void autoCheckIp() {
+//        if (!pandoara_Ip.equals("default")) {
+//            if (previousIPAddress != pandoara_Ip) {
+//                previousIPAddress = pandoara_Ip;
+//            }
+//            log.info("Ip将采用用户设置：" + pandoara_Ip);
+//            return;
+//        }
+//        String currentIPAddress = apiService.getIp();
+//        if (currentIPAddress == "失败") {
+//            log.info("获取IP失败！");
+//            return;
+//        }
+//        if (!currentIPAddress.equals(previousIPAddress)) {
+//            log.info("IP地址已变化，新的IP地址是：" + currentIPAddress);
+//            previousIPAddress = currentIPAddress;
+//        } else {
+//            log.info("IP地址未发生变化。");
+//        }
+//    }
 }

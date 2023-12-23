@@ -21,4 +21,10 @@ public interface systemService {
      */
     systemSetting selectSetting();
 
+    /**
+     * 查询config.json里的baseUrl
+     * @return systemSettings类
+     */
+    systemSetting selectSettingUrl();
+
 }

@@ -54,7 +54,6 @@ public class loginColltroller {
 
     /**
      * 验证是否登录成功
-     *
      * @return 没登陆成功否则返回"NOT_LOGIN"
      */
     @PostMapping("/loginToken")

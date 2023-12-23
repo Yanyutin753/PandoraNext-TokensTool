@@ -65,9 +65,14 @@ public class token {
     private String access_token;
 
     /**
-     * token session_token获取的时间
+     * token session_token或者refresh_token获取的时间
      */
     private String updateTime;
+
+    /**
+     * token 是否使用refresh_token
+     */
+    private boolean useRefreshToken;
 
     /**
      * token 检查session是否过期

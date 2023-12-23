@@ -44,6 +44,13 @@ public class autoTokenController {
         log.info(Result.error("自动检查更新access_token,share_token和pool_token失败").toString());
     }
 
+    /**
+     * 一键检查所有session或者refresh_token
+     * 失效变黄
+     * 并更新所有access_token和share_token
+     * 重新组成pool_token
+     * @return
+     */
     @GetMapping("updateAllToken")
     public Result toUpdateAllToken() {
         try {
@@ -79,7 +86,7 @@ public class autoTokenController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return Result.error("生成access_token和share_token失败,请请确保填写token为session_token！");
+        return Result.error("生成access_token和share_token失败,请请确保填写token为session或refresh_token！");
     }
 
     /**
@@ -94,11 +101,11 @@ public class autoTokenController {
         try {
             token resToken = apiService.updateSession(token);
             if (resToken != null) {
-                return Result.success("更新session成功");
+                return Result.success("刷新成功！");
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return Result.error("刷新session_token失败,请尝重新刷新！");
+        return Result.error("刷新失败,请尝重新刷新或检查proxy的url填写是否正确！");
     }
 }

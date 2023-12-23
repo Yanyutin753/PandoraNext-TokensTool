@@ -327,6 +327,42 @@ public class systemServiceImpl implements systemService {
         return null;
     }
 
+    public systemSetting selectSettingUrl() {
+        String parent = selectFile();
+        try {
+            // 读取 JSON 文件内容
+            String jsonContent = new String(Files.readAllBytes(Paths.get(parent)));
+            // 将 JSON 字符串解析为 JSONObject
+            JSONObject jsonObject = new JSONObject(jsonContent);
+
+            // 将 JSONObject 转换为 Config 类的实例
+            systemSetting config = new systemSetting();
+            config.setBing(jsonObject.optString("bind"));
+            config.setAutoToken_url(jsonObject.optString("autoToken_url"));
+            config.setProxy_api_prefix(jsonObject.optString("proxy_api_prefix"));
+            return config;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public systemSetting selectSettingLicense() {
+        String parent = selectFile();
+        try {
+            // 读取 JSON 文件内容
+            String jsonContent = new String(Files.readAllBytes(Paths.get(parent)));
+            // 将 JSON 字符串解析为 JSONObject
+            JSONObject jsonObject = new JSONObject(jsonContent);
+            // 将 JSONObject 转换为 Config 类的实例
+            systemSetting config = new systemSetting();
+            config.setLicense_id(jsonObject.optString("license_id"));
+            return config;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public String requireTimeTask(systemSetting tem) {
         String parent = selectFile();

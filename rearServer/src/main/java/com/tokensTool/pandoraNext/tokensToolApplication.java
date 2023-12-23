@@ -41,9 +41,11 @@ public class tokensToolApplication {
     private MyTaskUtils myTaskUtils;
 
     public static void main(String[] args) {
-        log.info("PandoraNext-tokensTool v 0.5.3版本\n" +
-                "新增pool_token的上传模型开关，是否选择添加GPT4模型\n" +
-                "新增跳转PandoraNext的分享页\n" +
+        log.info("PandoraNext-tokensTool v 0.5.4版本\n" +
+                "新增获取refresh_token,1000额度\n" +
+                "适应PandoraNext最新版本.6.1\n" +
+                "优化全部自动检查session和refresh_token\n" +
+                "优化全部刷新，获取，删除pool_token\n" +
                 "页面优化，更加直观");
         Instant instant = Instant.now();
         String key = String.valueOf(instant.toEpochMilli());
@@ -64,6 +66,8 @@ public class tokensToolApplication {
         serviceImpl.initializeCheckSession();
         //初始化检查config.json
         systemService.initializeConfigJson();
+        //初始化检查token.json
+        serviceImpl.initializeTokenJson();
         //初始化定时任务
         poolServiceImpl.initializeCheckPool();
 

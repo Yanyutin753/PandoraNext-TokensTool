@@ -79,7 +79,7 @@ public class poolController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return Result.error("修改失败！");
+        return Result.error("更换失败！");
     }
 
     @GetMapping("selectPoolToken")

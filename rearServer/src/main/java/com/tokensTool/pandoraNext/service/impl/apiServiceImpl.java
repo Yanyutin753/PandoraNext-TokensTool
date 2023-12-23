@@ -377,34 +377,16 @@ public class apiServiceImpl implements apiService {
                 ObjectNode nodeToModifyInNew = newObjectNode.with(nodeNameToModify);
                 // 获取之前的节点值
                 String previousToken = nodeToModifyInNew.has("token") ? nodeToModifyInNew.get("token").asText() : null;
-                // 获取之前的setPoolToken的值
-                boolean previousSetPoolToken = !nodeToModifyInNew.has("setPoolToken") || nodeToModifyInNew.get("setPoolToken").asBoolean();
-                // 获取之前的useRefreshToken的值
-                boolean previousUseRefreshToken = nodeToModifyInNew.has("useRefreshToken") && nodeToModifyInNew.get("useRefreshToken").asBoolean();
+                // 获取之前的节点值
+                boolean previousUseRefreshToken = nodeToModifyInNew.has("useRefreshToken") ? nodeToModifyInNew.get("useRefreshToken").asBoolean() : false;
+                // 初始修改相应的值
+                require_beginToken(tem,nodeToModifyInNew);
 
-                // 修改节点的值
-                nodeToModifyInNew.put("token", tem.getToken());
-                nodeToModifyInNew.put("username", tem.getUsername());
-                nodeToModifyInNew.put("userPassword", tem.getUserPassword());
-                nodeToModifyInNew.put("shared", tem.isShared());
-                nodeToModifyInNew.put("show_user_info", tem.isShow_user_info());
-                nodeToModifyInNew.put("plus", tem.isPlus());
-                nodeToModifyInNew.put("setPoolToken", tem.isSetPoolToken());
-                nodeToModifyInNew.put("access_token", tem.getAccess_token());
-                nodeToModifyInNew.put("share_token", tem.getShare_token());
-                nodeToModifyInNew.put("checkSession", tem.isCheckSession());
-                nodeToModifyInNew.put("useRefreshToken", tem.isUseRefreshToken());
-                if (tem.getPassword() != null && tem.getPassword().length() > 0) {
-                    nodeToModifyInNew.put("password", tem.getPassword());
-                } else {
-                    nodeToModifyInNew.put("password", "");
-                }
-
-                //如果不能生成API
+                //如果不能生成API return
                 if (!tem.isSetPoolToken()) {
                     nodeToModifyInNew.put("token", tem.getUsername() + "," + tem.getUserPassword());
-                    nodeToModifyInNew.put("share_token", "未开启pool_token无法生成");
-                    nodeToModifyInNew.put("access_token", "未开启pool_token无法生成");
+                    nodeToModifyInNew.put("share_token", "未开启API开关无法生成");
+                    nodeToModifyInNew.put("access_token", "未开启API开关无法生成");
                     LocalDateTime now = LocalDateTime.now();
                     nodeToModifyInNew.put("updateTime", now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                     // 将修改后的 newObjectNode 写回文件
@@ -412,19 +394,31 @@ public class apiServiceImpl implements apiService {
                     return "修改成功！";
                 }
 
-                // 检查修改的token是否相同，能生成API的
+                // 检查修改的token是否相同，
                 // 确保填写的数据和对应是否使用refresh相对应
-                if (!previousToken.equals(tem.getToken())
-                        && tem.isSetPoolToken()) {
-                    require_UpdateToken(tem, nodeToModifyInNew);
-                    // 将修改后的 newObjectNode 写回文件
-                    LocalDateTime now = LocalDateTime.now();
-                    nodeToModifyInNew.put("updateTime", now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-                    objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(parent), newObjectNode);
-                    return "修改成功！";
+                if (!previousToken.equals(tem.getToken())) {
+                    String access_token = getAccessToken(tem);
+                    if(access_token != null){
+                        tem.setAccess_token(access_token);
+                        String share_token = getShareToken(tem);
+                        nodeToModifyInNew.put("access_token", access_token);
+                        if (share_token != null) {
+                            nodeToModifyInNew.put("checkSession", true);
+                            nodeToModifyInNew.put("share_token", share_token);
+                        } else {
+                            return "access_token转share_token失败！";
+                        }
+                        // 将修改后的 newObjectNode 写回文件
+                        LocalDateTime now = LocalDateTime.now();
+                        nodeToModifyInNew.put("updateTime", now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                        objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(parent), newObjectNode);
+                        return "修改成功！";
+                    }
+                    else {
+                        return tem.isUseRefreshToken() ? "添加失败！请填写正确的refresh_token或关闭使用refresh_token后重新尝试" : "修改失败！请填写正确的session_token或开启使用refresh_token后重新尝试";
+                    }
                 }
-
-                if (!previousSetPoolToken) {
+                if(previousUseRefreshToken != tem.isUseRefreshToken()){
                     if (tem.isUseRefreshToken()) {
                         String refreshToken = updateRefreshToken(tem);
                         if (refreshToken != null) {
@@ -444,32 +438,6 @@ public class apiServiceImpl implements apiService {
                         }
                     }
                 }
-                else {
-                    if (tem.isUseRefreshToken() != previousUseRefreshToken) {
-                        if (!previousUseRefreshToken
-                                && tem.isUseRefreshToken()
-                                && tem.getToken().startsWith("eyJhb")) {
-                            String refreshToken = updateRefreshToken(tem);
-                            if (refreshToken != null) {
-                                reupdate(refreshToken,tem,nodeToModifyInNew);
-                            } else {
-                                return "修改失败，请确保你的账号密码是否正确且proxy的url配置是否正确，或者余额不足";
-                            }
-                        }
-                        else if (previousUseRefreshToken
-                                && !tem.isUseRefreshToken()
-                                && tem.getToken().length() < 300) {
-                            String sessionToken = updateSessionToken(tem);
-                            if (sessionToken != null) {
-                                reupdate(sessionToken,tem,nodeToModifyInNew);
-                            } else {
-                                return "修改失败，请确保你的账号密码是否正确且proxy的url配置是否正确，或者余额不足";
-                            }
-                        }
-                        require_UpdateToken(tem, nodeToModifyInNew);
-                    }
-                }
-
                 // 将修改后的 newObjectNode 写回文件
                 objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(parent), newObjectNode);
                 return "修改成功！";
@@ -486,9 +454,30 @@ public class apiServiceImpl implements apiService {
     public void reupdate(String token,token tem,ObjectNode nodeToModifyInNew){
         tem.setToken(token);
         nodeToModifyInNew.put("token", token);
+        require_UpdateToken(tem, nodeToModifyInNew);
         LocalDateTime now = LocalDateTime.now();
         nodeToModifyInNew.put("updateTime", now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-        require_UpdateToken(tem, nodeToModifyInNew);
+    }
+
+
+    public void require_beginToken(token tem,ObjectNode nodeToModifyInNew){
+        // 修改节点的值
+        nodeToModifyInNew.put("token", tem.getToken());
+        nodeToModifyInNew.put("username", tem.getUsername());
+        nodeToModifyInNew.put("userPassword", tem.getUserPassword());
+        nodeToModifyInNew.put("shared", tem.isShared());
+        nodeToModifyInNew.put("show_user_info", tem.isShow_user_info());
+        nodeToModifyInNew.put("plus", tem.isPlus());
+        nodeToModifyInNew.put("setPoolToken", tem.isSetPoolToken());
+        nodeToModifyInNew.put("access_token", tem.getAccess_token());
+        nodeToModifyInNew.put("share_token", tem.getShare_token());
+        nodeToModifyInNew.put("checkSession", tem.isCheckSession());
+        nodeToModifyInNew.put("useRefreshToken", tem.isUseRefreshToken());
+        if (tem.getPassword() != null && tem.getPassword().length() > 0) {
+            nodeToModifyInNew.put("password", tem.getPassword());
+        } else {
+            nodeToModifyInNew.put("password", "");
+        }
     }
 
     /**
@@ -515,23 +504,9 @@ public class apiServiceImpl implements apiService {
                 ObjectNode nodeToModifyInNew = newObjectNode.with(nodeNameToModify);
                 // 获取之前的节点值
                 String previousToken = nodeToModifyInNew.has("token") ? nodeToModifyInNew.get("token").asText() : null;
-                // 修改节点的值
-                nodeToModifyInNew.put("token", tem.getToken());
-                nodeToModifyInNew.put("username", tem.getUsername());
-                nodeToModifyInNew.put("userPassword", tem.getUserPassword());
-                nodeToModifyInNew.put("shared", tem.isShared());
-                nodeToModifyInNew.put("show_user_info", tem.isShow_user_info());
-                nodeToModifyInNew.put("plus", tem.isPlus());
-                nodeToModifyInNew.put("setPoolToken", tem.isSetPoolToken());
-                nodeToModifyInNew.put("access_token", tem.getAccess_token());
-                nodeToModifyInNew.put("share_token", tem.getShare_token());
-                nodeToModifyInNew.put("checkSession", tem.isCheckSession());
-                nodeToModifyInNew.put("useRefreshToken", tem.isUseRefreshToken());
-                if (tem.getPassword() != null && tem.getPassword().length() > 0) {
-                    nodeToModifyInNew.put("password", tem.getPassword());
-                } else {
-                    nodeToModifyInNew.put("password", "");
-                }
+                // 初始修改相应的值
+                require_beginToken(tem,nodeToModifyInNew);
+
                 if (!previousToken.equals(tem.getToken())
                         && tem.isSetPoolToken()) {
                     // 将修改后的 newObjectNode 写回文件

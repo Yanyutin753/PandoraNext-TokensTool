@@ -41,12 +41,14 @@ public class tokensToolApplication {
     private MyTaskUtils myTaskUtils;
 
     public static void main(String[] args) {
-        log.info("PandoraNext-tokensTool v 0.5.4版本\n" +
-                "新增获取refresh_token,1000额度\n" +
-                "适应PandoraNext最新版本.6.1\n" +
-                "优化全部自动检查session和refresh_token\n" +
-                "优化全部刷新，获取，删除pool_token\n" +
-                "页面优化，更加直观");
+        log.info("--------------------------------------------------------------\n" +
+                "PandoraNext-tokensTool v 0.5.5版本\n" +
+                "1.新增修改填入refresh_token，点击开启refresh_token，即可0消耗替换\n" +
+                "2.修改页面点击开启refresh_token，确定即可完成替换，消耗1000\n"+
+                "3.适应PandoraNext最新版本0.6.1\n" +
+                "4.新增刷新提醒等优化界面\n" +
+                "5.页面优化，更加直观\n" +
+                "--------------------------------------------------------------\n" );
         Instant instant = Instant.now();
         String key = String.valueOf(instant.toEpochMilli());
         JwtUtils.setSignKey(key);

@@ -1170,7 +1170,7 @@ public class apiServiceImpl implements apiService {
     @Override
     public token updateSession(token token) {
         String res = autoUpdateSessionToken(token);
-        if (res != null && res.length() > 300) {
+        if (res != null) {
             token.setToken(res);
             token.setSetPoolToken(true);
             token.setCheckSession(true);

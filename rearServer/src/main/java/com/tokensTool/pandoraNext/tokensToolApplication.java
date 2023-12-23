@@ -47,7 +47,8 @@ public class tokensToolApplication {
                 "2.修改页面点击开启refresh_token，确定即可完成替换，消耗1000\n"+
                 "3.适应PandoraNext最新版本0.6.1\n" +
                 "4.新增刷新提醒等优化界面\n" +
-                "5.页面优化，更加直观\n" +
+                "5.纠正分享页的显示账号信息的配置\n" +
+                "6.页面优化，更加直观\n" +
                 "--------------------------------------------------------------\n" );
         Instant instant = Instant.now();
         String key = String.valueOf(instant.toEpochMilli());

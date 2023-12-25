@@ -92,7 +92,6 @@ public interface apiService {
 
     /**
      * 刷新session，更新access_token和share_token
-     *
      * @param token
      * @return
      */

@@ -42,13 +42,11 @@ public class tokensToolApplication {
 
     public static void main(String[] args) {
         log.info("--------------------------------------------------------------\n" +
-                "PandoraNext-tokensTool v 0.5.5版本\n" +
-                "1.新增修改填入refresh_token，点击开启refresh_token，即可0消耗替换\n" +
-                "2.修改页面点击开启refresh_token，确定即可完成替换，消耗1000\n"+
-                "3.适应PandoraNext最新版本0.6.1\n" +
-                "4.新增刷新提醒等优化界面\n" +
-                "5.纠正分享页的显示账号信息的配置\n" +
-                "6.页面优化，更加直观\n" +
+                "PandoraNext-tokensTool v 0.5.6版本\n" +
+                "1.新增修改token之后弹窗说明\n" +
+                "2.新增刷新说明，显示消耗额度\n"+
+                "3.优化打包镜像，使得image大幅度减小\n" +
+                "4.修改web模式无法直接转为session_token的API模式\n" +
                 "--------------------------------------------------------------\n" );
         Instant instant = Instant.now();
         String key = String.valueOf(instant.toEpochMilli());

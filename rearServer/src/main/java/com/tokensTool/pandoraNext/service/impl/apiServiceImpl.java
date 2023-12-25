@@ -377,25 +377,50 @@ public class apiServiceImpl implements apiService {
                 ObjectNode nodeToModifyInNew = newObjectNode.with(nodeNameToModify);
                 // 获取之前的节点值
                 String previousToken = nodeToModifyInNew.has("token") ? nodeToModifyInNew.get("token").asText() : null;
+                boolean previousSetPoolToken = nodeToModifyInNew.has("setPoolToken") ? nodeToModifyInNew.get("setPoolToken").asBoolean() : false;
                 // 获取之前的节点值
                 boolean previousUseRefreshToken = nodeToModifyInNew.has("useRefreshToken") ? nodeToModifyInNew.get("useRefreshToken").asBoolean() : false;
                 // 初始修改相应的值
                 require_beginToken(tem,nodeToModifyInNew);
 
-                //如果不能生成API return
-                if (!tem.isSetPoolToken()) {
-                    nodeToModifyInNew.put("token", tem.getUsername() + "," + tem.getUserPassword());
-                    nodeToModifyInNew.put("share_token", "未开启API开关无法生成");
-                    nodeToModifyInNew.put("access_token", "未开启API开关无法生成");
-                    LocalDateTime now = LocalDateTime.now();
-                    nodeToModifyInNew.put("updateTime", now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-                    // 将修改后的 newObjectNode 写回文件
-                    objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(parent), newObjectNode);
-                    return "修改成功！";
+                //web条件 api转web web转api 消耗余额
+                if (previousSetPoolToken != tem.isSetPoolToken()) {
+                    if(tem.isSetPoolToken() == false){
+                        nodeToModifyInNew.put("token", tem.getUsername() + "," + tem.getUserPassword());
+                        nodeToModifyInNew.put("share_token", "未开启API开关无法生成");
+                        nodeToModifyInNew.put("access_token", "未开启API开关无法生成");
+                        LocalDateTime now = LocalDateTime.now();
+                        nodeToModifyInNew.put("updateTime", now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                        // 将修改后的 newObjectNode 写回文件
+                        objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(parent), newObjectNode);
+                        return "修改成功！";
+                    }
+                    // token相同的情况下 web 转 session_token
+                    else if(tem.isUseRefreshToken() == false && previousToken.equals(tem.getToken())){
+                        String reSessionToken = updateSessionToken(tem);
+                        if (reSessionToken != null) {
+                            reupdate(reSessionToken,tem,nodeToModifyInNew);
+                        }
+                        else {
+                            return "修改失败，请确保你的账号密码是否正确且proxy的url配置是否正确，或者余额不足";
+                        }
+                    }
+                    // token相同的情况下 web 转 refresh_token
+                    else if(tem.isUseRefreshToken() && previousToken.equals(tem.getToken())){
+                        String refreshToken = updateRefreshToken(tem);
+                        if (refreshToken != null) {
+                            reupdate(refreshToken,tem,nodeToModifyInNew);
+                        }
+                        else {
+                            return "修改失败，请确保你的账号密码是否正确且proxy的url配置是否正确，或者余额不足";
+                        }
+                    }
                 }
 
-                // 检查修改的token是否相同，
-                // 确保填写的数据和对应是否使用refresh相对应
+                // token不相同，直接看token是否对应
+                // web转api 填写相应的token
+                // session和refresh之间的互转 填写相应的token
+
                 if (!previousToken.equals(tem.getToken())) {
                     String access_token = getAccessToken(tem);
                     if(access_token != null){
@@ -418,6 +443,8 @@ public class apiServiceImpl implements apiService {
                         return tem.isUseRefreshToken() ? "添加失败！请填写正确的refresh_token或关闭使用refresh_token后重新尝试" : "修改失败！请填写正确的session_token或开启使用refresh_token后重新尝试";
                     }
                 }
+
+                // 在不改变token的值的API模式下，session和refresh之间的互相转换
                 if(previousUseRefreshToken != tem.isUseRefreshToken()){
                     if (tem.isUseRefreshToken()) {
                         String refreshToken = updateRefreshToken(tem);
@@ -636,7 +663,7 @@ public class apiServiceImpl implements apiService {
                 httpClient.close();
             }
             //关闭进程
-            if (statusCode == 200 && resToken.length() > 400) {
+            if (statusCode == 200 && resToken.startsWith("eyJhb")) {
                 return resToken;
             }
         } catch (Exception e) {

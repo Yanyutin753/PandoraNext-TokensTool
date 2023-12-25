@@ -57,7 +57,12 @@ docker login
 ```
 docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t yangclivia/fakeapitool -f /www/wwwroot/fakeApiTool/Dockerfile --push /www/wwwroot/fakeApiTool
 
-sudo docker buildx build --platform linux/amd64,linux/arm64,linux/s390x,linux/ppc64le -t yangclivia/tokenstool -f /www/PandoraNext/Dockerfile --push /www/PandoraNext
+sudo docker buildx build --platform linux/amd64,linux/arm/v7,linux/arm64/v8 -t yangclivia/tokenstool -f /www/PandoraNext/Dockerfile --push /www/PandoraNext
+
+sudo docker buildx build --platform linux/amd64,linux/arm64 -t yangclivia/tokenstooltest -f /www/PandoraNext/Dockerfile --push /www/PandoraNext
+
+
+docker-slim build --dockerfile ./Dockerfile --tag yangclivia/tokenstooltest.slim .
 
 ```
 4.上传成功
@@ -68,7 +73,7 @@ docker pull yangclivia/fakeapitool:latest
 
 #映射路径会把路径上的文件全部覆盖，被覆盖的文件会被全覆盖
 
-docker pull yangclivia/tokenstoolapha
+docker pull yangclivia/tokenstool
 docker run -d \
   --restart=always \
   -u root \
@@ -99,11 +104,11 @@ docker run -d \
   -v /pandora/data:/data \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /usr/bin/docker:/usr/bin/docker \
-  yangclivia/tokenstooltest:latest \
+  yangclivia/tokenstooltest.slim.slimmed:latest\
   --deployWay=docker \
   --deployPosition=/data \
   --hotReload=true \
-  --server.port=8082 \
+  --server.port=8081 \
   --pandoara_Ip=127.0.0.1
 
 

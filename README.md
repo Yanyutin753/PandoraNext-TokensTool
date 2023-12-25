@@ -176,6 +176,7 @@ docker run -d \
   --privileged=true \
   -v （你config.json的文件目录）:/data \
   -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /usr/bin/docker:/usr/bin/docker \
   yangclivia/tokenstool:latest \
   --deployWay=docker \
   --deployPosition=/data \
@@ -200,6 +201,7 @@ services:
     volumes:
       - （你config.json的文件目录）:/data
       - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker
     command: 
       - --deployWay=(部署方式看环境变量)
       - --deployPosition=/data

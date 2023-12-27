@@ -67,7 +67,7 @@ cd /tokenTools-sh && sudo sh install.sh
 # 一键更新pandoraNext和tokensTool服务
 cd /tokenTools-sh && sudo sh update.sh
 
-## 更新update.sh或者install.sh
+# 更新update.sh或者install.sh
 sudo rm -rf /tokenTools-sh && cd / && git clone https://gitee.com/yangyangEN/tokenTools-sh.git
 ```
 

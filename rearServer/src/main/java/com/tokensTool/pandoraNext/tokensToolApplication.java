@@ -1,5 +1,6 @@
 package com.tokensTool.pandoraNext;
 
+import com.tokensTool.pandoraNext.controller.chatController;
 import com.tokensTool.pandoraNext.pojo.systemSetting;
 import com.tokensTool.pandoraNext.service.impl.apiServiceImpl;
 import com.tokensTool.pandoraNext.service.impl.poolServiceImpl;
@@ -42,11 +43,10 @@ public class tokensToolApplication {
 
     public static void main(String[] args) {
         log.info("--------------------------------------------------------------\n" +
-                "PandoraNext-tokensTool v 0.5.6版本\n" +
-                "1.新增修改token之后弹窗说明\n" +
-                "2.新增刷新说明，显示消耗额度\n"+
-                "3.优化打包镜像，使得image大幅度减小\n" +
-                "4.修改web模式无法直接转为session_token的API模式\n" +
+                "PandoraNext-tokensTool v 0.5.7版本\n" +
+                "1.新增转发copilot接口(支持流式传输，接入one-api) /v1/chat/completions\n" +
+                "2.新增查看copilot模型接口 /v1/models\n"+
+                "3.修改已知bug\n" +
                 "--------------------------------------------------------------\n" );
         Instant instant = Instant.now();
         String key = String.valueOf(instant.toEpochMilli());
@@ -71,6 +71,8 @@ public class tokensToolApplication {
         serviceImpl.initializeTokenJson();
         //初始化定时任务
         poolServiceImpl.initializeCheckPool();
+        //初始化chatController
+        chatController.initializeMachineId();
 
         systemSetting setting = systemService.selectSetting();
         if (!setting.getAuto_updateSession()) {

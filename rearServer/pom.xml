@@ -16,6 +16,7 @@
     <properties>
         <java.version>11</java.version>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -80,6 +81,12 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-common</artifactId>
             <version>4.1.97.Final</version>
+        </dependency>
+<!--        plexpt chatGpt依赖-->
+        <dependency>
+            <groupId>com.github.plexpt</groupId>
+            <artifactId>chatgpt</artifactId>
+            <version>4.3.0</version>
         </dependency>
     </dependencies>
 

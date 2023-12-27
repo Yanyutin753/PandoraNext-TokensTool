@@ -10,15 +10,10 @@
         <module name="pandoraNext" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="11">
-      <module name="fakeapitool" target="11" />
-      <module name="fakeApiTool" target="11" />
-    </bytecodeTargetLevel>
+    <bytecodeTargetLevel target="11" />
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="fakeApiTool" options="-parameters" />
-      <module name="fakeapitool" options="-parameters" />
       <module name="pandoraNext" options="-parameters" />
     </option>
   </component>

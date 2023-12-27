@@ -1,5 +1,3 @@
-# PandoraNext-TokensTool
-
 ## 不准白嫖，请给我免费的star⭐吧，十分感谢！
 
 ## 简介
@@ -7,6 +5,7 @@
 [PandoraNext-TokensTool](https://github.com/Yanyutin753/PandoraNext-TokensTool) 是一个基于 [PandoraNext](https://github.com/pandora-next/deploy) 中的便捷添加管理tokens.json和config.josn的工具，旨在更加简便地使用[pandoraNext](https://github.com/pandora-next/deploy)资源，手机端电脑端在线管理PandoraNext,使得可以方便地白嫖 chatGPT，本工具是站在巨人的肩膀上，方便大家，麻烦给个不要钱的星星⭐⭐⭐！
 
 ## [🦄点击查看文档站](https://apifox.com/apidoc/shared-40345b46-9c9c-45cc-b494-6a6a387a978f)
+
 
 ## 功能特性
 
@@ -36,6 +35,13 @@
 
 #### 初始用户名：root 初始密码值:123456 
 #### **(请务必在第一次登录之后修改)**
+
+## [✨点击查看文档站](https://apifox.com/apidoc/shared-40345b46-9c9c-45cc-b494-6a6a387a978f)
+<details>
+<summary>
+
+     旧的文档，请点击上面连接跳转新的文档站
+</summary>
 
 ------------
 
@@ -314,14 +320,7 @@ docker-compose up -d
           "data": "pk-L25JirYw2mWiyRqasdasdSCYrnovbHkmXIA7jDUs-Zpug"
       }
      ```
- 
-# 图片展示
-
-# 手机端展示
-
-### 肝了一个晚上（给我赞让我写的更有劲吧！）
-
-![63a8b2a97b7f7b650ee0d8fc823b413](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/ee3b4306-07d4-40ed-a6b6-f62b1d61004d)
+</details>
 
 
 ### 在线修改系统设置，启动，重启，暂停PandoraNext操作
@@ -348,6 +347,3 @@ docker-compose up -d
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=Yanyutin753/PandoraNext-TokensTool&type=Date)](https://star-history.com/#Yanyutin753/PandoraNext-TokensTool&Date)
-
-
-

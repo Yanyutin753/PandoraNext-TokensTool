@@ -67,6 +67,8 @@ cd /tokenTools-sh && sudo sh install.sh
 # 一键更新pandoraNext和tokensTool服务
 cd /tokenTools-sh && sudo sh update.sh
 
+## 更新update.sh或者install.sh
+sudo rm -rf /tokenTools-sh && cd / && git clone https://gitee.com/yangyangEN/tokenTools-sh.git
 ```
 
 #### 1. 开放8081和8181端口，先访问8081,然后填写系统变量，把127.0.0.1:8181改成0.0.0.0:8181

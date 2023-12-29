@@ -130,16 +130,20 @@ public class apiController {
     }
 
     /**
-     * @param name
+     * @boby token
      * @return 通过token用户名，删除（tokens.json）文件里的值
      */
     @Log
     @PutMapping("deleteToken")
-    public Result deleteToken(@RequestParam String name) {
+    public Result deleteToken(@RequestBody token token) {
         try {
-            String res = apiService.deleteToken(name);
-            log.info(res);
-            return Result.success(res);
+            String res = apiService.deleteToken(token);
+            if(res.contains("成功")){
+                return Result.success(res);
+            }
+            else{
+                return Result.error(res);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return Result.error("删除失败");

@@ -9,6 +9,7 @@ import com.tokensTool.pandoraNext.pojo.systemSetting;
 import com.tokensTool.pandoraNext.pojo.token;
 import com.tokensTool.pandoraNext.service.apiService;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.*;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -23,10 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -585,8 +584,9 @@ public class apiServiceImpl implements apiService {
      * @return "删除成功！"or"删除失败"
      */
     @Override
-    public String deleteToken(String name) {
+    public String deleteToken(token token) {
         try {
+            String name = token.getName();
             String parent = selectFile();
             ObjectMapper objectMapper = new ObjectMapper();
             // 读取JSON文件并获取根节点
@@ -602,10 +602,13 @@ public class apiServiceImpl implements apiService {
                 newObjectNode.remove(name);
                 // 将修改后的 newObjectNode 写回文件
                 objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(parent), newObjectNode);
+                if(token.getAccess_token().startsWith("eyJhb") && deleteShareToken(token)){
+                    return "删除并销毁share_token成功！";
+                }
                 return "删除成功！";
             } else {
-                log.info("节点未找到: " + name);
-                return "节点未找到！";
+                log.info("token未找到: " + name);
+                return "token未找到！";
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -791,65 +794,27 @@ public class apiServiceImpl implements apiService {
     }
 
     public String getShareToken(token token) {
-        String url;
         systemSetting systemSetting = systemService.selectSettingUrl();
-        if (systemSetting.getAutoToken_url().equals("default")) {
-            String bingUrl = systemSetting.getBing();
-            String[] parts = bingUrl.split(":");
-            url = "http://127.0.0.1" + ":" + parts[1] + "/" + systemSetting.getProxy_api_prefix() + shareToken;
-        } else {
-            url = systemSetting.getAutoToken_url() + shareToken;
-        }
-        // 假设expires_in为0
-        int expires_in = 0;
-        // 自定义隔离对话
-        boolean show_conversations = false;
+        String url = systemSetting.getAutoToken_url().equals("default")
+                ? "http://127.0.0.1:" + systemSetting.getBing().split(":")[1] + "/" + systemSetting.getProxy_api_prefix() + shareToken
+                : systemSetting.getAutoToken_url() + shareToken;
         log.info("将通过这个网址请求登录信息：" + url);
-        String data = "unique_name=" + token.getName() + "&access_token=" + token.getAccess_token() + "&expires_in=" + expires_in + "&show_conversations=" + show_conversations;
-        String tokenKey = "";
-        try {
-            URL obj = new URL(url);
-            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-
-            // 设置请求方法为POST
-            con.setRequestMethod("POST");
-            con.setDoOutput(true);
-
-            // 发送POST数据
-            OutputStream os = con.getOutputStream();
-            os.write(data.getBytes());
-            os.flush();
-            os.close();
-
-            // 获取响应
-            int responseCode = con.getResponseCode();
-            if (responseCode == 200) {
-                BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                String inputLine;
-                StringBuilder response = new StringBuilder();
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-                String responseJson = response.toString();
-                tokenKey = new JSONObject(responseJson).getString("token_key");
-            } else {
-                BufferedReader in = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-                String inputLine;
-                StringBuilder response = new StringBuilder();
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-                String errStr = response.toString().replace("\n", "").replace("\r", "").trim();
-                System.out.println("share token failed: " + errStr);
+        String data = "unique_name=" + token.getName() + "&access_token=" + token.getAccess_token() +
+                "&expires_in=0&show_conversations=false&show_userinfo=" + token.isShow_user_info();
+        OkHttpClient client = new OkHttpClient();
+        RequestBody body = RequestBody.create(data, MediaType.parse("application/x-www-form-urlencoded"));
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                log.info("share token failed: " + response.body().string().trim());
                 return null;
             }
-
-            // 使用正则表达式匹配字符串
-            String shareToken = tokenKey;
-            if (shareToken.matches("^(fk-|pk-).*")) {
-                return shareToken;
+            String tokenKey = new JSONObject(response.body().string()).getString("token_key");
+            if (tokenKey.matches("^(fk-|pk-).*")) {
+                return tokenKey;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -857,16 +822,38 @@ public class apiServiceImpl implements apiService {
         return null;
     }
 
-    public String getPoolToken(String pool_token, String shareTokens) {
-        String url;
+    public boolean deleteShareToken(token token) {
         systemSetting systemSetting = systemService.selectSettingUrl();
-        if (systemSetting.getAutoToken_url().equals("default")) {
-            String bingUrl = systemSetting.getBing();
-            String[] parts = bingUrl.split(":");
-            url = "http://127.0.0.1" + ":" + parts[1] + "/" + systemSetting.getProxy_api_prefix() + poolToken;
-        } else {
-            url = systemSetting.getAutoToken_url() + poolToken;
+        String url = systemSetting.getAutoToken_url().equals("default")
+                ? "http://127.0.0.1:" + systemSetting.getBing().split(":")[1] + "/" + systemSetting.getProxy_api_prefix() + shareToken
+                : systemSetting.getAutoToken_url() + shareToken;
+        log.info("将通过这个网址请求登录信息：" + url);
+        String data = "unique_name=" + token.getName() + "&access_token=" + token.getAccess_token() +
+                "&expires_in=-1&show_conversations=false&show_userinfo=" + token.isShow_user_info();
+        OkHttpClient client = new OkHttpClient();
+        RequestBody body = RequestBody.create(data, MediaType.parse("application/x-www-form-urlencoded"));
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                log.info("share token failed: " + response.body().string().trim());
+                return false;
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        return false;
+    }
+
+
+    public String getPoolToken(String pool_token, String shareTokens) {
+        systemSetting systemSetting = systemService.selectSettingUrl();
+        String url = systemSetting.getAutoToken_url().equals("default")
+                ? "http://127.0.0.1:" + systemSetting.getBing().split(":")[1] + "/" + systemSetting.getProxy_api_prefix() + poolToken
+                : systemSetting.getAutoToken_url() + poolToken;
         log.info("将通过这个网址请求登录信息：" + url);
         try {
             // 创建HttpClient实例
@@ -992,53 +979,6 @@ public class apiServiceImpl implements apiService {
     }
 
     /**
-     * 通过https://www.taobao.com/help/getip.php
-     * 获取公网ip
-     *
-     * @return 公网ip
-     */
-    public String getIp() {
-        StringBuilder result = new StringBuilder();
-        BufferedReader in = null;
-        try {
-            URL realUrl = new URL("https://www.taobao.com/help/getip.php");
-            // 打开和URL之间的连接
-            URLConnection connection = realUrl.openConnection();
-            // 设置通用的请求属性
-            connection.setRequestProperty("accept", "*/*");
-            connection.setRequestProperty("connection", "Keep-Alive");
-            connection.setRequestProperty("user-agent",
-                    "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
-            // 建立实际的连接
-            connection.connect();
-            // 获取所有响应头字段
-            Map<String, List<String>> map = connection.getHeaderFields();
-            // 定义 BufferedReader输入流来读取URL的响应
-            in = new BufferedReader(new InputStreamReader(
-                    connection.getInputStream()));
-            String line;
-            while ((line = in.readLine()) != null) {
-                result.append(line);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "失败";
-        } finally {
-            try {
-                if (in != null) {
-                    in.close();
-                }
-            } catch (Exception e2) {
-                e2.printStackTrace();
-                return "失败";
-            }
-        }
-        String str = result.toString().replace("ipCallback({ip:", "");
-        String ipStr = str.replace("})", "");
-        return ipStr.replace('"', ' ').trim();
-    }
-
-    /**
      * 自动更新session_token时间80天
      *
      * @param token
@@ -1114,6 +1054,9 @@ public class apiServiceImpl implements apiService {
                 //用来防止请求的token出现问题，回退token值
                 log.info("注销pool_token成功!");
                 return resPoolToken;
+            }
+            else if (statusCode == 400){
+                return "不存在该pool_token";
             }
         } catch (Exception e) {
             e.printStackTrace();

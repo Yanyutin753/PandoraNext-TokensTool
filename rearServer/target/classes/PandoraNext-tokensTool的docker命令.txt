@@ -59,8 +59,6 @@ docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t yangclivi
 
 sudo docker buildx build --platform linux/amd64,linux/arm/v7,linux/arm64/v8 -t yangclivia/tokenstool -f /www/PandoraNext/Dockerfile --push /www/PandoraNext
 
-sudo docker buildx build --platform linux/amd64,linux/arm64 -t yangclivia/tokenstooltest -f /www/PandoraNext/Dockerfile --push /www/PandoraNext
-
 
 docker-slim build --dockerfile ./Dockerfile --tag yangclivia/tokenstooltest.slim .
 

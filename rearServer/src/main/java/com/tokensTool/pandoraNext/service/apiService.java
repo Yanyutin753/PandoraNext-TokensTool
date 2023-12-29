@@ -40,7 +40,7 @@ public interface apiService {
      *
      * @return "删除成功！"or"删除失败"
      */
-    String deleteToken(String name);
+    String deleteToken(token token);
 
     /**
      * 更换tokensTool里存储的Token的access_token和share_token
@@ -58,14 +58,6 @@ public interface apiService {
      */
     String autoUpdateToken(String s);
 
-
-    /**
-     * 通过https://www.taobao.com/help/getip.php
-     * 获取公网ip
-     *
-     * @return 公网ip
-     */
-    String getIp();
 
     /**
      * 自动更新session_token时间80天

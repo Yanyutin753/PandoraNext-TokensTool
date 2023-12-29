@@ -16,6 +16,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -51,7 +52,7 @@ public class poolServiceImpl implements poolService {
     private static final String gpt4Models = "gpt-3.5-turbo,gpt-3.5-turbo-0301,gpt-3.5-turbo-0613," +
             "gpt-3.5-turbo-16k,gpt-3.5-turbo-16k-0613,gpt-3.5-turbo-instruct,gpt-4," +
             "gpt-4-0314,gpt-4-0613,gpt-4-32k,gpt-4-32k-0314,gpt-4-32k-0613," +
-            "gpt-4-vision-preview,gpt-4-1106-preview,gpt-4-1106-vision-preview,gpt-4-mobile";
+            "gpt-4-1106-preview";
 
     private static String openAiChat = "/v1/chat/completions";
     private static String oneApiSelect = "/api/channel/?p=0";
@@ -310,6 +311,12 @@ public class poolServiceImpl implements poolService {
             if (poolToken.isIntoOneApi()) {
                 String[] strings = systemService.selectOneAPi();
                 boolean b = addKey(poolToken, strings);
+                if(poolToken.getPriority() != 0){
+                    boolean b1 = getPriority(poolToken, strings);
+                    if (b1 == true) {
+                        log.info("修改优先级成功！");
+                    }
+                }
                 if (b == true) {
                     log.info("pool_token进one-Api成功！");
                 } else {
@@ -714,9 +721,10 @@ public class poolServiceImpl implements poolService {
             else{
                 jsonObject.put("models", gpt3Models);
             }
-            jsonObject.put("group", "default");
+            String group = addKeyPojo.getGroupChecked();
+            jsonObject.put("group", group);
             jsonObject.put("model_mapping", "");
-            jsonObject.put("groups", new JSONArray().put("default"));
+            jsonObject.put("groups", new JSONArray().put(group));
             // 将JSON对象转换为字符串
             String json = jsonObject.toString();
             HttpClient httpClient = HttpClients.createDefault();
@@ -732,7 +740,6 @@ public class poolServiceImpl implements poolService {
             // 处理响应数据
             JSONObject jsonResponse = new JSONObject(responseContent);
             // 提取返回的数据
-            log.info(jsonResponse.toString());
             boolean success = jsonResponse.getBoolean("success");
             if (statusCode == 200 && success) {
                 log.info("请求one-api成功！");
@@ -773,8 +780,50 @@ public class poolServiceImpl implements poolService {
                     break;
                 }
             }
+            if (statusCode == 200 ) {
+                if(id > 0){
+                    boolean res = deleteKey(systemSetting, id);
+                    return res;
+                }
+                log.info("没有找到相应的key名!");
+                return true;
+            } else {
+                log.info("浏览器状态为： " + statusCode);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
+    public boolean getPriority(poolToken poolToken, String[] systemSetting) {
+        String url = systemSetting[0] + oneApiSelect;
+        log.info(url);
+        try {
+            HttpClient httpClient = HttpClients.createDefault();
+            HttpGet selectKeys = new HttpGet(url);
+            selectKeys.addHeader("Authorization", "Bearer " + systemSetting[1]);
+            // 发送请求
+            HttpResponse response = httpClient.execute(selectKeys);
+            // 处理响应
+            int statusCode = response.getStatusLine().getStatusCode();
+            // 获得响应消息
+            String responseContent = EntityUtils.toString(response.getEntity());
+            // 处理响应数据
+            JSONObject jsonObject = new JSONObject(responseContent);
+            JSONArray dataArray = jsonObject.getJSONArray("data");
+            int id = -1;
+            for (int i = 0; i < dataArray.length(); i++) {
+                JSONObject dataObject = dataArray.getJSONObject(i);
+                String name = dataObject.getString("name");
+                if (name.equals(poolToken.getPoolName())) {
+                    id = dataObject.getInt("id");
+                    break;
+                }
+            }
             if (statusCode == 200 && id > 0) {
-                boolean res = deleteKey(systemSetting, id);
+                boolean res = priorityKey(systemSetting,id,poolToken.getPriority());
                 return res;
             } else {
                 // 请求失败
@@ -785,7 +834,6 @@ public class poolServiceImpl implements poolService {
         }
         return false;
     }
-
     public boolean deleteKey(String[] systemSetting, int keyId) {
         String url = systemSetting[0] + oneAPiChannel + keyId;
         log.info("请求one-api的网址为：" + url);
@@ -818,4 +866,38 @@ public class poolServiceImpl implements poolService {
         return false;
     }
 
+    public boolean priorityKey(String[] systemSetting, int keyId ,Integer priority) {
+        String url = systemSetting[0] + oneAPiChannel;
+        log.info("请求one-api的网址为：" + url);
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("id", keyId);
+            jsonObject.put("priority", priority);
+            String json = jsonObject.toString();
+            HttpClient httpClient = HttpClients.createDefault();
+            HttpPut putKey = new HttpPut(url);
+            putKey.addHeader("Authorization", "Bearer " + systemSetting[1]);
+            putKey.setEntity(new StringEntity(json, "UTF-8"));
+            // 发送请求
+            HttpResponse response = httpClient.execute(putKey);
+            // 处理响应
+            int statusCode = response.getStatusLine().getStatusCode();
+            // 获得响应消息
+            String responseContent = EntityUtils.toString(response.getEntity());
+            // 处理响应数据
+            JSONObject jsonResponse = new JSONObject(responseContent);
+            // 提取返回的数据
+            log.info(jsonResponse.toString());
+            boolean success = jsonResponse.getBoolean("success");
+            if (statusCode == 200 && success) {
+                return true;
+            } else {
+                // 请求失败
+                log.info("更改优先级成功，失败码: " + statusCode);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ApifoxUploaderProjectSetting">
+    <option name="apifoxAccessToken" value="APS-gWB3o3gck0dDHVthAaQHK9TIkT74UGXN" />
+    <option name="apifoxProjectIds">
+      <array>
+        <option value="mall-admin:3784271" />
+        <option value="mall-search:3784271" />
+        <option value="pandoraNext:3784271" />
+      </array>
+    </option>
+    <option name="yapiTokens" value="" />
+  </component>
+</project>

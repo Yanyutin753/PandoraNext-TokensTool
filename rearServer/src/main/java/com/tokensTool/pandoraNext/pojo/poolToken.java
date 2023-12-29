@@ -53,4 +53,14 @@ public class poolToken {
      * 接入oneApi自定义PandoraNext地址
      */
     private String oneApi_pandoraUrl;
+
+    /**
+     * 接入oneApi的模型
+     */
+    private String groupChecked;
+
+    /**
+     * 接入oneApi的优先级
+     */
+    private Integer priority;
 }

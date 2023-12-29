@@ -43,11 +43,10 @@ public class tokensToolApplication {
 
     public static void main(String[] args) {
         log.info("--------------------------------------------------------------\n" +
-                "PandoraNext-tokensTool v 0.5.8版本\n" +
-                "1.新增查看登录日志，可以查看ip和登录地址\n" +
-                "2.新增one-api自定义分组，自定义优先级\n"+
-                "3.优化删除token，自动注销share_token\n"+
-                "4.修改已知bug\n" +
+                "PandoraNext-tokensTool v 0.5.9版本\n" +
+                "1.新增cocopilotAPI接口 /cocopilot/v1/chat/completions \n" +
+                "2.新增cocopilotModels接口，/cocopilot/v1/models\n"+
+                "3.修改已知bug\n" +
                 "--------------------------------------------------------------\n" );
         Instant instant = Instant.now();
         String key = String.valueOf(instant.toEpochMilli());

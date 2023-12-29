@@ -36,6 +36,7 @@ com\tokensTool\pandoraNext\controller\chatController.class
 com\tokensTool\pandoraNext\pojo\Result.class
 com\tokensTool\pandoraNext\chat\ChatCompletionResult$ChatCompletionResultBuilder.class
 com\tokensTool\pandoraNext\service\impl\systemServiceImpl.class
+com\tokensTool\pandoraNext\pojo\loginLog.class
 com\tokensTool\pandoraNext\chat\Usage$UsageBuilder.class
 com\tokensTool\pandoraNext\controller\apiController.class
 com\tokensTool\pandoraNext\pojo\PandoraLimit.class

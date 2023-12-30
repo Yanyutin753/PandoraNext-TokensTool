@@ -1,6 +1,5 @@
 package com.tokensTool.pandoraNext;
 
-import com.tokensTool.pandoraNext.controller.chatController;
 import com.tokensTool.pandoraNext.pojo.systemSetting;
 import com.tokensTool.pandoraNext.service.impl.apiServiceImpl;
 import com.tokensTool.pandoraNext.service.impl.poolServiceImpl;
@@ -71,8 +70,6 @@ public class tokensToolApplication {
         serviceImpl.initializeTokenJson();
         //初始化定时任务
         poolServiceImpl.initializeCheckPool();
-        //初始化chatController
-        chatController.initializeMachineId();
 
         systemSetting setting = systemService.selectSetting();
         if (!setting.getAuto_updateSession()) {

@@ -36,7 +36,7 @@ public class ContentCompletion {
 
 
     /**
-     *  仅考虑概率累积最高的 tokens，而忽略其他概率较低的 tokens。
+     * 仅考虑概率累积最高的 tokens，而忽略其他概率较低的 tokens。
      */
     private int top_p;
 
@@ -54,13 +54,13 @@ public class ContentCompletion {
 
 
     /**
-     *  是否返回每个 token 的对数概率。
+     * 是否返回每个 token 的对数概率。
      */
     private String logprobs;
 
 
     /**
-     *  指定在生成文本时的停止条件，即遇到哪个字符串时停止生成。
+     * 指定在生成文本时的停止条件，即遇到哪个字符串时停止生成。
      */
     private String stop;
 

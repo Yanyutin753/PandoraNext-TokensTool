@@ -7,11 +7,6 @@ import com.tokensTool.pandoraNext.chat.Conversation;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,6 +27,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Yangyang
@@ -86,10 +82,7 @@ public class chatController {
             "            {\"id\": \"curie\", \"object\": \"model\", \"created\": 1649359874, \"owned_by\": \"openai\"},\n" +
             "            {\"id\": \"davinci\", \"object\": \"model\", \"created\": 1649359874, \"owned_by\": \"openai\"},\n" +
             "            {\"id\": \"gpt-4-0314\", \"object\": \"model\", \"created\": 1687882410, \"owned_by\": \"openai\"} ], \"object\": \"list\" }";
-
-    @Value("${copilot_interface}")
-    private boolean copilot_interface;
-    private static String machineId;
+    private static final String machineId;
 
     static {
         copilotTokenList = new HashMap<>();
@@ -98,6 +91,8 @@ public class chatController {
         log.info("初始化chat接口需求成功！");
     }
 
+    @Value("${copilot_interface}")
+    private boolean copilot_interface;
 
     private static String generateMachineId() {
         try {
@@ -131,21 +126,29 @@ public class chatController {
      * @throws IOException
      */
     @PostMapping(value = "/v1/chat/completions")
-    public Object conversation(HttpServletResponse response, HttpServletRequest request, @org.springframework.web.bind.annotation.RequestBody Conversation conversation) throws JSONException, IOException {
-        if (conversation == null) {
-            return new ResponseEntity<>("Request body is missing or not in JSON format", HttpStatus.BAD_REQUEST);
-        }
-        String authorizationHeader = StringUtils.trimToNull(request.getHeader("Authorization"));
-        String apiKey;
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            apiKey = authorizationHeader.substring(7);
-        } else {
-            return new ResponseEntity<>("Authorization header is missing", HttpStatus.UNAUTHORIZED);
-        }
-        if (copilotTokenList.containsKey(apiKey)) {
+    public Object coPilotConversation(HttpServletResponse response, HttpServletRequest request, @org.springframework.web.bind.annotation.RequestBody Conversation conversation){
+        try {
+            if (conversation == null) {
+                return new ResponseEntity<>("Request body is missing or not in JSON format", HttpStatus.BAD_REQUEST);
+            }
+            String authorizationHeader = StringUtils.trimToNull(request.getHeader("Authorization"));
+            String apiKey;
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                apiKey = authorizationHeader.substring(7);
+            } else {
+                return new ResponseEntity<>("Authorization header is missing", HttpStatus.UNAUTHORIZED);
+            }
+            if (!copilotTokenList.containsKey(apiKey)) {
+                String token = getCopilotToken(apiKey);
+                if (token == null) {
+                    return new ResponseEntity<>("copilot APIKey is wrong", HttpStatus.UNAUTHORIZED);
+                }
+                copilotTokenList.put(apiKey, token);
+                log.info("coCopilotTokenList初始化成功！");
+            }
             // 创建OkHttpClient请求 请求https://api.githubcopilot.com/chat/completions
             String chat_token = copilotTokenList.get(apiKey);
-            OkHttpClient client = new OkHttpClient();
+            OkHttpClient client = productClient(5);
             Map<String, String> headersMap = new HashMap<>();
             //添加头部
             addHeader(headersMap, chat_token);
@@ -161,45 +164,22 @@ public class chatController {
             Request streamRequest = requestBuilder.build();
             try (Response resp = client.newCall(streamRequest).execute()) {
                 if (!resp.isSuccessful()) {
-                    CloseableHttpClient httpClient = HttpClients.custom().build();
-                    // 创建HttpGet请求
-                    HttpGet httpGet = new HttpGet("https://api.github.com/copilot_internal/v2/token");
-                    //添加头部
-                    addCopilotHeader(httpGet, apiKey);
-                    CloseableHttpResponse firstResponse = httpClient.execute(httpGet);
-                    String responseContent = EntityUtils.toString(firstResponse.getEntity());
-                    JSONObject jsonResponse = new JSONObject(responseContent);
-                    if (firstResponse.getStatusLine().getStatusCode() == 200 && jsonResponse.has("token")) {
-                        copilotTokenList.put(apiKey, jsonResponse.get("token").toString());
-                        log.info("copilotTokenList重置化成功！");
-                        conversation(response, request, conversation);
-                        return null;
-                    } else {
+                    String token = getCopilotToken(apiKey);
+                    if (token == null) {
                         return new ResponseEntity<>("copilot APIKey is wrong", HttpStatus.UNAUTHORIZED);
                     }
+                    copilotTokenList.put(apiKey, token);
+                    log.info("coCopilotTokenList重置化成功！");
+                    coPilotConversation(response, request, conversation);
+                    return null;
                 }
                 // 流式和非流式输出
                 outPutChat(response, resp);
             }
-        } else {
-            CloseableHttpClient httpClient = HttpClients.custom().build();
-            // 创建HttpGet请求
-            HttpGet httpGet = new HttpGet("https://api.github.com/copilot_internal/v2/token");
-            //添加头部
-            addCopilotHeader(httpGet, apiKey);
-            CloseableHttpResponse firstResponse = httpClient.execute(httpGet);
-            String responseContent = EntityUtils.toString(firstResponse.getEntity());
-            JSONObject jsonResponse = new JSONObject(responseContent);
-            if (firstResponse.getStatusLine().getStatusCode() == 200 && jsonResponse.has("token")) {
-                copilotTokenList.put(apiKey, jsonResponse.get("token").toString());
-                log.info("copilotTokenList初始化成功！");
-                conversation(response, request, conversation);
-                return null;
-            } else {
-                return new ResponseEntity<>("copilot APIKey is wrong", HttpStatus.UNAUTHORIZED);
-            }
+            return null;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
 
@@ -216,21 +196,29 @@ public class chatController {
      * @throws IOException
      */
     @PostMapping(value = "/cocopilot/v1/chat/completions")
-    public Object cocoPilotConversation(HttpServletResponse response, HttpServletRequest request, @org.springframework.web.bind.annotation.RequestBody Conversation conversation) throws JSONException, IOException {
-        if (conversation == null) {
-            return new ResponseEntity<>("Request body is missing or not in JSON format", HttpStatus.BAD_REQUEST);
-        }
-        String authorizationHeader = StringUtils.trimToNull(request.getHeader("Authorization"));
-        String apiKey;
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            apiKey = authorizationHeader.substring(7);
-        } else {
-            return new ResponseEntity<>("Authorization header is missing", HttpStatus.UNAUTHORIZED);
-        }
-        if (coCopilotTokenList.containsKey(apiKey)) {
+    public Object coCoPilotConversation(HttpServletResponse response, HttpServletRequest request, @org.springframework.web.bind.annotation.RequestBody Conversation conversation){
+        try {
+            if (conversation == null) {
+                return new ResponseEntity<>("Request body is missing or not in JSON format", HttpStatus.BAD_REQUEST);
+            }
+            String authorizationHeader = StringUtils.trimToNull(request.getHeader("Authorization"));
+            String apiKey;
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                apiKey = authorizationHeader.substring(7);
+            } else {
+                return new ResponseEntity<>("Authorization header is missing", HttpStatus.UNAUTHORIZED);
+            }
+            if (!coCopilotTokenList.containsKey(apiKey)) {
+                String token = getCoCoToken(apiKey);
+                if (token == null) {
+                    return new ResponseEntity<>("copilot APIKey is wrong", HttpStatus.UNAUTHORIZED);
+                }
+                coCopilotTokenList.put(apiKey, token);
+                log.info("coCopilotTokenList初始化成功！");
+            }
             // 创建OkHttpClient请求 请求https://api.githubcopilot.com/chat/completions
             String chat_token = coCopilotTokenList.get(apiKey);
-            OkHttpClient client = new OkHttpClient();
+            OkHttpClient client = productClient(5);
             Map<String, String> headersMap = new HashMap<>();
             //添加头部
             addHeader(headersMap, chat_token);
@@ -246,47 +234,70 @@ public class chatController {
             Request streamRequest = requestBuilder.build();
             try (Response resp = client.newCall(streamRequest).execute()) {
                 if (!resp.isSuccessful()) {
-                    CloseableHttpClient httpClient = HttpClients.custom().build();
-                    // 创建HttpGet请求
-                    HttpGet httpGet = new HttpGet("https://api.cocopilot.org/copilot_internal/v2/token");
-                    //添加头部
-                    addCoCoHeader(httpGet, apiKey);
-                    CloseableHttpResponse firstResponse = httpClient.execute(httpGet);
-                    String responseContent = EntityUtils.toString(firstResponse.getEntity());
-                    JSONObject jsonResponse = new JSONObject(responseContent);
-                    if (firstResponse.getStatusLine().getStatusCode() == 200 && jsonResponse.has("token")) {
-                        coCopilotTokenList.put(apiKey, jsonResponse.get("token").toString());
-                        log.info("coCopilotTokenList重置化成功！");
-                        cocoPilotConversation(response, request, conversation);
-                        return null;
-                    } else {
+                    String token = getCoCoToken(apiKey);
+                    if (token == null) {
                         return new ResponseEntity<>("copilot APIKey is wrong", HttpStatus.UNAUTHORIZED);
                     }
-                } else {
-                    // 流式和非流式输出
-                    outPutChat(response, resp);
+                    coCopilotTokenList.put(apiKey, token);
+                    log.info("coCopilotTokenList重置化成功！");
+                    coCoPilotConversation(response, request, conversation);
+                    return null;
                 }
+                // 流式和非流式输出
+                outPutChat(response, resp);
             }
-        } else {
-            CloseableHttpClient httpClient = HttpClients.custom().build();
-            // 创建HttpGet请求
-            HttpGet httpGet = new HttpGet("https://api.cocopilot.org/copilot_internal/v2/token");
-            //添加头部
-            addCoCoHeader(httpGet, apiKey);
-            CloseableHttpResponse firstResponse = httpClient.execute(httpGet);
-            String responseContent = EntityUtils.toString(firstResponse.getEntity());
-            JSONObject jsonResponse = new JSONObject(responseContent);
-            if (firstResponse.getStatusLine().getStatusCode() == 200 && jsonResponse.has("token")) {
-                coCopilotTokenList.put(apiKey, jsonResponse.get("token").toString());
-                log.info("coCopilotTokenList初始化成功！");
-                cocoPilotConversation(response, request, conversation);
-                return null;
-            } else {
-                return new ResponseEntity<>("copilot APIKey is wrong", HttpStatus.UNAUTHORIZED);
-            }
+            return null;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return null;
     }
+
+    private String getCopilotToken(String apiKey) throws IOException {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://api.github.com/copilot_internal/v2/token")
+                .addHeader("Host", "api.github.com")
+                .addHeader("authorization", "token " + apiKey)
+                .addHeader("Editor-Version", "vscode/1.85.0")
+                .addHeader("Editor-Plugin-Version", "copilot-chat/0.11.1")
+                .addHeader("User-Agent", "GitHubCopilotChat/0.11.1")
+                .addHeader("Accept", "*/*")
+                .build();
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                return null;
+            }
+            String responseBody = response.body().string();
+            JSONObject jsonResponse = new JSONObject(responseBody);
+            return jsonResponse.has("token") ? jsonResponse.get("token").toString() : null;
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String getCoCoToken(String apiKey) throws IOException {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://api.cocopilot.org/copilot_internal/v2/token")
+                .addHeader("Host", "api.cocopilot.org")
+                .addHeader("authorization", "token " + apiKey)
+                .addHeader("Editor-Version", "vscode/1.85.0")
+                .addHeader("Editor-Plugin-Version", "copilot-chat/0.11.1")
+                .addHeader("User-Agent", "GitHubCopilotChat/0.11.1")
+                .addHeader("Accept", "*/*")
+                .build();
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                return null;
+            }
+            String responseBody = response.body().string();
+            JSONObject jsonResponse = new JSONObject(responseBody);
+            return jsonResponse.has("token") ? jsonResponse.get("token").toString() : null;
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     @GetMapping("/v1/models")
     public JsonNode models() throws JsonProcessingException {
@@ -308,7 +319,7 @@ public class chatController {
         headersMap.put("X-Request-Id", UUID.randomUUID().toString());
         headersMap.put("X-Github-Api-Version", "2023-07-07");
         headersMap.put("Vscode-Sessionid", UUID.randomUUID().toString() + System.currentTimeMillis());
-        headersMap.put("vscode-machineid", "your_machine_id");
+        headersMap.put("vscode-machineid", machineId);
         headersMap.put("Editor-Version", "vscode/1.85.0");
         headersMap.put("Editor-Plugin-Version", "copilot-chat/0.11.1");
         headersMap.put("Openai-Organization", "github-copilot");
@@ -317,24 +328,6 @@ public class chatController {
         headersMap.put("User-Agent", "GitHubCopilotChat/0.11.1");
     }
 
-    private void addCoCoHeader(HttpGet httpGet, String apiKey) {
-        httpGet.addHeader("Host", "api.cocopilot.org");
-        httpGet.addHeader("authorization", "token " + apiKey);
-        httpGet.addHeader("Editor-Version", "vscode/1.85.0");
-        httpGet.addHeader("Editor-Plugin-Version", "copilot-chat/0.11.1");
-        httpGet.addHeader("User-Agent", "GitHubCopilotChat/0.11.1");
-        httpGet.addHeader("Accept", "*/*");
-    }
-
-    private void addCopilotHeader(HttpGet httpGet, String apiKey) {
-        httpGet.addHeader("Host", "api.github.com");
-        httpGet.addHeader("authorization", "token " + apiKey);
-        httpGet.addHeader("Editor-Version", "vscode/1.85.0");
-        httpGet.addHeader("Editor-Plugin-Version", "copilot-chat/0.11.1");
-        httpGet.addHeader("User-Agent", "GitHubCopilotChat/0.11.1");
-        httpGet.addHeader("Accept", "*/*");
-        httpGet.addHeader("Accept-Encoding", "gzip, deflate, br");
-    }
 
     private void outPutChat(HttpServletResponse response, Response resp) {
         try {
@@ -351,6 +344,18 @@ public class chatController {
                 out.flush();
             }
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public OkHttpClient productClient(Integer timeout) {
+        try {
+            OkHttpClient.Builder builder = new OkHttpClient.Builder();
+            builder.connectTimeout(timeout, TimeUnit.MINUTES);
+            builder.readTimeout(timeout, TimeUnit.MINUTES);
+            builder.writeTimeout(timeout, TimeUnit.MINUTES);
+            return builder.build();
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

@@ -57,10 +57,13 @@ docker login
 ```
 docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t yangclivia/fakeapitool -f /www/wwwroot/fakeApiTool/Dockerfile --push /www/wwwroot/fakeApiTool
 
-sudo docker buildx build --platform linux/amd64,linux/arm/v7,linux/arm64/v8 -t yangclivia/tokenstool -f /www/PandoraNext/Dockerfile --push /www/PandoraNext
 
 
-sudo docker buildx build --platform linux/amd64,linux/arm/v7,linux/arm64/v8 -t yangclivia/tokenstooltest -f /www/PandoraNext/Dockerfile --push /www/PandoraNext
+sudo docker buildx build --platform linux/amd64 -t yangclivia/tokenstooltest -f /www/PandoraNext/Dockerfile --push /www/PandoraNext
+
+sudo docker buildx build --platform linux/amd64,linux/arm/v7,linux/arm64 -t yangclivia/tokenstool -f /www/PandoraNext/Dockerfile --push /www/PandoraNext
+
+cd /tokenTools-sh && sudo sh update.sh
 
 
 docker-slim build --dockerfile ./Dockerfile --tag yangclivia/tokenstooltest.slim .
@@ -105,13 +108,11 @@ docker run -d \
   -v /pandora/data:/data \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /usr/bin/docker:/usr/bin/docker \
-  yangclivia/tokenstooltest:latest\
+  yangclivia/tokenstooltest:latest \
   --deployWay=docker \
   --deployPosition=/data \
   --hotReload=true \
   --server.port=8082 \
-  --pandoara_Ip=127.0.0.1
-
 
 
 #!/bin/bash

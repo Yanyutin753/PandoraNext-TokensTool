@@ -82,7 +82,7 @@
             <artifactId>netty-common</artifactId>
             <version>4.1.97.Final</version>
         </dependency>
-<!--        plexpt chatGpt依赖-->
+        <!--        plexpt chatGpt依赖-->
         <dependency>
             <groupId>com.github.plexpt</groupId>
             <artifactId>chatgpt</artifactId>

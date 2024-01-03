@@ -31,6 +31,4 @@ public class Usage {
     private long totalTokens;
 
 
-
-
 }

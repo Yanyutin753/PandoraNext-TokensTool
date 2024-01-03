@@ -10,14 +10,6 @@ import com.tokensTool.pandoraNext.pojo.token;
 import com.tokensTool.pandoraNext.service.apiService;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,13 +63,12 @@ public class apiServiceImpl implements apiService {
      * 把share_token转化成pool_token
      */
     private final String poolToken = "/api/pool/update";
-
-    @Value("${deployPosition}")
-    private String deployPosition;
     /**
      * 部署路径为默认的话，自动识别jar包路径下的文件
      */
     private final String deploy = "default";
+    @Value("${deployPosition}")
+    private String deployPosition;
     @Autowired
     private systemServiceImpl systemService;
 
@@ -376,15 +367,15 @@ public class apiServiceImpl implements apiService {
                 ObjectNode nodeToModifyInNew = newObjectNode.with(nodeNameToModify);
                 // 获取之前的节点值
                 String previousToken = nodeToModifyInNew.has("token") ? nodeToModifyInNew.get("token").asText() : null;
-                boolean previousSetPoolToken = nodeToModifyInNew.has("setPoolToken") ? nodeToModifyInNew.get("setPoolToken").asBoolean() : false;
+                boolean previousSetPoolToken = nodeToModifyInNew.has("setPoolToken") && nodeToModifyInNew.get("setPoolToken").asBoolean();
                 // 获取之前的节点值
-                boolean previousUseRefreshToken = nodeToModifyInNew.has("useRefreshToken") ? nodeToModifyInNew.get("useRefreshToken").asBoolean() : false;
+                boolean previousUseRefreshToken = nodeToModifyInNew.has("useRefreshToken") && nodeToModifyInNew.get("useRefreshToken").asBoolean();
                 // 初始修改相应的值
-                require_beginToken(tem,nodeToModifyInNew);
+                require_beginToken(tem, nodeToModifyInNew);
 
                 //web条件 api转web web转api 消耗余额
                 if (previousSetPoolToken != tem.isSetPoolToken()) {
-                    if(tem.isSetPoolToken() == false){
+                    if (!tem.isSetPoolToken()) {
                         nodeToModifyInNew.put("token", tem.getUsername() + "," + tem.getUserPassword());
                         nodeToModifyInNew.put("share_token", "未开启API开关无法生成");
                         nodeToModifyInNew.put("access_token", "未开启API开关无法生成");
@@ -395,22 +386,20 @@ public class apiServiceImpl implements apiService {
                         return "修改成功！";
                     }
                     // token相同的情况下 web 转 session_token
-                    else if(tem.isUseRefreshToken() == false && previousToken.equals(tem.getToken())){
+                    else if (!tem.isUseRefreshToken() && previousToken.equals(tem.getToken())) {
                         String reSessionToken = updateSessionToken(tem);
                         if (reSessionToken != null) {
-                            reupdate(reSessionToken,tem,nodeToModifyInNew);
-                        }
-                        else {
+                            reupdate(reSessionToken, tem, nodeToModifyInNew);
+                        } else {
                             return "修改失败，请确保你的账号密码是否正确且proxy的url配置是否正确，或者余额不足";
                         }
                     }
                     // token相同的情况下 web 转 refresh_token
-                    else if(tem.isUseRefreshToken() && previousToken.equals(tem.getToken())){
+                    else if (tem.isUseRefreshToken() && previousToken.equals(tem.getToken())) {
                         String refreshToken = updateRefreshToken(tem);
                         if (refreshToken != null) {
-                            reupdate(refreshToken,tem,nodeToModifyInNew);
-                        }
-                        else {
+                            reupdate(refreshToken, tem, nodeToModifyInNew);
+                        } else {
                             return "修改失败，请确保你的账号密码是否正确且proxy的url配置是否正确，或者余额不足";
                         }
                     }
@@ -422,7 +411,7 @@ public class apiServiceImpl implements apiService {
 
                 if (!previousToken.equals(tem.getToken())) {
                     String access_token = getAccessToken(tem);
-                    if(access_token != null){
+                    if (access_token != null) {
                         tem.setAccess_token(access_token);
                         String share_token = getShareToken(tem);
                         nodeToModifyInNew.put("access_token", access_token);
@@ -437,29 +426,25 @@ public class apiServiceImpl implements apiService {
                         nodeToModifyInNew.put("updateTime", now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                         objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(parent), newObjectNode);
                         return "修改成功！";
-                    }
-                    else {
+                    } else {
                         return tem.isUseRefreshToken() ? "添加失败！请填写正确的refresh_token或关闭使用refresh_token后重新尝试" : "修改失败！请填写正确的session_token或开启使用refresh_token后重新尝试";
                     }
                 }
 
                 // 在不改变token的值的API模式下，session和refresh之间的互相转换
-                if(previousUseRefreshToken != tem.isUseRefreshToken()){
+                if (previousUseRefreshToken != tem.isUseRefreshToken()) {
                     if (tem.isUseRefreshToken()) {
                         String refreshToken = updateRefreshToken(tem);
                         if (refreshToken != null) {
-                            reupdate(refreshToken,tem,nodeToModifyInNew);
-                        }
-                        else {
+                            reupdate(refreshToken, tem, nodeToModifyInNew);
+                        } else {
                             return "修改失败，请确保你的账号密码是否正确且proxy的url配置是否正确，或者余额不足";
                         }
-                    }
-                    else {
+                    } else {
                         String reSessionToken = updateSessionToken(tem);
                         if (reSessionToken != null) {
-                            reupdate(reSessionToken,tem,nodeToModifyInNew);
-                        }
-                        else {
+                            reupdate(reSessionToken, tem, nodeToModifyInNew);
+                        } else {
                             return "修改失败，请确保你的账号密码是否正确且proxy的url配置是否正确，或者余额不足";
                         }
                     }
@@ -477,7 +462,7 @@ public class apiServiceImpl implements apiService {
         return "修改失败！";
     }
 
-    public void reupdate(String token,token tem,ObjectNode nodeToModifyInNew){
+    public void reupdate(String token, token tem, ObjectNode nodeToModifyInNew) {
         tem.setToken(token);
         nodeToModifyInNew.put("token", token);
         require_UpdateToken(tem, nodeToModifyInNew);
@@ -486,7 +471,7 @@ public class apiServiceImpl implements apiService {
     }
 
 
-    public void require_beginToken(token tem,ObjectNode nodeToModifyInNew){
+    public void require_beginToken(token tem, ObjectNode nodeToModifyInNew) {
         // 修改节点的值
         nodeToModifyInNew.put("token", tem.getToken());
         nodeToModifyInNew.put("username", tem.getUsername());
@@ -531,7 +516,7 @@ public class apiServiceImpl implements apiService {
                 // 获取之前的节点值
                 String previousToken = nodeToModifyInNew.has("token") ? nodeToModifyInNew.get("token").asText() : null;
                 // 初始修改相应的值
-                require_beginToken(tem,nodeToModifyInNew);
+                require_beginToken(tem, nodeToModifyInNew);
 
                 if (!previousToken.equals(tem.getToken())
                         && tem.isSetPoolToken()) {
@@ -602,7 +587,7 @@ public class apiServiceImpl implements apiService {
                 newObjectNode.remove(name);
                 // 将修改后的 newObjectNode 写回文件
                 objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(parent), newObjectNode);
-                if(token.getAccess_token().startsWith("eyJhb") && deleteShareToken(token)){
+                if (token.getAccess_token().startsWith("eyJhb") && deleteShareToken(token)) {
                     return "删除并销毁share_token成功！";
                 }
                 return "删除成功！";
@@ -635,45 +620,42 @@ public class apiServiceImpl implements apiService {
         }
         log.info("将通过这个网址请求登录信息：" + url);
         try {
-            // 创建HttpClient实例
-            CloseableHttpClient httpClient = HttpClients.createDefault();
-            // 创建HttpPost请求
-            HttpPost httpPost = new HttpPost(url);
-
-            // 使用MultipartEntityBuilder构建表单数据
-            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.addTextBody("username", token.getUsername(), ContentType.TEXT_PLAIN);
-            builder.addTextBody("password", token.getUserPassword(), ContentType.TEXT_PLAIN);
-            // 设置请求实体
-            httpPost.setEntity(builder.build());
-            //设置用户代理
-            String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36";
-            httpPost.setHeader("User-Agent", userAgent);
-
-            // 执行HTTP请求
-            HttpResponse response = httpClient.execute(httpPost);
-            int statusCode = response.getStatusLine().getStatusCode();
-            // 获得响应数据
-            String responseContent = EntityUtils.toString(response.getEntity());
-            // 处理响应数据
-            String resToken = null;
-            try {
-                JSONObject jsonResponse = new JSONObject(responseContent);
-                resToken = jsonResponse.getString("session_token");
-                httpClient.close();
-            } catch (JSONException e) {
+            OkHttpClient client = new OkHttpClient();
+            RequestBody requestBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("username", token.getUsername())
+                    .addFormDataPart("password", token.getUserPassword())
+                    .build();
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(requestBody)
+                    .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+                    .build();
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    log.info("Request failed: " + response.body().string().trim());
+                    return null;
+                }
+                String responseContent = response.body().string();
+                String resToken = null;
+                try {
+                    JSONObject jsonResponse = new JSONObject(responseContent);
+                    resToken = jsonResponse.getString("session_token");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if (response.code() == 200 && resToken != null && resToken.startsWith("eyJhb")) {
+                    return resToken;
+                }
+            } catch (Exception e) {
                 e.printStackTrace();
-                httpClient.close();
-            }
-            //关闭进程
-            if (statusCode == 200 && resToken.startsWith("eyJhb")) {
-                return resToken;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
+
 
     /**
      * 自动Token方法
@@ -694,46 +676,44 @@ public class apiServiceImpl implements apiService {
         }
         log.info("将通过这个网址请求登录信息：" + url);
         try {
-            // 创建HttpClient实例
-            CloseableHttpClient httpClient = HttpClients.createDefault();
-            // 创建HttpPost请求
-            HttpPost httpPost = new HttpPost(url);
-
-            // 使用MultipartEntityBuilder构建表单数据
-            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.addTextBody("username", token.getUsername(), ContentType.TEXT_PLAIN);
-            builder.addTextBody("password", token.getUserPassword(), ContentType.TEXT_PLAIN);
-            // 设置请求实体
-            httpPost.setEntity(builder.build());
-            //设置用户代理
-            String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36";
-            httpPost.setHeader("User-Agent", userAgent);
-
-            // 执行HTTP请求
-            HttpResponse response = httpClient.execute(httpPost);
-            int statusCode = response.getStatusLine().getStatusCode();
-            // 获得响应数据
-            String responseContent = EntityUtils.toString(response.getEntity());
-            // 处理响应数据
-            String resToken = null;
-            try {
-                JSONObject jsonResponse = new JSONObject(responseContent);
-                log.info(jsonResponse.toString());
-                resToken = jsonResponse.getString("refresh_token");
-                log.info(resToken);
-            } catch (JSONException e) {
+            OkHttpClient client = new OkHttpClient();
+            RequestBody requestBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("username", token.getUsername())
+                    .addFormDataPart("password", token.getUserPassword())
+                    .build();
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(requestBody)
+                    .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+                    .build();
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    log.info("Request failed: " + response.body().string().trim());
+                    return null;
+                }
+                String responseContent = response.body().string();
+                String resToken = null;
+                try {
+                    JSONObject jsonResponse = new JSONObject(responseContent);
+                    log.info(jsonResponse.toString());
+                    resToken = jsonResponse.getString("refresh_token");
+                    log.info(resToken);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if (response.code() == 200) {
+                    return resToken;
+                }
+            } catch (Exception e) {
                 e.printStackTrace();
-            }
-            //关闭进程
-            if (statusCode == 200) {
-                httpClient.close();
-                return resToken;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
+
 
     public String getAccessToken(token token) {
         String url;
@@ -756,42 +736,40 @@ public class apiServiceImpl implements apiService {
         }
         log.info("将通过这个网址请求登录信息：" + url);
         try {
-            // 创建HttpClient实例
-            CloseableHttpClient httpClient = HttpClients.createDefault();
-            // 创建HttpPost请求
-            HttpPost httpPost = new HttpPost(url);
-
-            // 使用MultipartEntityBuilder构建表单数据
-            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.addTextBody(tokenName, token.getToken(), ContentType.TEXT_PLAIN);
-
-            // 设置请求实体
-            httpPost.setEntity(builder.build());
-
-            // 执行HTTP请求
-            HttpResponse response = httpClient.execute(httpPost);
-            int statusCode = response.getStatusLine().getStatusCode();
-            // 获得响应数据
-            String responseContent = EntityUtils.toString(response.getEntity());
-            // 处理响应数据
-            String resToken = null;
-            try {
-                JSONObject jsonResponse = new JSONObject(responseContent);
-                resToken = jsonResponse.getString("access_token");
-                httpClient.close();
-            } catch (JSONException e) {
+            OkHttpClient client = new OkHttpClient();
+            RequestBody requestBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart(tokenName, token.getToken())
+                    .build();
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(requestBody)
+                    .build();
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    log.info("Request failed: " + response.body().string().trim());
+                    return null;
+                }
+                String responseContent = response.body().string();
+                String resToken = null;
+                try {
+                    JSONObject jsonResponse = new JSONObject(responseContent);
+                    resToken = jsonResponse.getString("access_token");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if (response.code() == 200 && resToken != null && resToken.length() > 400) {
+                    return resToken;
+                }
+            } catch (Exception e) {
                 e.printStackTrace();
-                httpClient.close();
-            }
-            //关闭进程
-            if (statusCode == 200 && resToken.length() > 400) {
-                return resToken;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
+
 
     public String getShareToken(token token) {
         systemSetting systemSetting = systemService.selectSettingUrl();
@@ -856,13 +834,8 @@ public class apiServiceImpl implements apiService {
                 : systemSetting.getAutoToken_url() + poolToken;
         log.info("将通过这个网址请求登录信息：" + url);
         try {
-            // 创建HttpClient实例
-            CloseableHttpClient httpClient = HttpClients.createDefault();
-            // 创建HttpPost请求
-            HttpPost httpPost = new HttpPost(url);
-
-            // 使用MultipartEntityBuilder构建表单数据
-            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            OkHttpClient client = new OkHttpClient();
+            RequestBody requestBody;
             if (shareTokens == "") {
                 List<token> tokens = selectToken("");
                 StringBuffer resToken = new StringBuffer();
@@ -871,35 +844,35 @@ public class apiServiceImpl implements apiService {
                         resToken.append(token.getShare_token() + "\n");
                     }
                 }
-                builder.addTextBody("share_tokens", resToken.toString(), ContentType.TEXT_PLAIN);
-                builder.addTextBody("pool_token", pool_token, ContentType.TEXT_PLAIN);
+                requestBody = new FormBody.Builder()
+                        .add("share_tokens", resToken.toString())
+                        .add("pool_token", pool_token)
+                        .build();
             } else {
-                builder.addTextBody("share_tokens", shareTokens, ContentType.TEXT_PLAIN);
-                builder.addTextBody("pool_token", pool_token, ContentType.TEXT_PLAIN);
+                requestBody = new FormBody.Builder()
+                        .add("share_tokens", shareTokens)
+                        .add("pool_token", pool_token)
+                        .build();
             }
-            // 设置请求实体
-            httpPost.setEntity(builder.build());
-            // 执行HTTP请求
-            HttpResponse response = httpClient.execute(httpPost);
-            int statusCode = response.getStatusLine().getStatusCode();
-            // 获得响应数据
-            String responseContent = EntityUtils.toString(response.getEntity());
-            // 处理响应数据
-            String resPoolToken = null;
-            try {
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(requestBody)
+                    .build();
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    log.info("Request failed: " + response.body().string().trim());
+                    return null;
+                }
+                String responseContent = response.body().string();
                 JSONObject jsonResponse = new JSONObject(responseContent);
-                resPoolToken = jsonResponse.getString("pool_token");
+                String resPoolToken = jsonResponse.getString("pool_token");
                 log.info("一共运行了" + jsonResponse.getString("count") + "条share_token");
-                httpClient.close();
-            } catch (JSONException e) {
+                if (resPoolToken.contains("pk")) {
+                    log.info("pool_token更新为：" + resPoolToken);
+                    return resPoolToken;
+                }
+            } catch (Exception e) {
                 e.printStackTrace();
-                httpClient.close();
-            }
-            //关闭进程
-            if (statusCode == 200 && resPoolToken.contains("pk")) {
-                //用来防止请求的token出现问题，回退token值
-                log.info("pool_token更新为：" + resPoolToken);
-                return resPoolToken;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -1023,40 +996,31 @@ public class apiServiceImpl implements apiService {
         }
         log.info("将通过这个网址请求登录信息：" + url);
         try {
-            // 创建HttpClient实例
-            CloseableHttpClient httpClient = HttpClients.createDefault();
-            // 创建HttpPost请求
-            HttpPost httpPost = new HttpPost(url);
-
-            // 使用MultipartEntityBuilder构建表单数据
-            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.addTextBody("share_tokens", "", ContentType.TEXT_PLAIN);
-            builder.addTextBody("pool_token", pool_token, ContentType.TEXT_PLAIN);
-            // 设置请求实体
-            httpPost.setEntity(builder.build());
-            // 执行HTTP请求
-            HttpResponse response = httpClient.execute(httpPost);
-            int statusCode = response.getStatusLine().getStatusCode();
-            // 获得响应数据
-            String responseContent = EntityUtils.toString(response.getEntity());
-            // 处理响应数据
-            String resPoolToken = null;
-            try {
+            OkHttpClient client = new OkHttpClient();
+            RequestBody requestBody = new FormBody.Builder()
+                    .add("share_tokens", "")
+                    .add("pool_token", pool_token)
+                    .build();
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(requestBody)
+                    .build();
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    log.info("Request failed: " + response.body().string().trim());
+                    return null;
+                }
+                String responseContent = response.body().string();
                 JSONObject jsonResponse = new JSONObject(responseContent);
-                resPoolToken = jsonResponse.getString("detail");
-                httpClient.close();
-            } catch (JSONException e) {
+                String resPoolToken = jsonResponse.getString("detail");
+                if (response.code() == 200 && resPoolToken.length() > 0) {
+                    log.info("注销pool_token成功!");
+                    return resPoolToken;
+                } else if (response.code() == 400) {
+                    return "不存在该pool_token";
+                }
+            } catch (Exception e) {
                 e.printStackTrace();
-                httpClient.close();
-            }
-            //关闭进程
-            if (statusCode == 200 && resPoolToken.length() > 0) {
-                //用来防止请求的token出现问题，回退token值
-                log.info("注销pool_token成功!");
-                return resPoolToken;
-            }
-            else if (statusCode == 400){
-                return "不存在该pool_token";
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -1070,17 +1034,18 @@ public class apiServiceImpl implements apiService {
         String url = "https://dash.pandoranext.com/api/" + systemSetting.getLicense_id() + "/usage";
         log.info("将通过这个网址请求PandoraNext余额信息：" + url);
         try {
-            // 创建HttpClient实例
-            CloseableHttpClient httpClient = HttpClients.createDefault();
-            // 创建HttpPost请求
-            HttpGet httpGet = new HttpGet(url);
-            // 执行HTTP请求
-            HttpResponse response = httpClient.execute(httpGet);
-            int statusCode = response.getStatusLine().getStatusCode();
-            // 获得响应数据
-            String responseContent = EntityUtils.toString(response.getEntity());
-            PandoraLimit pandoraLimit = new PandoraLimit();
-            try {
+            OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder()
+                    .url(url)
+                    .get()
+                    .build();
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    log.info("Request failed: " + response.body().string().trim());
+                    return null;
+                }
+                String responseContent = response.body().string();
+                PandoraLimit pandoraLimit = new PandoraLimit();
                 JSONObject jsonResponse = new JSONObject(responseContent);
                 //用量
                 pandoraLimit.setCurrent(jsonResponse.getInt("current"));
@@ -1090,21 +1055,18 @@ public class apiServiceImpl implements apiService {
                 pandoraLimit.setTotal(jsonResponse.getInt("total"));
                 //重载时间
                 pandoraLimit.setTtl(jsonResponse.getInt("ttl"));
-
-                httpClient.close();
-            } catch (JSONException e) {
+                if (response.code() == 200 && pandoraLimit.toString().length() > 0) {
+                    return pandoraLimit;
+                }
+            } catch (Exception e) {
                 e.printStackTrace();
-                httpClient.close();
-            }
-            //关闭进程
-            if (statusCode == 200 && pandoraLimit.toString().length() > 0) {
-                return pandoraLimit;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
+
 
     public void updateSession() {
         try {

@@ -35,20 +35,18 @@ import java.util.Map;
 public class loginColltroller {
     private static final String LOOPBACK_ADDRESS = "127.0.0.1";
     private static final String IPV6_ADDRESS = "0:0:0:0:0:0:0:1";
-    private static HashMap<String, loginLog> ipList;
-
     private static final Integer MAX_REQUESTNUMBER = 15;
-
-    @Autowired
-    private loginService loginService;
-
-    @Autowired
-    private systemServiceImpl systemService;
+    private static HashMap<String, loginLog> ipList;
 
     static {
         ipList = new HashMap<>();
         log.info("初始化ipList成功！");
     }
+
+    @Autowired
+    private loginService loginService;
+    @Autowired
+    private systemServiceImpl systemService;
 
     public static void setIpList(HashMap<String, loginLog> ipList) {
         loginColltroller.ipList = ipList;
@@ -63,11 +61,11 @@ public class loginColltroller {
 
 
     public String getAddress(String ip) {
-        if(ip.equals(LOOPBACK_ADDRESS) || ip.equals(IPV6_ADDRESS)){
+        if (ip.equals(LOOPBACK_ADDRESS) || ip.equals(IPV6_ADDRESS)) {
             return "本机";
         }
         OkHttpClient httpClient = new OkHttpClient();
-        String url = "http://whois.pconline.com.cn/ipJson.jsp?ip=" + ip +"&amp;json=true";
+        String url = "http://whois.pconline.com.cn/ipJson.jsp?ip=" + ip + "&amp;json=true";
         Request request = new Request.Builder()
                 .url(url)
                 .build();
@@ -124,7 +122,7 @@ public class loginColltroller {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                 LocalDateTime now = LocalDateTime.now();
                 String formatDateTime = now.format(formatter);
-                loginLog loginLog = new loginLog(getAddress(ip),ip,outRequestNumber + 1, inRequestNumber,formatDateTime);
+                loginLog loginLog = new loginLog(getAddress(ip), ip, outRequestNumber + 1, inRequestNumber, formatDateTime);
                 ipList.put(ip, loginLog);
                 return Result.error("ip为" + ip + "的用户你已被封禁！！！");
             }
@@ -136,7 +134,7 @@ public class loginColltroller {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                 LocalDateTime now = LocalDateTime.now();
                 String formatDateTime = now.format(formatter);
-                loginLog loginLog = new loginLog(getAddress(ip),ip,outRequestNumber,inRequestNumber + 1,formatDateTime);
+                loginLog loginLog = new loginLog(getAddress(ip), ip, outRequestNumber, inRequestNumber + 1, formatDateTime);
                 String password = JwtUtils.getJwtPassword().toString();
                 String username = setting.getLoginUsername();
                 Map<String, Object> chaims = new HashMap();
@@ -152,7 +150,7 @@ public class loginColltroller {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             LocalDateTime now = LocalDateTime.now();
             String formatDateTime = now.format(formatter);
-            loginLog loginLog = new loginLog(getAddress(ip),ip,outRequestNumber + 1,inRequestNumber, formatDateTime);
+            loginLog loginLog = new loginLog(getAddress(ip), ip, outRequestNumber + 1, inRequestNumber, formatDateTime);
             ipList.put(ip, loginLog);
             return Result.error("账号密码错误，请检查文件是否配置正确，还有" + (MAX_REQUESTNUMBER - outRequestNumber) + "次机会！");
         }
@@ -225,7 +223,7 @@ public class loginColltroller {
      *
      * @return 没登陆成功否则返回"NOT_LOGIN"
      */
-    @GetMapping ("/selectLogin")
+    @GetMapping("/selectLogin")
     public Result selectLogin() {
         try {
             List<loginLog> res = new ArrayList();

@@ -49,6 +49,7 @@ public class autoTokenController {
      * 失效变黄
      * 并更新所有access_token和share_token
      * 重新组成pool_token
+     *
      * @return
      */
     @GetMapping("updateAllToken")

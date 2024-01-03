@@ -1,6 +1,5 @@
 com\tokensTool\pandoraNext\chat\ContentChoice$ContentChoiceBuilder.class
 com\tokensTool\pandoraNext\chat\Choice.class
-com\tokensTool\pandoraNext\config\TimerScheduleTask.class
 com\tokensTool\pandoraNext\service\loginService.class
 com\tokensTool\pandoraNext\pojo\systemSetting.class
 com\tokensTool\pandoraNext\pojo\poolToken.class
@@ -46,7 +45,6 @@ com\tokensTool\pandoraNext\chat\ModelResult$ModelResultBuilder.class
 com\tokensTool\pandoraNext\chat\ChatCompletionResult.class
 com\tokensTool\pandoraNext\controller\taskController.class
 com\tokensTool\pandoraNext\chat\Conversation.class
-com\tokensTool\pandoraNext\config\TaskSchedulerConfig.class
 com\tokensTool\pandoraNext\service\poolService.class
 com\tokensTool\pandoraNext\util\JwtUtils.class
 com\tokensTool\pandoraNext\controller\loginColltroller.class

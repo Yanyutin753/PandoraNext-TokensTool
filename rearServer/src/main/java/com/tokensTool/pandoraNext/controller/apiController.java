@@ -46,6 +46,7 @@ public class apiController {
      */
     @Value("${deployWay}")
     private String deployWay;
+
     @Value("${pandoara_Ip}")
     private String pandoara_Ip;
 
@@ -99,8 +100,7 @@ public class apiController {
             String res = apiService.addToken(token);
             if (res.contains("成功")) {
                 return Result.success(res);
-            }
-            else {
+            } else {
                 return Result.error(res);
             }
         } catch (Exception e) {
@@ -130,18 +130,17 @@ public class apiController {
     }
 
     /**
-     * @boby token
      * @return 通过token用户名，删除（tokens.json）文件里的值
+     * @boby token
      */
     @Log
     @PutMapping("deleteToken")
     public Result deleteToken(@RequestBody token token) {
         try {
             String res = apiService.deleteToken(token);
-            if(res.contains("成功")){
+            if (res.contains("成功")) {
                 return Result.success(res);
-            }
-            else{
+            } else {
                 return Result.error(res);
             }
         } catch (Exception e) {

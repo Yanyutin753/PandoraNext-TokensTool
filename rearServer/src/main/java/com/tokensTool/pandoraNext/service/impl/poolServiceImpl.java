@@ -10,19 +10,17 @@ import com.tokensTool.pandoraNext.pojo.systemSetting;
 import com.tokensTool.pandoraNext.pojo.token;
 import com.tokensTool.pandoraNext.service.poolService;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.*;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,12 +52,12 @@ public class poolServiceImpl implements poolService {
             "gpt-4-0314,gpt-4-0613,gpt-4-32k,gpt-4-32k-0314,gpt-4-32k-0613," +
             "gpt-4-1106-preview";
 
-    private static String openAiChat = "/v1/chat/completions";
-    private static String oneApiSelect = "/api/channel/?p=0";
-    private static String oneAPiChannel = "/api/channel/";
+    private static final String openAiChat = "/v1/chat/completions";
+    private static final String oneApiSelect = "api/channel/?p=0";
+    private static final String oneAPiChannel = "api/channel/";
+    private final String deploy = "default";
     @Value("${deployPosition}")
     private String deployPosition;
-    private String deploy = "default";
     @Autowired
     private apiServiceImpl apiService;
     @Autowired
@@ -188,10 +186,10 @@ public class poolServiceImpl implements poolService {
                         }
                     }
                     temRes.setShareTokens(sharedTokens);
-                    temRes.setCheckPool(temNode.has("checkPool") ? temNode.get("checkPool").asBoolean() : true);
+                    temRes.setCheckPool(!temNode.has("checkPool") || temNode.get("checkPool").asBoolean());
                     //0.5.0
-                    temRes.setIntoOneApi(temNode.has("intoOneApi") ? temNode.get("intoOneApi").asBoolean() : false);
-                    temRes.setPandoraNextGpt4(temNode.has("pandoraNextGpt4") ? temNode.get("pandoraNextGpt4").asBoolean() : false);
+                    temRes.setIntoOneApi(temNode.has("intoOneApi") && temNode.get("intoOneApi").asBoolean());
+                    temRes.setPandoraNextGpt4(temNode.has("pandoraNextGpt4") && temNode.get("pandoraNextGpt4").asBoolean());
                     temRes.setOneApi_pandoraUrl(temNode.has("oneApi_pandoraUrl") ? temNode.get("oneApi_pandoraUrl").asText() : "");
                     res.add(temRes);
                 }
@@ -311,13 +309,13 @@ public class poolServiceImpl implements poolService {
             if (poolToken.isIntoOneApi()) {
                 String[] strings = systemService.selectOneAPi();
                 boolean b = addKey(poolToken, strings);
-                if(poolToken.getPriority() != 0){
+                if (poolToken.getPriority() != 0) {
                     boolean b1 = getPriority(poolToken, strings);
-                    if (b1 == true) {
+                    if (b1) {
                         log.info("修改优先级成功！");
                     }
                 }
-                if (b == true) {
+                if (b) {
                     log.info("pool_token进one-Api成功！");
                 } else {
                     return "pool_token添加进one-api失败！";
@@ -353,7 +351,7 @@ public class poolServiceImpl implements poolService {
             //0.5.0
             newData.put("checkPool", true);
             newData.put("intoOneApi", poolToken.isIntoOneApi());
-            newData.put("pandoraNextGpt4",poolToken.isPandoraNextGpt4());
+            newData.put("pandoraNextGpt4", poolToken.isPandoraNextGpt4());
             newData.put("oneApi_pandoraUrl", poolToken.getOneApi_pandoraUrl());
 
             LocalDateTime now = LocalDateTime.now();
@@ -391,7 +389,7 @@ public class poolServiceImpl implements poolService {
             if (poolToken.isIntoOneApi()) {
                 String[] strings = systemService.selectOneAPi();
                 boolean b = deleteKeyId(poolToken, strings);
-                if (b != true) {
+                if (!b) {
                     return "删除oneApi中的poolToken失败！";
                 }
             }
@@ -423,6 +421,7 @@ public class poolServiceImpl implements poolService {
 
     /**
      * 从poolToken里拿到share_tokens的集合，传参给share_token
+     *
      * @param shareName
      * @return
      */
@@ -456,6 +455,7 @@ public class poolServiceImpl implements poolService {
 
     /**
      * 定时任务每五天后的凌晨4点0分重新更新poolToken
+     *
      * @return
      */
     @Scheduled(cron = "0 0 4 * * ?")
@@ -481,7 +481,7 @@ public class poolServiceImpl implements poolService {
                 }
             }
         }
-        log.info("pool_token刷新成功:"+count+ "失败:"+ (poolTokens.size() - count));
+        log.info("pool_token刷新成功:" + count + "失败:" + (poolTokens.size() - count));
         return ("\npool_token刷新成功:" + count + "\n失败:" + (poolTokens.size() - count));
     }
 
@@ -541,7 +541,7 @@ public class poolServiceImpl implements poolService {
                 if (poolToken.isIntoOneApi()) {
                     String[] strings = systemService.selectOneAPi();
                     boolean temkeyId = deleteKeyId(poolToken, strings);
-                    if (temkeyId == false) {
+                    if (!temkeyId) {
                         return "删除oneAPi里的poolToken失败！";
                     } else {
                         try {
@@ -549,7 +549,7 @@ public class poolServiceImpl implements poolService {
                             poolToken.setCheckPool(true);
                             res = requirePoolToken(poolToken);
                             boolean b = addKey(poolToken, strings);
-                            if (b == true && res.contains("成功")) {
+                            if (b && res.contains("成功")) {
                                 return res;
                             }
                         } catch (Exception e) {
@@ -706,19 +706,19 @@ public class poolServiceImpl implements poolService {
         if (!addKeyPojo.isIntoOneApi()) {
             return false;
         }
-        String url = systemSetting[0] + oneAPiChannel;
+        String url = systemSetting[0].endsWith("/") ? systemSetting[0] + oneAPiChannel
+                :systemSetting[0]+"/"+oneAPiChannel;
         log.info(url);
         try {
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("type", 8);
+            jsonObject.put("type", 0);
             jsonObject.put("key", addKeyPojo.getPoolToken());
             jsonObject.put("name", addKeyPojo.getPoolName());
             jsonObject.put("base_url", getOpenaiUrl());
             jsonObject.put("other", "");
-            if(addKeyPojo.isPandoraNextGpt4()){
+            if (addKeyPojo.isPandoraNextGpt4()) {
                 jsonObject.put("models", gpt4Models);
-            }
-            else{
+            } else {
                 jsonObject.put("models", gpt3Models);
             }
             String group = addKeyPojo.getGroupChecked();
@@ -727,26 +727,30 @@ public class poolServiceImpl implements poolService {
             jsonObject.put("groups", new JSONArray().put(group));
             // 将JSON对象转换为字符串
             String json = jsonObject.toString();
-            HttpClient httpClient = HttpClients.createDefault();
-            HttpPost addPutKey = new HttpPost(url);
-            addPutKey.addHeader("Authorization", "Bearer " + systemSetting[1]);
-            addPutKey.setEntity(new StringEntity(json, "UTF-8"));
-            // 发送请求
-            HttpResponse response = httpClient.execute(addPutKey);
-            // 处理响应
-            int statusCode = response.getStatusLine().getStatusCode();
-            // 获得响应消息
-            String responseContent = EntityUtils.toString(response.getEntity());
-            // 处理响应数据
-            JSONObject jsonResponse = new JSONObject(responseContent);
-            // 提取返回的数据
-            boolean success = jsonResponse.getBoolean("success");
-            if (statusCode == 200 && success) {
-                log.info("请求one-api成功！");
-                return true;
-            } else {
-                // 请求失败
-                log.info("请求one-api失败，失败码: " + statusCode);
+
+            OkHttpClient client = new OkHttpClient();
+            RequestBody body = RequestBody.create(json, MediaType.parse("application/json; charset=utf-8"));
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(body)
+                    .addHeader("Authorization", "Bearer " + systemSetting[1])
+                    .build();
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    log.info("请求one-api失败，失败码: " + response.code());
+                    return false;
+                }
+                String responseContent = response.body().string();
+                JSONObject jsonResponse = new JSONObject(responseContent);
+                boolean success = jsonResponse.getBoolean("success");
+                if (response.code() == 200 && success) {
+                    log.info("请求one-api成功！");
+                    return true;
+                } else {
+                    log.info("请求one-api失败，失败码: " + response.code());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -754,41 +758,47 @@ public class poolServiceImpl implements poolService {
         return false;
     }
 
+
     public boolean deleteKeyId(poolToken poolToken, String[] systemSetting) {
-        String url = systemSetting[0] + oneApiSelect;
+        String url = systemSetting[0].endsWith("/") ? systemSetting[0] + oneApiSelect
+                :systemSetting[0]+"/"+oneApiSelect;
         log.info(url);
         try {
-            HttpClient httpClient = HttpClients.createDefault();
-            HttpGet selectKeys = new HttpGet(url);
-            selectKeys.addHeader("Authorization", "Bearer " + systemSetting[1]);
-            // 发送请求
-            HttpResponse response = httpClient.execute(selectKeys);
-            // 处理响应
-            int statusCode = response.getStatusLine().getStatusCode();
-            // 获得响应消息
-            String responseContent = EntityUtils.toString(response.getEntity());
-            // 处理响应数据
-            JSONObject jsonObject = new JSONObject(responseContent);
-            JSONArray dataArray = jsonObject.getJSONArray("data");
+            OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder()
+                    .url(url)
+                    .addHeader("Authorization", "Bearer " + systemSetting[1])
+                    .build();
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    log.info("浏览器状态为： " + response.code());
+                    return false;
+                }
+                String responseContent = response.body().string();
+                JSONObject jsonObject = new JSONObject(responseContent);
+                JSONArray dataArray = jsonObject.getJSONArray("data");
 
-            int id = -1;
-            for (int i = 0; i < dataArray.length(); i++) {
-                JSONObject dataObject = dataArray.getJSONObject(i);
-                String name = dataObject.getString("name");
-                if (name.equals(poolToken.getPoolName())) {
-                    id = dataObject.getInt("id");
-                    break;
+                int id = -1;
+                for (int i = 0; i < dataArray.length(); i++) {
+                    JSONObject dataObject = dataArray.getJSONObject(i);
+                    String name = dataObject.getString("name");
+                    if (name.equals(poolToken.getPoolName())) {
+                        id = dataObject.getInt("id");
+                        break;
+                    }
                 }
-            }
-            if (statusCode == 200 ) {
-                if(id > 0){
-                    boolean res = deleteKey(systemSetting, id);
-                    return res;
+                if (response.code() == 200) {
+                    if (id > 0) {
+                        boolean res = deleteKey(systemSetting, id);
+                        return res;
+                    }
+                    log.info("没有找到相应的key名!");
+                    return true;
+                } else {
+                    log.info("浏览器状态为： " + response.code());
                 }
-                log.info("没有找到相应的key名!");
-                return true;
-            } else {
-                log.info("浏览器状态为： " + statusCode);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -798,67 +808,61 @@ public class poolServiceImpl implements poolService {
 
 
     public boolean getPriority(poolToken poolToken, String[] systemSetting) {
-        String url = systemSetting[0] + oneApiSelect;
+        String url = systemSetting[0].endsWith("/") ? systemSetting[0] + oneApiSelect
+                :systemSetting[0]+"/"+oneApiSelect;
         log.info(url);
-        try {
-            HttpClient httpClient = HttpClients.createDefault();
-            HttpGet selectKeys = new HttpGet(url);
-            selectKeys.addHeader("Authorization", "Bearer " + systemSetting[1]);
-            // 发送请求
-            HttpResponse response = httpClient.execute(selectKeys);
-            // 处理响应
-            int statusCode = response.getStatusLine().getStatusCode();
-            // 获得响应消息
-            String responseContent = EntityUtils.toString(response.getEntity());
-            // 处理响应数据
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer " + systemSetting[1])
+                .build();
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                log.info("没有找到相应的key名，浏览器状态为： " + response.code());
+                return false;
+            }
+            String responseContent = response.body().string();
             JSONObject jsonObject = new JSONObject(responseContent);
             JSONArray dataArray = jsonObject.getJSONArray("data");
-            int id = -1;
             for (int i = 0; i < dataArray.length(); i++) {
                 JSONObject dataObject = dataArray.getJSONObject(i);
                 String name = dataObject.getString("name");
                 if (name.equals(poolToken.getPoolName())) {
-                    id = dataObject.getInt("id");
-                    break;
+                    int id = dataObject.getInt("id");
+                    return priorityKey(systemSetting, id, poolToken.getPriority());
                 }
             }
-            if (statusCode == 200 && id > 0) {
-                boolean res = priorityKey(systemSetting,id,poolToken.getPriority());
-                return res;
-            } else {
-                // 请求失败
-                log.info("没有找到相应的key名，浏览器状态为： " + statusCode);
-            }
+            log.info("没有找到相应的key名");
         } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
     }
+
     public boolean deleteKey(String[] systemSetting, int keyId) {
-        String url = systemSetting[0] + oneAPiChannel + keyId;
+        String url = systemSetting[0].endsWith("/") ? systemSetting[0] + oneAPiChannel + keyId
+                :systemSetting[0]+"/"+oneAPiChannel + keyId;
         log.info("请求one-api的网址为：" + url);
-        try {
-            HttpClient httpClient = HttpClients.createDefault();
-            HttpDelete deleteKey = new HttpDelete(url);
-            deleteKey.addHeader("Authorization", "Bearer " + systemSetting[1]);
-            // 发送请求
-            HttpResponse response = httpClient.execute(deleteKey);
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer " + systemSetting[1])
+                .delete()
+                .build();
+        try (Response response = client.newCall(request).execute()) {
             log.info(response.toString());
-            // 处理响应
-            int statusCode = response.getStatusLine().getStatusCode();
-            // 获得响应数据
-            String responseContent = EntityUtils.toString(response.getEntity());
-            // 处理响应数据
+            if (!response.isSuccessful()) {
+                log.info("未找到当前的key，浏览器状态为: " + response.code());
+                return false;
+            }
+            String responseContent = response.body().string();
             JSONObject jsonResponse = new JSONObject(responseContent);
-            // 提取返回的数据
             log.info(jsonResponse.toString());
             boolean success = jsonResponse.getBoolean("success");
-            log.info(success + "");
-            if (statusCode == 200 && success) {
+            log.info(Boolean.toString(success));
+            if (success) {
                 log.info("key删除成功！");
                 return true;
-            } else {
-                log.info("未找到当前的key，浏览器状态为: " + statusCode);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -866,38 +870,40 @@ public class poolServiceImpl implements poolService {
         return false;
     }
 
-    public boolean priorityKey(String[] systemSetting, int keyId ,Integer priority) {
-        String url = systemSetting[0] + oneAPiChannel;
+
+    public boolean priorityKey(String[] systemSetting, int keyId, Integer priority) {
+        String url = systemSetting[0].endsWith("/") ? systemSetting[0] + oneAPiChannel
+                :systemSetting[0]+"/"+oneAPiChannel;
         log.info("请求one-api的网址为：" + url);
+        OkHttpClient client = new OkHttpClient();
+        RequestBody body = null;
         try {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("id", keyId);
             jsonObject.put("priority", priority);
             String json = jsonObject.toString();
-            HttpClient httpClient = HttpClients.createDefault();
-            HttpPut putKey = new HttpPut(url);
-            putKey.addHeader("Authorization", "Bearer " + systemSetting[1]);
-            putKey.setEntity(new StringEntity(json, "UTF-8"));
-            // 发送请求
-            HttpResponse response = httpClient.execute(putKey);
-            // 处理响应
-            int statusCode = response.getStatusLine().getStatusCode();
-            // 获得响应消息
-            String responseContent = EntityUtils.toString(response.getEntity());
-            // 处理响应数据
+            body = RequestBody.create(json, MediaType.parse("application/json; charset=utf-8"));
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer " + systemSetting[1])
+                .put(body)
+                .build();
+        try (Response response = client.newCall(request).execute()) {
+            String responseContent = Objects.requireNonNull(response.body()).string();
             JSONObject jsonResponse = new JSONObject(responseContent);
-            // 提取返回的数据
             log.info(jsonResponse.toString());
-            boolean success = jsonResponse.getBoolean("success");
-            if (statusCode == 200 && success) {
+            if (response.isSuccessful() && jsonResponse.getBoolean("success")) {
                 return true;
             } else {
-                // 请求失败
-                log.info("更改优先级成功，失败码: " + statusCode);
+                log.info("更改优先级失败，失败码: " + response.code());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("请求处理异常", e);
         }
         return false;
     }
+
 }

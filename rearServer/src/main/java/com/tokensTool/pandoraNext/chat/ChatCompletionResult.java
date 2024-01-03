@@ -13,18 +13,18 @@ import java.util.List;
 @NoArgsConstructor
 public class ChatCompletionResult {
 
-   private String id;
+    private String id;
 
-   private String object;
+    private String object;
 
-   private Long created;
+    private Long created;
 
-   private String model;
+    private String model;
 
-   private List<Choice> choices;
+    private List<Choice> choices;
 
-   private Usage usage;
+    private Usage usage;
 
-   private String system_fingerprint;
+    private String system_fingerprint;
 
 }

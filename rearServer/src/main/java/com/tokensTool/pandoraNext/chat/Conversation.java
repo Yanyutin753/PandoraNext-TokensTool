@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Conversation {
 
-    private  String model;
+    private String model;
 
     private List<Message> messages;
 

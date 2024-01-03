@@ -2,7 +2,6 @@ package com.tokensTool.pandoraNext.util;
 
 import com.tokensTool.pandoraNext.pojo.systemSetting;
 import com.tokensTool.pandoraNext.service.impl.apiServiceImpl;
-import com.tokensTool.pandoraNext.service.systemService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
@@ -17,8 +16,6 @@ public class MyTaskUtils {
     private final TaskScheduler taskScheduler;
     @Autowired
     private apiServiceImpl apiService;
-    @Autowired
-    private systemService systemService;
     private ScheduledFuture<?> future;
 
     public MyTaskUtils(TaskScheduler taskScheduler) {

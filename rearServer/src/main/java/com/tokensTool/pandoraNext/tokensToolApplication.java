@@ -44,9 +44,9 @@ public class tokensToolApplication {
         log.info("--------------------------------------------------------------\n" +
                 "PandoraNext-tokensTool v 0.5.9版本\n" +
                 "1.新增cocopilotAPI接口 /cocopilot/v1/chat/completions \n" +
-                "2.新增cocopilotModels接口，/cocopilot/v1/models\n"+
+                "2.新增cocopilotModels接口，/cocopilot/v1/models\n" +
                 "3.修改已知bug\n" +
-                "--------------------------------------------------------------\n" );
+                "--------------------------------------------------------------\n");
         Instant instant = Instant.now();
         String key = String.valueOf(instant.toEpochMilli());
         JwtUtils.setSignKey(key);

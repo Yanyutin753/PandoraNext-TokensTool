@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tokensTool.pandoraNext.chat.Conversation;
+import com.tokensTool.pandoraNext.pojo.Result;
+import com.tokensTool.pandoraNext.pojo.modelsUsage;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.apache.commons.lang.StringUtils;
@@ -12,6 +14,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,9 +27,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -38,6 +39,12 @@ import java.util.concurrent.TimeUnit;
 @RestController()
 public class chatController {
 
+    private static HashMap<String, Integer> modelsUsage;
+
+    static {
+        modelsUsage = new HashMap<>();
+        log.info("初始化ipList成功！");
+    }
     /**
      * 缓存cocopilotToken
      */
@@ -47,11 +54,18 @@ public class chatController {
      * 缓存copilotToken
      */
     private static final HashMap<String, String> coCopilotTokenList;
+
+    @Scheduled(cron = "0 0 0 * * ?")
+    private void clearModelsUsage() {
+        HashMap<String, Integer> newModelsUsaget = new HashMap<>();
+        modelsUsage = newModelsUsaget;
+        log.info("重置modelsUsage成功！");
+    }
+
     /**
      * 模型
      */
     private static final String models = "{ \"data\": [  {\"id\": \"text-search-babbage-doc-001\",\"object\": \"model\",\"created\": 1651172509,\"owned_by\": \"openai-dev\"},\n" +
-            "            {\"id\": \"gpt-4-0613\",\"object\": \"model\",\"created\": 1686588896,\"owned_by\": \"openai\"},\n" +
             "            {\"id\": \"gpt-4\", \"object\": \"model\", \"created\": 1687882411, \"owned_by\": \"openai\"},\n" +
             "            {\"id\": \"babbage\", \"object\": \"model\", \"created\": 1649358449, \"owned_by\": \"openai\"},\n" +
             "            {\"id\": \"gpt-3.5-turbo-0613\", \"object\": \"model\", \"created\": 1686587434, \"owned_by\": \"openai\"},\n" +
@@ -80,8 +94,7 @@ public class chatController {
             "            {\"id\": \"text-search-curie-doc-001\", \"object\": \"model\", \"created\": 1651172509, \"owned_by\": \"openai-dev\"},\n" +
             "            {\"id\": \"text-curie-001\", \"object\": \"model\", \"created\": 1649364043, \"owned_by\": \"openai\"},\n" +
             "            {\"id\": \"curie\", \"object\": \"model\", \"created\": 1649359874, \"owned_by\": \"openai\"},\n" +
-            "            {\"id\": \"davinci\", \"object\": \"model\", \"created\": 1649359874, \"owned_by\": \"openai\"},\n" +
-            "            {\"id\": \"gpt-4-0314\", \"object\": \"model\", \"created\": 1687882410, \"owned_by\": \"openai\"} ], \"object\": \"list\" }";
+            "            {\"id\": \"davinci\", \"object\": \"model\", \"created\": 1649359874, \"owned_by\": \"openai\"},\n";
     private static final String machineId;
 
     static {
@@ -175,6 +188,7 @@ public class chatController {
                 }
                 // 流式和非流式输出
                 outPutChat(response, resp);
+                addModel(conversation);
             }
             return null;
         } catch (IOException e) {
@@ -245,6 +259,7 @@ public class chatController {
                 }
                 // 流式和非流式输出
                 outPutChat(response, resp);
+                addModel(conversation);
             }
             return null;
         } catch (IOException e) {
@@ -252,6 +267,25 @@ public class chatController {
         }
     }
 
+    private void addModel(Conversation conversation){
+        String model = conversation.getModel();
+        if(modelsUsage.containsKey(model)){
+            modelsUsage.put(model, modelsUsage.get(model) + 1);
+        }
+        else {
+            modelsUsage.put(model,1);
+        }
+    }
+    @GetMapping(value = "api/modelsUsage")
+    private Result getModelUsage(){
+        try {
+            List<modelsUsage> res = new ArrayList();
+            modelsUsage.forEach((key, value) -> res.add(new modelsUsage(key,value)));
+            return Result.success(res);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
     private String getCopilotToken(String apiKey) throws IOException {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()

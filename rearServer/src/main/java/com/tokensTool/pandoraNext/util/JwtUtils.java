@@ -24,7 +24,8 @@ public class JwtUtils {
     private static String signKey = "123456";
     // JWT里的内容
     private static String JwtPassword = "tokensTool";
-    private static Long expire = 43200000L;
+    // 有效期
+    private static Long expire = 604800000L;
 
     public static String getSignKey() {
         return signKey;

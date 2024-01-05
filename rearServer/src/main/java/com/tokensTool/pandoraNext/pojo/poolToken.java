@@ -55,7 +55,7 @@ public class poolToken {
     private String oneApi_pandoraUrl;
 
     /**
-     * 接入oneApi的模型
+     * 接入oneApi的组别
      */
     private String groupChecked;
 

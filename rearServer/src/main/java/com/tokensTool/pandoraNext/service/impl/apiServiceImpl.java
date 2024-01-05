@@ -517,7 +517,6 @@ public class apiServiceImpl implements apiService {
                 String previousToken = nodeToModifyInNew.has("token") ? nodeToModifyInNew.get("token").asText() : null;
                 // 初始修改相应的值
                 require_beginToken(tem, nodeToModifyInNew);
-
                 if (!previousToken.equals(tem.getToken())
                         && tem.isSetPoolToken()) {
                     // 将修改后的 newObjectNode 写回文件
@@ -908,6 +907,7 @@ public class apiServiceImpl implements apiService {
             }
         } else {
             token.setCheckSession(false);
+            token.setShared(false);
             String res = product_requireToken(token);
             if (res.contains("成功")) {
                 log.info("已为您禁用该session_token!");
@@ -1006,12 +1006,12 @@ public class apiServiceImpl implements apiService {
                     .post(requestBody)
                     .build();
             try (Response response = client.newCall(request).execute()) {
-                if (!response.isSuccessful()) {
+                String responseContent = response.body().string();
+                JSONObject jsonResponse = new JSONObject(responseContent);
+                if (!response.isSuccessful() && !jsonResponse.has("detail")) {
                     log.info("Request failed: " + response.body().string().trim());
                     return null;
                 }
-                String responseContent = response.body().string();
-                JSONObject jsonResponse = new JSONObject(responseContent);
                 String resPoolToken = jsonResponse.getString("detail");
                 if (response.code() == 200 && resPoolToken.length() > 0) {
                     log.info("注销pool_token成功!");

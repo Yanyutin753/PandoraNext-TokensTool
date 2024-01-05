@@ -150,6 +150,28 @@ public class apiController {
     }
 
     /**
+     * @return 通过token用户名，删除（tokens.json）文件里的值
+     * @boby token
+     */
+    @Log
+    @PutMapping("deleteTokenList")
+    public Result deleteTokenList(@RequestBody List<token> tokens) {
+        try {
+            Integer count = 0;
+            for (token token : tokens) {
+                String res = apiService.deleteToken(token);
+                if (res.contains("成功")) {
+                    count++;
+                }
+            }
+            return Result.success("删除成功：" + count + "，失败：" + (tokens.size() - count));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error("删除失败");
+        }
+    }
+
+    /**
      * @return 通过访问restart，重启PandoraNext服务
      */
     @GetMapping("/restart")

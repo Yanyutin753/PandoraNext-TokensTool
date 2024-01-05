@@ -19,9 +19,9 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 @Component
 public class LoginCheckInterceptor implements HandlerInterceptor {
+
     @Autowired
     private systemServiceImpl systemService;
-
 
     @Override //目标资源方法运行前运行, 返回true: 放行, 放回false, 不放行
     public boolean preHandle(HttpServletRequest req, HttpServletResponse resp, Object handler) throws Exception {

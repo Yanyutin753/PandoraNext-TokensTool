@@ -26,4 +26,6 @@ public interface poolService {
     String verifySimplyPoolToken(poolToken poolToken);
 
     String verifyAllPoolToken();
+
+    String toRequirePoolToken(poolToken poolToken);
 }

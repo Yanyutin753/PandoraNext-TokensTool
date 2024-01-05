@@ -37,6 +37,21 @@ public class poolController {
         return Result.error("添加失败！");
     }
 
+    @PostMapping("requirePoolToken")
+    public Result requirePoolToken(@RequestBody poolToken poolToken) {
+        try {
+            String res = poolService.toRequirePoolToken(poolToken);
+            if (res.contains("成功")) {
+                return Result.success(res);
+            } else {
+                return Result.error(res);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Result.error("添加失败！");
+    }
+
     @PostMapping("deletePoolToken")
     public Result deletePoolToken(@RequestBody poolToken poolToken) {
         try {

@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * @author Yangyang
  * @create 2023-11-11 18:19
@@ -32,6 +34,7 @@ public class autoTokenController {
      * @return "更新成功" or "更新失败"
      * @throws Exception
      */
+    @Log
     @Scheduled(cron = "0 0 3 * * ?")
     public void toUpdateToken() {
         try {
@@ -52,6 +55,7 @@ public class autoTokenController {
      *
      * @return
      */
+    @Log
     @GetMapping("updateAllToken")
     public Result toUpdateAllToken() {
         try {
@@ -91,8 +95,7 @@ public class autoTokenController {
     }
 
     /**
-     * 自动更新指定用户名的session
-     *
+     * 自动更新指定用户名的session或refresh
      * @return "更新成功" or "刷新Token失败,请尝重新刷新！”
      * @throws Exception
      */
@@ -104,6 +107,34 @@ public class autoTokenController {
             if (resToken != null) {
                 return Result.success("刷新成功！");
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Result.error("刷新失败,请尝重新刷新或检查proxy的url填写是否正确！");
+    }
+
+    /**
+     * 自动更新指定用户名的session或refresh组
+     * @return "更新成功" or "刷新Token失败,请尝重新刷新！”
+     * @throws Exception
+     */
+    @Log
+    @PostMapping(value = "/updateSessionTokenList", consumes = "application/json")
+    public Result toUpdateSessionTokenList(@RequestBody List<token> tokens) {
+        try {
+            int count = 0;
+            for(token token : tokens) {
+                if(token.isSetPoolToken()){
+                    token resToken = apiService.updateSession(token);
+                    if (resToken != null) {
+                        count++;
+                    }
+                }
+                else{
+                    count++;
+                }
+            }
+            return Result.success("刷新成功：" + count + "，失败：" + (tokens.size() - count));
         } catch (Exception e) {
             e.printStackTrace();
         }

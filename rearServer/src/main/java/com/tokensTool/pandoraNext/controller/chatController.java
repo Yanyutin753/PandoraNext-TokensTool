@@ -1,5 +1,6 @@
 package com.tokensTool.pandoraNext.controller;
 
+import com.alibaba.fastjson2.JSON;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -165,8 +166,7 @@ public class chatController {
             Map<String, String> headersMap = new HashMap<>();
             //添加头部
             addHeader(headersMap, chat_token);
-            ObjectMapper objectMapper = new ObjectMapper();
-            String json = objectMapper.writeValueAsString(conversation);
+            String json = JSON.toJSONString(conversation);
             // 创建一个 RequestBody 对象
             MediaType JSON = MediaType.get("application/json; charset=utf-8");
             RequestBody requestBody = RequestBody.create(json, JSON);
@@ -236,8 +236,7 @@ public class chatController {
             Map<String, String> headersMap = new HashMap<>();
             //添加头部
             addHeader(headersMap, chat_token);
-            ObjectMapper objectMapper = new ObjectMapper();
-            String json = objectMapper.writeValueAsString(conversation);
+            String json = JSON.toJSONString(conversation);
             // 创建一个 RequestBody 对象
             MediaType JSON = MediaType.get("application/json; charset=utf-8");
             RequestBody requestBody = RequestBody.create(json, JSON);

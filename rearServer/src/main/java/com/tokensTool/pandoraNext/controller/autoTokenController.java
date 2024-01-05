@@ -39,8 +39,7 @@ public class autoTokenController {
     public void toUpdateToken() {
         try {
             log.info("开始自动更新Token..........................");
-            Result res = toUpdateAllToken();
-            log.info(res.toString());
+            toUpdateAllToken();
         } catch (Exception e) {
             e.printStackTrace();
         }

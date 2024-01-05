@@ -11,7 +11,7 @@
 
 1. **保存账号信息：** 支持保存 OpenAI 账号密码和 token，方便快速访问。
 
-2. **自动添加删除修改token：** 工具能够自动在 tokens.josn 中添加删除刷新token，简化配置过程。
+2. **自动添加删除修改token：** 工具能够自动在 tokens.josn 中添加删除刷新token，简化配置过程，并一键查看token用量。
 
 3. **自动刷新share_token,access_token,pool_token**,tokensTool工具会自动通过openAI账号密码刷新tokens,重启PandoraNext，方便使用。
 
@@ -25,13 +25,15 @@
 
 8. **新增脚本文件,真一键部署并更新PandoraNext和tokensTool双服务**
 
-9. **新增获取多个pool_tokens**,方便使用
+9. **新增获取多个pool_tokens，并支持修改**,方便使用
 
 10. **新增连接one-api，使得生成的pool_token能发送到one-api，实现同步更新**
 
-11. **支持转发copilot接口，并支持流式传输**
+11. **支持转发copilot接口，并支持流式传输，且支持查看转发用量**
 
 12. **新增登录日志，获取登陆的IP和地址，增加安全性**
+
+13. **新增自定义前缀，增加安全性**
 
 - 现如今只支持账号密码登录，希望大佬能扩充！
 

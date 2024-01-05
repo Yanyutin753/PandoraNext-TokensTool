@@ -29,10 +29,7 @@ public class apiController {
      * 重载接口
      */
     private final static String reloadUrl = "/api/setup/reload";
-    /**
-     * 主机先前IP
-     */
-    private static String previousIPAddress = "";
+
     public String deploy = "default";
 
     private systemService systemService;
@@ -47,8 +44,6 @@ public class apiController {
     @Value("${deployWay}")
     private String deployWay;
 
-    @Value("${pandoara_Ip}")
-    private String pandoara_Ip;
 
     private static boolean isContainerStopped(DockerClient dockerClient, String containerIdOrName) {
         try {

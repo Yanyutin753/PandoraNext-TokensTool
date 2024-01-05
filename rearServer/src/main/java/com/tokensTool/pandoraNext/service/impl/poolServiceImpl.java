@@ -781,7 +781,7 @@ public class poolServiceImpl implements poolService {
         log.info(url);
         try {
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("type", 0);
+            jsonObject.put("type", 8);
             jsonObject.put("key", addKeyPojo.getPoolToken());
             jsonObject.put("name", addKeyPojo.getPoolName());
             jsonObject.put("base_url", getOpenaiUrl());

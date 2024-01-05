@@ -451,11 +451,9 @@ public class poolServiceImpl implements poolService {
     }
 
     /**
-     * 定时任务每五天后的凌晨4点0分重新更新poolToken
-     *
+     * 重新更新poolToken
      * @return
      */
-    @Scheduled(cron = "0 0 4 * * ?")
     public String refreshAllTokens() {
         log.info("开始自动更新PoolToken..........................");
         List<poolToken> poolTokens = selectPoolToken("");
@@ -468,13 +466,6 @@ public class poolServiceImpl implements poolService {
                 token.setPoolToken(resPoolToken);
                 if (requirePoolToken(token).contains("成功")) {
                     count++;
-                    try {
-                        // 休眠一秒（1000毫秒）
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        // 处理中断异常
-                        e.printStackTrace();
-                    }
                 }
             }
         }

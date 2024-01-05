@@ -35,7 +35,7 @@ public class autoTokenController {
      * @throws Exception
      */
     @Log
-    @Scheduled(cron = "0 0 3 * * ?")
+    @Scheduled(cron = "0 0/6 * * * ?")
     public void toUpdateToken() {
         try {
             log.info("开始自动更新Token..........................");
@@ -51,8 +51,7 @@ public class autoTokenController {
      * 一键检查所有session或者refresh_token
      * 失效变黄
      * 并更新所有access_token和share_token
-     * 重新组成pool_token
-     *
+     * 并重新组成pool_token
      * @return
      */
     @Log

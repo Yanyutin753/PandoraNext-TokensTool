@@ -22,7 +22,6 @@ public interface poolService {
 
     String refreshAllTokens();
 
-
     String verifySimplyPoolToken(poolToken poolToken);
 
     String verifyAllPoolToken();

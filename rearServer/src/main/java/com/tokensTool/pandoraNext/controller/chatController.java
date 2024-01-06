@@ -364,10 +364,10 @@ public class chatController {
 
     private void outPutChat(HttpServletResponse response, Response resp , Conversation conversation) {
         try {
-            if(conversation.getStream()){
+            Boolean isStream = conversation.getStream();
+            if (isStream != null && isStream) {
                 response.setContentType("text/event-stream; charset=UTF-8");
-            }
-            else {
+            } else {
                 response.setContentType("application/json; charset=utf-8");
             }
             // 输出流

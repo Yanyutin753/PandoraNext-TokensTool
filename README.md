@@ -3,13 +3,9 @@
 ![Docker Pulls](https://img.shields.io/docker/pulls/yangclivia/tokenstool)
 [![GitHub Repo stars](https://img.shields.io/github/stars/Yanyutin753/PandoraNext-TokensTool?style=social)](https://github.com/Yanyutin753/PandoraNext-TokensTool/stargazers)
 
-## 不准白嫖，请给我免费的star⭐吧，十分感谢！
+### [PandoraNext-TokensTool](https://github.com/Yanyutin753/PandoraNext-TokensTool) 是一个基于 [PandoraNext](https://github.com/pandora-next/deploy) 中的便捷添加管理tokens.json和config.josn的工具，旨在更加简便地使用[pandoraNext](https://github.com/pandora-next/deploy)资源，手机端电脑端在线管理PandoraNext,使得可以方便地白嫖 chatGPT，本工具是站在巨人的肩膀上，方便大家，麻烦给个不要钱的星星⭐⭐⭐！
 
-## 简介
-
-[PandoraNext-TokensTool](https://github.com/Yanyutin753/PandoraNext-TokensTool) 是一个基于 [PandoraNext](https://github.com/pandora-next/deploy) 中的便捷添加管理tokens.json和config.josn的工具，旨在更加简便地使用[pandoraNext](https://github.com/pandora-next/deploy)资源，手机端电脑端在线管理PandoraNext,使得可以方便地白嫖 chatGPT，本工具是站在巨人的肩膀上，方便大家，麻烦给个不要钱的星星⭐⭐⭐！
-
-## [🦄点击查看文档站](https://apifox.com/apidoc/shared-40345b46-9c9c-45cc-b494-6a6a387a978f)
+#### 不准白嫖，请给我免费的star⭐吧，十分感谢！
 
 > [!important]
 > 1. **保存账号信息：** 支持保存 OpenAI 账号密码和 token，方便快速访问。 

@@ -326,7 +326,7 @@ docker-compose up -d
 >
 >* **本项目是站在巨人的肩膀上的，感谢[Pandora](https://github.com/pandora-next/deploy)超级无敌始皇!，欢迎各位来帮助修改本项目，使得本项目变得更方便，更简单！**
 >  
->* **[kwxos](https://github.com/kwxos)提供能永久免费部署TokensTool和PandoraNext的服务的[脚本](https://github.com/kwxos/PandoraTokens/)，大家可以试试并给⭐支持他吧！**
+>* **[kwxos](https://github.com/kwxos)提供不用单独VPS也能免费部署TokensTool和PandoraNext的服务的[脚本](https://github.com/kwxos/PandoraTokens/)，大家可以试试并给⭐支持他吧！**
 >  
 >* **有群佬写了一个自动刷新token的[脚本](https://github.com/ALbur/autoTools/blob/main/autorenew.py)，大家也可以试试！**
 >  

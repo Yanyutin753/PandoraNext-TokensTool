@@ -42,14 +42,10 @@ public class tokensToolApplication {
 
     public static void main(String[] args) {
         log.info("--------------------------------------------------------------\n" +
-                "PandoraNext-tokensTool v 0.6.0版本\n" +
-                "1.新增修改pool_token功能 \n" +
-                "2.新增自定义批量刷新，删除Token\n" +
-                "3.新增查看token里的share_token用量\n" +
-                "4.新增查看tokensTool转发接口的每日模型用量\n" +
-                "5.新增自定义prefix,可以自行添加\n" +
-                "6.新增检查到token过期之后，自动停止分享\n" +
-                "7.修改之前的历史遗留bug,美化界面\n" +
+                "PandoraNext-tokensTool v 0.6.1版本\n" +
+                "1.优化流式输出 \n" +
+                "2.修改传入one-api的自定义渠道问题\n" +
+                "3.修改之前的历史遗留bug,美化界面\n" +
                 "--------------------------------------------------------------\n");
         Instant instant = Instant.now();
         String key = String.valueOf(instant.toEpochMilli());

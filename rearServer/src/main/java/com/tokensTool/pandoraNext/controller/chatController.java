@@ -187,7 +187,7 @@ public class chatController {
                     return null;
                 }
                 // 流式和非流式输出
-                outPutChat(response, resp);
+                outPutChat(response, resp, conversation);
                 addModel(conversation);
             }
             return null;
@@ -257,7 +257,7 @@ public class chatController {
                     return null;
                 }
                 // 流式和非流式输出
-                outPutChat(response, resp);
+                outPutChat(response, resp, conversation);
                 addModel(conversation);
             }
             return null;
@@ -362,15 +362,20 @@ public class chatController {
     }
 
 
-    private void outPutChat(HttpServletResponse response, Response resp) {
+    private void outPutChat(HttpServletResponse response, Response resp , Conversation conversation) {
         try {
-            response.setContentType("application/json;charset=UTF-8");
+            if(conversation.getStream()){
+                response.setContentType("text/event-stream; charset=UTF-8");
+            }
+            else {
+                response.setContentType("application/json; charset=utf-8");
+            }
             // 输出流
             ServletOutputStream out = response.getOutputStream();
             // 输入流
             InputStream in = resp.body().byteStream();
             // 一次拿多少数据 迭代循环
-            byte[] buffer = new byte[4096];
+            byte[] buffer = new byte[8192];
             int bytesRead;
             while ((bytesRead = in.read(buffer)) != -1) {
                 out.write(buffer, 0, bytesRead);

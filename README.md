@@ -1,44 +1,39 @@
-## 不准白嫖，请给我免费的star⭐吧，十分感谢！
+# PandoraNext-TokensTool
+![Docker Image Size (tag)](https://img.shields.io/docker/image-size/yangclivia/tokenstool/latest)
+![Docker Pulls](https://img.shields.io/docker/pulls/yangclivia/tokenstool)
+[![GitHub Repo stars](https://img.shields.io/github/stars/Yanyutin753/PandoraNext-TokensTool?style=social)](https://github.com/Yanyutin753/PandoraNext-TokensTool/stargazers)
 
-## 简介
+### [PandoraNext-TokensTool](https://github.com/Yanyutin753/PandoraNext-TokensTool) 是一个基于 [PandoraNext](https://github.com/pandora-next/deploy) 中的便捷添加管理tokens.json和config.josn的工具，旨在更加简便地使用[pandoraNext](https://github.com/pandora-next/deploy)资源，手机端电脑端在线管理PandoraNext,使得可以方便地白嫖 chatGPT，本工具是站在巨人的肩膀上，方便大家，麻烦给个不要钱的星星⭐⭐⭐！
 
-[PandoraNext-TokensTool](https://github.com/Yanyutin753/PandoraNext-TokensTool) 是一个基于 [PandoraNext](https://github.com/pandora-next/deploy) 中的便捷添加管理tokens.json和config.josn的工具，旨在更加简便地使用[pandoraNext](https://github.com/pandora-next/deploy)资源，手机端电脑端在线管理PandoraNext,使得可以方便地白嫖 chatGPT，本工具是站在巨人的肩膀上，方便大家，麻烦给个不要钱的星星⭐⭐⭐！
+#### 不准白嫖，请给我免费的star⭐吧，十分感谢！
 
-## [🦄点击查看文档站](https://apifox.com/apidoc/shared-40345b46-9c9c-45cc-b494-6a6a387a978f)
+> [!important]
+> 1. **保存账号信息：** 支持保存 OpenAI 账号密码和 token，方便快速访问。 
+>
+> 2. **自动添加删除修改token：** 工具能够自动在 tokens.josn 中添加删除刷新token，简化配置过程，并一键查看token用量。
+>
+> 3. **自动刷新share_token,access_token,pool_token**,tokensTool工具会自动通过openAI账号密码刷新tokens,重启PandoraNext，方便使用。
+>
+> 4. **通过账号密码添加token**,该功能如今恢复正常 ，避免查找繁琐的token
+>
+> 5. **一键暂停，启动,重启PandoraNext** ,使得修改token效率更高
+>
+> 6. **支持在线修改config.json文件,重启PandoraNext生效**
+>
+> 7. **支持热重载，需要在配置文件或者在网页上添加重载密码，开启服务**
+>
+> 8. **新增脚本文件,真一键部署并更新PandoraNext和tokensTool双服务**
+>
+> 9. **新增获取多个pool_tokens，并支持修改**,方便使用
+>
+> 10. **新增连接one-api，使得生成的pool_token能发送到one-api，实现同步更新**
+>
+> 11. **支持转发copilot接口，并支持流式传输，且支持查看转发用量**
+>
+> 12. **新增登录日志，获取登陆的IP和地址，增加安全性**
+>
+> 13. **新增自定义前缀，增加安全性**
 
-
-## 功能特性
-
-1. **保存账号信息：** 支持保存 OpenAI 账号密码和 token，方便快速访问。
-
-2. **自动添加删除修改token：** 工具能够自动在 tokens.josn 中添加删除刷新token，简化配置过程，并一键查看token用量。
-
-3. **自动刷新share_token,access_token,pool_token**,tokensTool工具会自动通过openAI账号密码刷新tokens,重启PandoraNext，方便使用。
-
-4. **通过账号密码添加token**,该功能如今恢复正常 ，避免查找繁琐的token
-
-5. **一键暂停，启动,重启PandoraNext** ,使得修改token效率更高
-   
-6. **支持在线修改config.json文件,重启PandoraNext生效**
-
-7. **支持热重载，需要在配置文件或者在网页上添加重载密码，开启服务**
-
-8. **新增脚本文件,真一键部署并更新PandoraNext和tokensTool双服务**
-
-9. **新增获取多个pool_tokens，并支持修改**,方便使用
-
-10. **新增连接one-api，使得生成的pool_token能发送到one-api，实现同步更新**
-
-11. **支持转发copilot接口，并支持流式传输，且支持查看转发用量**
-
-12. **新增登录日志，获取登陆的IP和地址，增加安全性**
-
-13. **新增自定义前缀，增加安全性**
-
-- 现如今只支持账号密码登录，希望大佬能扩充！
-
-#### 初始用户名：root 初始密码值:123456 
-#### **(请务必在第一次登录之后修改)**
 
 ## [✨点击查看文档站](https://apifox.com/apidoc/shared-40345b46-9c9c-45cc-b494-6a6a387a978f)
 <details>
@@ -97,26 +92,25 @@ curl -fLO "https://dash.pandoranext.com/data/ (uVlk_4ilqs23dfsdfdsfsdfOlgaPdNkgG
 ------------
 
 ## 非一键部署方式
-### 环境变量
+### **环境变量**
 
-- 启动端口号：server.port=8081
-
-- PandoraNext的部署方式：--deployWay=releases/docker
+- **启动端口号**：server.port=8081
   
-* 手动部署--deployWay=releases
-
-   * docker和docker-compose部署 --deployWay=docker
-
-- PandoraNext中存放config.json的位置（docker部署在上面代码查到位置） --deployPosition
-  
+- **URL自定义后缀(选填)**：server.servlet.context-path=/tokensTool
+    * 记住前面必须加上/，例如/tokensTool,/tool等
+      
+- **PandoraNext的部署方式**：--deployWay=releases/docker
+   * **手动部署**--deployWay=releases
+   * **docker和docker-compose部署** --deployWay=docker
+     
+- **PandoraNext中存放config.json的位置**（docker部署在上面代码查到位置） --deployPosition
    * 如果你的tokensTool的jar包放在了config.json --deployPosition=default
-
    * 如果不在的话就填你config.json的文件目录 例如：--deployPosition=/www/wwwroot/PandoraNext/PandoraNext-v0.1.3-linux-386-51a5f88
-
-- 是否开启热重载：  --hotReload=true
-
+     
 - ⭐记住路径没有/config.json
-
+  
+- **是否开启热重载**：  --hotReload=true
+  
 - 记得修改你的路径，密码，账号，端口号（选填），最最重要没有括号
 
 
@@ -177,7 +171,7 @@ docker run -d \
   --deployPosition=/data \
   --hotReload=true \
   --server.port=8081 \
-  --pandoara_Ip=127.0.0.1
+  --server.servlet.context-path=/tokensTool \
 ```
 #### Docker部署PandoraNext启动命令
 ```
@@ -196,7 +190,7 @@ docker run -d \
   --deployPosition=/data \
   --hotReload=true \
   --server.port=8081 \
-  --pandoara_Ip=127.0.0.1
+  --server.servlet.context-path=/tokensTool \
 ```
 
 ### Docker Compose部署详情
@@ -221,7 +215,7 @@ services:
       - --deployPosition=/data
       - --hotReload=true
       - --server.port=8081
-      - --pandoara_Ip=127.0.0.1
+      - --server.servlet.context-path=/tokensTool
 ```
 
 ##### 启动tokensTool
@@ -252,6 +246,7 @@ docker-compose up -d
 ### 初次启动，请根据提示完成填写，并之后重启pandoraNext服务
 
 ![c6494a936ee764d13929b1fef5693d0](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/d8f470d7-b280-41d5-afbf-0164732ef0ec)
+
 
 
 	
@@ -327,24 +322,21 @@ docker-compose up -d
 </details>
 
 
-### 在线修改系统设置，启动，重启，暂停PandoraNext操作
+> [!caution]
+>
+>* **本项目是站在巨人的肩膀上的，感谢[Pandora](https://github.com/pandora-next/deploy)超级无敌始皇!，欢迎各位来帮助修改本项目，使得本项目变得更方便，更简单！**
+>  
+>* **[kwxos](https://github.com/kwxos)提供不用单独VPS也能免费部署TokensTool和PandoraNext的服务的[脚本](https://github.com/kwxos/PandoraTokens/)，大家可以试试并给⭐支持他吧！**
+>  
+>* **有群佬写了一个自动刷新token的[脚本](https://github.com/ALbur/autoTools/blob/main/autorenew.py)，大家也可以试试！**
+>  
+>* **初始用户名：root 初始密码值:123456 (请务必在第一次登录之后修改)**
+>  
+>* **现如今只支持账号密码登录，希望大佬能扩充！**
 
-![9f04e44841c765f8d066fbdda395e5f](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/c3d3a252-c936-4156-886e-2a17ccd540db)
 
-### 项目遵循相应的开源规则，请自行食用
-
-
-## 强调
-
-* 本项目是站在巨人的肩膀上的，感谢[Pandora](https://github.com/pandora-next/deploy)超级无敌始皇!，欢迎各位来帮助修改本项目，使得本项目变得更方便，更简单！
-
-* 有群佬写了一个自动刷新token的[脚本](https://github.com/ALbur/autoTools/blob/main/autorenew.py)，大家也可以试试！
-
-* 新增详细使用[tokensTools说明](https://github.com/Yanyutin753/PandoraNext-TokensTool/blob/main/simplyDeploy/readme.md)
-
-## 新增群聊，点了⭐️可以进群讨论部署，我把你们拉进群，无广，广子踢掉
-![903c5a117387f1a236ba1ce3d83f867](https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/a87d3070-6eb7-4ad0-8105-1d3e103b1c15)
-
+### 新增群聊，点了⭐️可以进群讨论部署，我把你们拉进群，无广，广子踢掉
+<img src="https://github.com/Yanyutin753/PandoraNext-TokensTool/assets/132346501/6544e8ed-6673-48f9-95a6-c13255acbab1" width="300" height="300">
 
 ### 请给我一个免费的⭐吧！！！
 

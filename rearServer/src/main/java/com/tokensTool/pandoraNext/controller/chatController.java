@@ -375,7 +375,7 @@ public class chatController {
             // 输入流
             InputStream in = resp.body().byteStream();
             // 一次拿多少数据 迭代循环
-            byte[] buffer = new byte[8192];
+            byte[] buffer = new byte[4096];
             int bytesRead;
             while ((bytesRead = in.read(buffer)) != -1) {
                 out.write(buffer, 0, bytesRead);

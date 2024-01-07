@@ -42,10 +42,9 @@ public class tokensToolApplication {
 
     public static void main(String[] args) {
         log.info("--------------------------------------------------------------\n" +
-                "PandoraNext-tokensTool v 0.6.1版本\n" +
-                "1.优化流式输出 \n" +
-                "2.修改传入one-api的自定义渠道问题\n" +
-                "3.修改之前的历史遗留bug,美化界面\n" +
+                "PandoraNext-tokensTool v 0.6.2版本\n" +
+                "1.美化登录和手机端电脑端主界面\n" +
+                "2.修复历史遗留bug\n" +
                 "--------------------------------------------------------------\n");
         Instant instant = Instant.now();
         String key = String.valueOf(instant.toEpochMilli());

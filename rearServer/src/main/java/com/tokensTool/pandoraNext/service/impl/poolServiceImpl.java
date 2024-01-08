@@ -11,14 +11,6 @@ import com.tokensTool.pandoraNext.pojo.token;
 import com.tokensTool.pandoraNext.service.poolService;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -267,7 +259,6 @@ public class poolServiceImpl implements poolService {
                 nodeToModifyInNew.put("checkPool", poolToken.isCheckPool());
                 // 将修改后的 newObjectNode 写回文件
                 objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(parent), newObjectNode);
-                log.info("修改成功!");
                 return "修改成功！";
             } else {
                 log.info("节点未找到或不是对象,请检查pool.json！ " + nodeNameToModify);
@@ -305,7 +296,7 @@ public class poolServiceImpl implements poolService {
             if (poolToken.isIntoOneApi()) {
                 String[] strings = systemService.selectOneAPi();
                 boolean b = addKey(poolToken, strings);
-                if (poolToken.getPriority() != 0) {
+                if (b && poolToken.getPriority() != 0) {
                     boolean b1 = getPriority(poolToken, strings);
                     if (b1) {
                         log.info("修改优先级成功！");
@@ -451,6 +442,7 @@ public class poolServiceImpl implements poolService {
 
     /**
      * 重新更新poolToken
+     *
      * @return
      */
     public String refreshAllTokens() {
@@ -468,8 +460,8 @@ public class poolServiceImpl implements poolService {
                 }
             }
         }
-        log.info("pool_token刷新成功:" + count + "失败:" + (poolTokens.size() - count));
-        return ("\npool_token刷新成功:" + count + "\n失败:" + (poolTokens.size() - count));
+        log.info("pool_token刷新成功:" + count + "，失败:" + (poolTokens.size() - count));
+        return ("<br>pool_token刷新成功:" + count + "，失败:" + (poolTokens.size() - count));
     }
 
     /**
@@ -671,7 +663,6 @@ public class poolServiceImpl implements poolService {
     public String verifySimplyPoolToken(poolToken poolToken) {
         try {
             String openAiUrl = getOpenaiUrl();
-            log.info(openAiUrl);
             String res = verifyPoolToken(poolToken, openAiUrl + openAiChat);
             if (res != null) {
                 return res;
@@ -687,68 +678,53 @@ public class poolServiceImpl implements poolService {
      * 是否过期或者出现问题
      */
     public String verifyPoolToken(poolToken poolToken, String url) {
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        try {
-            HttpPost httpPost = new HttpPost(url);
+        OkHttpClient client = new OkHttpClient();
 
-            // 添加请求头，Authorization字段包含API key
-            httpPost.addHeader("Authorization", "Bearer " + poolToken.getPoolToken());
+        // 构造请求体，JSON格式，包含一个字符串参数prompt和一个整数参数max_tokens，如果有其他参数，延续即可。
+        String json = "{" +
+                "    \"model\": \"gpt-3.5-turbo\"," +
+                "    \"messages\": [{\"role\": \"user\", \"content\": \"Say this is a test!\"}]," +
+                "    \"temperature\": 0.7" +
+                "}";
 
-            // 构造请求体，JSON格式，包含一个字符串参数prompt和一个整数参数max_tokens，如果有其他参数，延续即可。
-            String json = "{" +
-                    "    \"model\": \"gpt-3.5-turbo\"," +
-                    "    \"messages\": [{\"role\": \"user\", \"content\": \"Say this is a test!\"}]," +
-                    "    \"temperature\": 0.7" +
-                    "}";
-            StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
-            httpPost.setEntity(entity);
+        RequestBody body = RequestBody.create(json, MediaType.parse("application/json; charset=utf-8"));
 
-            // 发送请求并获取响应体
-            HttpResponse response = httpClient.execute(httpPost);
-            HttpEntity responseEntity = response.getEntity();
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .addHeader("Authorization", "Bearer " + poolToken.getPoolToken())
+                .build();
 
-            // 将响应体转换为字符串并打印输出
-            if (responseEntity != null) {
-                String result = null;
-                try {
-                    result = EntityUtils.toString(responseEntity);
-                    log.info(result);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return "请确保PandoraNext正常启动且tokensTool填写PandoraNext访问地址正确！";
-                }
-                JSONObject jsonResponse = new JSONObject(result);
-                if (!jsonResponse.has("choices")) {
-                    poolToken.setCheckPool(false);
-                    String s = requireCheckPoolToken(poolToken);
-                    if (s.contains("成功")) {
-                        return "pool_token过期，请重新刷新，" + s;
-                    } else {
-                        log.info("已为你自动标记过期poolToken!");
-                        return "pool_token过期，请重新刷新！";
-                    }
-                }
-                // 提取返回的数据
-                JSONArray choicesArray = jsonResponse.getJSONArray("choices");
-                JSONObject firstChoiceObject = choicesArray.getJSONObject(0);
-                JSONObject messageObject = firstChoiceObject.getJSONObject("message");
-                String content = messageObject.getString("content");
-                poolToken.setCheckPool(true);
-                String s = requireCheckPoolToken(poolToken);
-                return "pool_token正常，请放心使用！";
+        try (Response response = client.newCall(request).execute()) {
+            if(!response.isSuccessful() && response.code() == 404) {
+                return "请检查PandoraNext公网地址是否填写正确！";
             }
+            String result = response.body().string();
+            JSONObject jsonResponse = new JSONObject(result);
+            if (!jsonResponse.has("choices")) {
+                poolToken.setCheckPool(false);
+                String s = requireCheckPoolToken(poolToken);
+                if (s.contains("成功")) {
+                    return "pool_token过期，请重新刷新，" + s;
+                } else {
+                    log.info("已为你自动标记过期poolToken!");
+                    return "pool_token过期，请重新刷新！";
+                }
+            }
+            // 提取返回的数据
+            JSONArray choicesArray = jsonResponse.getJSONArray("choices");
+            JSONObject firstChoiceObject = choicesArray.getJSONObject(0);
+            JSONObject messageObject = firstChoiceObject.getJSONObject("message");
+            String content = messageObject.getString("content");
+            poolToken.setCheckPool(true);
+            String s = requireCheckPoolToken(poolToken);
+            return "pool_token正常，请放心使用！";
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            // 关闭连接
-            try {
-                httpClient.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
         return null;
     }
+
 
     public String getOpenaiUrl() {
         try {
@@ -776,7 +752,7 @@ public class poolServiceImpl implements poolService {
             return false;
         }
         String url = systemSetting[0].endsWith("/") ? systemSetting[0] + oneAPiChannel
-                :systemSetting[0]+"/"+oneAPiChannel;
+                : systemSetting[0] + "/" + oneAPiChannel;
         log.info(url);
         try {
             JSONObject jsonObject = new JSONObject();
@@ -829,7 +805,7 @@ public class poolServiceImpl implements poolService {
 
     public boolean deleteKeyId(poolToken poolToken, String[] systemSetting) {
         String url = systemSetting[0].endsWith("/") ? systemSetting[0] + oneApiSelect
-                :systemSetting[0]+"/"+oneApiSelect;
+                : systemSetting[0] + "/" + oneApiSelect;
         log.info(url);
         try {
             OkHttpClient client = new OkHttpClient();
@@ -876,7 +852,7 @@ public class poolServiceImpl implements poolService {
 
     public boolean getPriority(poolToken poolToken, String[] systemSetting) {
         String url = systemSetting[0].endsWith("/") ? systemSetting[0] + oneApiSelect
-                :systemSetting[0]+"/"+oneApiSelect;
+                : systemSetting[0] + "/" + oneApiSelect;
         log.info(url);
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
@@ -908,7 +884,7 @@ public class poolServiceImpl implements poolService {
 
     public boolean deleteKey(String[] systemSetting, int keyId) {
         String url = systemSetting[0].endsWith("/") ? systemSetting[0] + oneAPiChannel + keyId
-                :systemSetting[0]+"/"+oneAPiChannel + keyId;
+                : systemSetting[0] + "/" + oneAPiChannel + keyId;
         log.info("请求one-api的网址为：" + url);
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
@@ -938,7 +914,7 @@ public class poolServiceImpl implements poolService {
 
     public boolean priorityKey(String[] systemSetting, int keyId, Integer priority) {
         String url = systemSetting[0].endsWith("/") ? systemSetting[0] + oneAPiChannel
-                :systemSetting[0]+"/"+oneAPiChannel;
+                : systemSetting[0] + "/" + oneAPiChannel;
         log.info("请求one-api的网址为：" + url);
         OkHttpClient client = new OkHttpClient();
         RequestBody body = null;

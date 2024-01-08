@@ -14,6 +14,7 @@ com\tokensTool\pandoraNext\pojo\tls.class
 com\tokensTool\pandoraNext\service\impl\loginServiceImpl.class
 com\tokensTool\pandoraNext\aop\LogAspect.class
 com\tokensTool\pandoraNext\pojo\token.class
+com\tokensTool\pandoraNext\service\shareService.class
 com\tokensTool\pandoraNext\chat\Model.class
 com\tokensTool\pandoraNext\pojo\validation.class
 com\tokensTool\pandoraNext\chat\Conversation$ConversationBuilder.class
@@ -22,6 +23,7 @@ com\tokensTool\pandoraNext\chat\ContentChoice.class
 com\tokensTool\pandoraNext\chat\ContentCompletion.class
 com\tokensTool\pandoraNext\interceptor\LoginCheckInterceptor.class
 com\tokensTool\pandoraNext\controller\poolController.class
+com\tokensTool\pandoraNext\service\impl\shareServiceImpl.class
 com\tokensTool\pandoraNext\controller\autoTokenController.class
 com\tokensTool\pandoraNext\config\WebConfig.class
 com\tokensTool\pandoraNext\service\impl\apiServiceImpl.class
@@ -48,4 +50,6 @@ com\tokensTool\pandoraNext\controller\taskController.class
 com\tokensTool\pandoraNext\chat\Conversation.class
 com\tokensTool\pandoraNext\service\poolService.class
 com\tokensTool\pandoraNext\util\JwtUtils.class
+com\tokensTool\pandoraNext\controller\shareController.class
 com\tokensTool\pandoraNext\controller\loginColltroller.class
+com\tokensTool\pandoraNext\pojo\shareToken.class

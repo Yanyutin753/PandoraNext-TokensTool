@@ -49,7 +49,7 @@ public class poolController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return Result.error("添加失败！");
+        return Result.error("修改失败！");
     }
 
     @PostMapping("deletePoolToken")
@@ -61,6 +61,23 @@ public class poolController {
             } else {
                 return Result.error(res);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Result.error("删除失败！");
+    }
+
+    @PostMapping("deletePoolTokenList")
+    public Result deletePoolTokenList(@RequestBody List<poolToken> poolTokens) {
+        try {
+            int count = 0;
+            for (poolToken poolToken : poolTokens) {
+                String res = poolService.deletePoolToken(poolToken);
+                if (res.contains("成功")) {
+                    count++;
+                }
+            }
+            return Result.success("删除成功：" + count + "，失败：" + (poolTokens.size() - count));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -82,6 +99,23 @@ public class poolController {
         return Result.error("刷新失败！");
     }
 
+    @PostMapping("refreshSimplyPoolTokenList")
+    public Result refreshSimplyPoolTokenList(@RequestBody List<poolToken> poolTokens) {
+        try {
+            int count = 0;
+            for (poolToken poolToken : poolTokens) {
+                String res = poolService.refreshSimplyToken(poolToken);
+                if (res.contains("成功")) {
+                    count++;
+                }
+            }
+            return Result.success("刷新成功：" + count + "，失败：" + (poolTokens.size() - count));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Result.error("刷新失败！");
+    }
+
     @PostMapping("changePoolToken")
     public Result changePoolToken(@RequestBody poolToken poolToken) {
         try {
@@ -91,6 +125,23 @@ public class poolController {
             } else {
                 return Result.error(res);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Result.error("更换失败！");
+    }
+
+    @PostMapping("changePoolTokenList")
+    public Result changePoolTokenList(@RequestBody List<poolToken> poolTokens) {
+        try {
+            int count = 0;
+            for (poolToken poolToken : poolTokens) {
+                String res = poolService.changePoolToken(poolToken);
+                if (res.contains("成功")) {
+                    count++;
+                }
+            }
+            return Result.success("更换成功：" + count + "，失败：" + (poolTokens.size() - count));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -127,6 +178,23 @@ public class poolController {
         } else {
             return Result.error("poolToken失效或请求网址失效，请刷新或检查请求网址!");
         }
+    }
+
+    @PostMapping("verifySimplyPoolTokenList")
+    public Result verifySimplyPoolTokenList(@RequestBody List<poolToken> poolTokens) {
+        try {
+            int count = 0;
+            for (poolToken poolToken : poolTokens) {
+                String res = poolService.verifySimplyPoolToken(poolToken);
+                if (res.contains("正常")) {
+                    count++;
+                }
+            }
+            return Result.success("检验请求成功：" + count + "，失败：" + (poolTokens.size() - count));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Result.error("poolToken失效或请求网址失效，请刷新或检查请求网址!");
     }
 
     @GetMapping("verifyAllPoolToken")

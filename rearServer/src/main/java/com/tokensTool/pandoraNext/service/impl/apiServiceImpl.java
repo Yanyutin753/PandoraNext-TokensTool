@@ -944,7 +944,7 @@ public class apiServiceImpl implements apiService {
                 return "自动生成Token失败！";
             } else {
                 log.info("自动生成Token成功：" + newToken + "session或refresh过期：" + (allToken - newToken));
-                return "自动生成Token成功：" + newToken + "\nsession或refresh过期：" + (allToken - newToken);
+                return "自动生成Token成功：" + newToken + "<br>session或refresh过期：" + (allToken - newToken);
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);

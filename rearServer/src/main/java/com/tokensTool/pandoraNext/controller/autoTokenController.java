@@ -4,6 +4,7 @@ import com.tokensTool.pandoraNext.anno.Log;
 import com.tokensTool.pandoraNext.pojo.Result;
 import com.tokensTool.pandoraNext.pojo.token;
 import com.tokensTool.pandoraNext.service.impl.poolServiceImpl;
+import com.tokensTool.pandoraNext.service.impl.shareServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -26,6 +27,9 @@ public class autoTokenController {
     @Autowired
     private poolServiceImpl poolService;
 
+    @Autowired
+    private shareServiceImpl shareService;
+
     /**
      * 自动更新access_Token和share_token
      * 更换tokens.json里存储的Tokens
@@ -35,10 +39,10 @@ public class autoTokenController {
      * @throws Exception
      */
     @Log
-    @Scheduled(cron = "0 0/6 * * * ?")
+    @Scheduled(cron = "0 0 */6 * * ?")
     public void toUpdateToken() {
         try {
-            log.info("开始自动更新Token..........................");
+            log.info("开始自动检查更新refresh_token,session_token,生成和刷新share_token,pool_token..........................");
             toUpdateAllToken();
         } catch (Exception e) {
             e.printStackTrace();
@@ -51,6 +55,7 @@ public class autoTokenController {
      * 失效变黄
      * 并更新所有access_token和share_token
      * 并重新组成pool_token
+     *
      * @return
      */
     @Log
@@ -61,9 +66,10 @@ public class autoTokenController {
             if (res.contains("生成Token成功")) {
                 try {
                     String s = poolService.refreshAllTokens();
-                    return Result.success(res + "\n" + s);
+                    String s1 = shareService.refreshAllToken();
+                    return Result.success(res + s + s1);
                 } catch (Exception e) {
-                    return Result.success(res + "\n但是自动更新pool_token失败，请手动点击一键全更新pool_token!");
+                    return Result.success(res + "<br>但是自动更新pool_token和oneApi里的share_token失败");
                 }
             }
         } catch (Exception e) {
@@ -94,6 +100,7 @@ public class autoTokenController {
 
     /**
      * 自动更新指定用户名的session或refresh
+     *
      * @return "更新成功" or "刷新Token失败,请尝重新刷新！”
      * @throws Exception
      */
@@ -113,6 +120,7 @@ public class autoTokenController {
 
     /**
      * 自动更新指定用户名的session或refresh组
+     *
      * @return "更新成功" or "刷新Token失败,请尝重新刷新！”
      * @throws Exception
      */
@@ -121,14 +129,13 @@ public class autoTokenController {
     public Result toUpdateSessionTokenList(@RequestBody List<token> tokens) {
         try {
             int count = 0;
-            for(token token : tokens) {
-                if(token.isSetPoolToken()){
+            for (token token : tokens) {
+                if (token.isSetPoolToken()) {
                     token resToken = apiService.updateSession(token);
                     if (resToken != null) {
                         count++;
                     }
-                }
-                else{
+                } else {
                     count++;
                 }
             }

@@ -24,9 +24,9 @@
 >
 > 8. **新增脚本文件,真一键部署并更新PandoraNext和tokensTool双服务**
 >
-> 9. **新增获取多个pool_tokens，并支持修改**,方便使用
+> 9. **新增获取多个pool_tokens，并支持批量删除修改**,方便使用
 >
-> 10. **新增连接one-api，使得生成的pool_token能发送到one-api，实现同步更新**
+> 10. **新增连接one-api，使得生成的share_token，pool_token能发送到one-api，实现同步自动更新**
 >
 > 11. **支持转发copilot接口，并支持流式传输，且支持查看转发用量**
 >

@@ -696,7 +696,7 @@ public class poolServiceImpl implements poolService {
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            if(!response.isSuccessful() && response.code() == 404) {
+            if (!response.isSuccessful() && response.code() == 404) {
                 return "请检查PandoraNext公网地址是否填写正确！";
             }
             String result = response.body().string();

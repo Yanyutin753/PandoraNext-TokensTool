@@ -29,7 +29,7 @@ import java.util.*;
 public class systemServiceImpl implements systemService {
     @Value("${deployPosition}")
     private String deployPosition;
-    private String deploy = "default";
+    private final String deploy = "default";
 
 
     public String selectFile() {

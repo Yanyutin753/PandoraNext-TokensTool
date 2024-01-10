@@ -137,7 +137,7 @@ public class loginColltroller {
                 LocalDateTime now = LocalDateTime.now();
                 String formatDateTime = now.format(formatter);
                 loginLog loginLog = new loginLog(getAddress(ip), ip, outRequestNumber, inRequestNumber + 1, formatDateTime);
-                String password = JwtUtils.getJwtPassword().toString();
+                String password = JwtUtils.getJwtPassword();
                 String username = setting.getLoginUsername();
                 Map<String, Object> chaims = new HashMap();
                 chaims.put("password", password);

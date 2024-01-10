@@ -57,13 +57,9 @@ public class chatController {
 
     static {
         modelsUsage = new HashMap<>();
-        modelsUsage.put("gpt-4",0);
-        modelsUsage.put("gpt-3.5-turbo",0);
-        modelsUsage.put("gpt-3.5-turbo-0301",0);
-        log.info("初始化ipList成功！");
-    }
-
-    static {
+        modelsUsage.put("gpt-4", 0);
+        modelsUsage.put("gpt-3.5-turbo", 0);
+        modelsUsage.put("gpt-3.5-turbo-0301", 0);
         copilotTokenList = new HashMap<>();
         coCopilotTokenList = new HashMap<>();
         machineId = generateMachineId();
@@ -95,9 +91,9 @@ public class chatController {
     @Scheduled(cron = "0 0 0 * * ?")
     private void clearModelsUsage() {
         HashMap<String, Integer> newModelsUsaget = new HashMap<>();
-        newModelsUsaget.put("gpt-4",0);
-        newModelsUsaget.put("gpt-3.5-turbo",0);
-        newModelsUsaget.put("gpt-3.5-turbo-0301",0);
+        newModelsUsaget.put("gpt-4", 0);
+        newModelsUsaget.put("gpt-3.5-turbo", 0);
+        newModelsUsaget.put("gpt-3.5-turbo-0301", 0);
         modelsUsage = newModelsUsaget;
         log.info("重置modelsUsage成功！");
     }

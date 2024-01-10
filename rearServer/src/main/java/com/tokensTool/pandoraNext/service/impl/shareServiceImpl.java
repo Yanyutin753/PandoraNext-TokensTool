@@ -35,6 +35,13 @@ import java.util.regex.Pattern;
 public class shareServiceImpl implements shareService {
     private static final String oneApiSelect = "api/channel/?p=0";
     private static final String oneAPiChannel = "api/channel/";
+    private static final HashMap<String, String> share_tokenList;
+
+    static {
+        share_tokenList = new HashMap<>();
+        log.info("初始化share_tokenList成功！");
+    }
+
     private final String deploy = "default";
     @Value("${deployPosition}")
     private String deployPosition;
@@ -118,9 +125,7 @@ public class shareServiceImpl implements shareService {
      */
     public String addShareToken(shareToken shareToken) {
         try {
-            if(shareToken.getToken_value() == null){
-                shareToken = getShareValue(shareToken);
-            }
+            shareToken = getShareValue(shareToken);
             String[] strings = systemService.selectOneAPi();
             boolean b = addKey(shareToken, strings);
             if (b && shareToken.getPriority() != 0) {
@@ -170,6 +175,7 @@ public class shareServiceImpl implements shareService {
             // 将修改后的数据写回到文件
             objectMapper.writerWithDefaultPrettyPrinter().writeValue(jsonFile, rootNode);
             log.info("数据成功添加到 JSON 文件中。");
+            share_tokenList.put(shareToken.getOneApi_name(), shareToken.getToken_value());
             return "share_token数据添加成功";
         } catch (IOException e) {
             e.printStackTrace();
@@ -392,9 +398,9 @@ public class shareServiceImpl implements shareService {
     public String requireShareToken(shareToken shareToken) {
         try {
             String res1 = deleteShareToken(shareToken);
-            if(res1.contains("成功")){
+            if (res1.contains("成功")) {
                 String res2 = addShareToken(shareToken);
-                if(res2.contains("成功")){
+                if (res2.contains("成功")) {
                     return "修改share_token到oneapi成功";
                 }
             }
@@ -441,21 +447,43 @@ public class shareServiceImpl implements shareService {
     public String refreshAllToken() {
         try {
             int count = 0;
+            int count_sus = 0;
             List<shareToken> shareTokens = selectShareToken("");
-            for(shareToken shareToken : shareTokens) {
-                String res1 = deleteShareToken(shareToken);
-                if(res1.contains("成功")){
-                    String res2 = addShareToken(shareToken);
-                    if(res2.contains("成功")){
-                        count ++;
+            for (shareToken shareToken : shareTokens) {
+                String newShareToken = getshareToken(shareToken);
+                log.info(newShareToken);
+                if (!newShareToken.equals(share_tokenList.get(shareToken.getOneApi_name()))
+                        && newShareToken != null) {
+                    String res1 = deleteShareToken(shareToken);
+                    if (res1.contains("成功")) {
+                        String res2 = addShareToken(shareToken);
+                        if (res2.contains("成功")) {
+                            count++;
+                        }
                     }
+                } else {
+                    count_sus++;
+                    count++;
+                    log.info(("share_token未发生变化，无需更新"));
                 }
             }
-            return "<br>share_tokens in oneApi刷新成功：" + count + "，失败：" + (shareTokens.size() - count);
+            return "<br>share_tokens in oneApi刷新成功/未过期：" + count + "/" + count_sus + "，失败：" + (shareTokens.size() - count);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return "share_tokens in oneApi刷新失败！";
     }
 
+    public String getshareToken(shareToken shareToken) {
+        if (shareToken == null) {
+            return null;
+        }
+        List<token> tokens = apiService.selectToken("");
+        for (token token : tokens) {
+            if (token.getName().equals(shareToken.getToken_name())) {
+                return token.getShare_token();
+            }
+        }
+        return null;
+    }
 }

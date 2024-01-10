@@ -42,11 +42,9 @@ public class tokensToolApplication {
 
     public static void main(String[] args) {
         log.info("--------------------------------------------------------------\n" +
-                "PandoraNext-tokensTool v 0.6.3版本\n" +
-                "1.新增share_token可直接转入one-api\n" +
-                "2.新增pool_token列表的批量操作\n" +
-                "3.修改copilot查询模型接口的bug\n" +
-                "4.修复历史问题bug,优化代码，优化前端\n" +
+                "PandoraNext-tokensTool v 0.6.4版本\n" +
+                "1.新增share_token可直接转入one-api,并可自定义模型重定向\n" +
+                "2.修复历史问题bug,优化代码，优化前端\n" +
                 "--------------------------------------------------------------\n");
         Instant instant = Instant.now();
         String key = String.valueOf(instant.toEpochMilli());

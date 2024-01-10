@@ -48,6 +48,11 @@ public class shareToken {
     private Integer priority;
 
     /**
+     * 模型重定向
+     */
+    private String model_mapping;
+
+    /**
      * pool_token 更新时间
      */
     private String shareTime;

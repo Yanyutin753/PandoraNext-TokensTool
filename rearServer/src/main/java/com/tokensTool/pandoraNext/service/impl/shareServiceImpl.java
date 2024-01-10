@@ -96,6 +96,7 @@ public class shareServiceImpl implements shareService {
                     temRes.setOneApi_groups(temNode.has("oneApi_groups") ? temNode.get("oneApi_groups").asText() : "");
                     //0.5.0
                     temRes.setOneApi_models(temNode.has("oneApi_models") ? temNode.get("oneApi_models").asText() : "");
+                    temRes.setModel_mapping(temNode.has("model_mapping") ? temNode.get("model_mapping").asText() : "");
                     temRes.setOneApi_baseUrl(temNode.has("oneApi_baseUrl") ? temNode.get("oneApi_baseUrl").asText() : "");
                     temRes.setShareTime(temNode.has("shareTime") ? temNode.get("shareTime").asText() : "");
                     temRes.setPriority(temNode.has("priority") ? temNode.get("priority").asInt() : 0);
@@ -158,6 +159,7 @@ public class shareServiceImpl implements shareService {
             newData.put("token_value", shareToken.getToken_value());
             newData.put("oneApi_groups", shareToken.getOneApi_groups());
             newData.put("oneApi_models", shareToken.getOneApi_models());
+            newData.put("model_mapping", shareToken.getModel_mapping());
             newData.put("oneApi_baseUrl", shareToken.getOneApi_baseUrl());
             newData.put("priority", shareToken.getPriority());
 
@@ -210,7 +212,7 @@ public class shareServiceImpl implements shareService {
             jsonObject.put("models", addKeyPojo.getOneApi_models());
             String group = addKeyPojo.getOneApi_groups();
             jsonObject.put("group", group);
-            jsonObject.put("model_mapping", "");
+            jsonObject.put("model_mapping", addKeyPojo.getModel_mapping());
             jsonObject.put("groups", new JSONArray().put(group));
             // 将JSON对象转换为字符串
             String json = jsonObject.toString();

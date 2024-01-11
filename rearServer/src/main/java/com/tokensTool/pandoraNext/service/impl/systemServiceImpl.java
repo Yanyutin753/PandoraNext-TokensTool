@@ -27,10 +27,9 @@ import java.util.*;
 @Slf4j
 @Service
 public class systemServiceImpl implements systemService {
+    private final String deploy = "default";
     @Value("${deployPosition}")
     private String deployPosition;
-    private final String deploy = "default";
-
 
     public String selectFile() {
         String projectRoot;

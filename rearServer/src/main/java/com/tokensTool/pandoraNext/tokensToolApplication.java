@@ -44,7 +44,8 @@ public class tokensToolApplication {
         log.info("--------------------------------------------------------------\n" +
                 "PandoraNext-tokensTool v 0.6.5版本\n" +
                 "1.优化copilot接口的流式输出\n" +
-                "2.修复历史问题bug,优化代码，优化前端\n" +
+                "2.接口使用多线程，提高并发能力\n" +
+                "3.修复历史问题bug,优化代码，优化前端\n" +
                 "--------------------------------------------------------------\n");
         Instant instant = Instant.now();
         String key = String.valueOf(instant.toEpochMilli());

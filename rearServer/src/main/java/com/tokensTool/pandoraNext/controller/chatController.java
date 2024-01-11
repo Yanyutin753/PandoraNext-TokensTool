@@ -29,10 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Yangyang
@@ -72,6 +69,18 @@ public class chatController {
 
     @Value("${copilot_interface}")
     private boolean copilot_interface;
+    /**
+     * 请求体不是json 会报Request body is missing or not in JSON format
+     * Authorization token缺失  会报Authorization header is missing
+     * 无法请求到chat_token 会报copilot APIKey is wrong
+     *
+     * @param response
+     * @param request
+     * @param conversation
+     * @return
+     * @throws JSONException
+     * @throws IOException
+     */
     private ExecutorService executor = new ThreadPoolExecutor(0, 1000,
             60L, TimeUnit.SECONDS,
             new SynchronousQueue<Runnable>());
@@ -105,74 +114,66 @@ public class chatController {
         log.info("重置modelsUsage成功！");
     }
 
-    /**
-     * 请求体不是json 会报Request body is missing or not in JSON format
-     * Authorization token缺失  会报Authorization header is missing
-     * 无法请求到chat_token 会报copilot APIKey is wrong
-     *
-     * @param response
-     * @param request
-     * @param conversation
-     * @return
-     * @throws JSONException
-     * @throws IOException
-     */
     @PostMapping(value = "/v1/chat/completions")
-    public Object coPilotConversation(HttpServletResponse response, HttpServletRequest request, @org.springframework.web.bind.annotation.RequestBody Conversation conversation) {
-        try {
-            if (conversation == null) {
-                return new ResponseEntity<>("Request body is missing or not in JSON format", HttpStatus.BAD_REQUEST);
-            }
-            String authorizationHeader = StringUtils.trimToNull(request.getHeader("Authorization"));
-            String apiKey;
-            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-                apiKey = authorizationHeader.substring(7);
-            } else {
-                return new ResponseEntity<>("Authorization header is missing", HttpStatus.UNAUTHORIZED);
-            }
-            if (!copilotTokenList.containsKey(apiKey)) {
-                String token = getCopilotToken(apiKey);
-                if (token == null) {
-                    return new ResponseEntity<>("copilot APIKey is wrong", HttpStatus.UNAUTHORIZED);
-                }
-                copilotTokenList.put(apiKey, token);
-                log.info("coCopilotTokenList初始化成功！");
-            }
-            // 创建OkHttpClient请求 请求https://api.githubcopilot.com/chat/completions
-            String chat_token = copilotTokenList.get(apiKey);
-            OkHttpClient client = productClient(5);
-            Map<String, String> headersMap = new HashMap<>();
-            //添加头部
-            addHeader(headersMap, chat_token);
-            String json = JSON.toJSONString(conversation);
-            // 创建一个 RequestBody 对象
-            MediaType JSON = MediaType.get("application/json; charset=utf-8");
-            RequestBody requestBody = RequestBody.create(json, JSON);
-            Request.Builder requestBuilder = new Request.Builder()
-                    .url("https://api.githubcopilot.com/chat/completions")
-                    .post(requestBody);
-            headersMap.forEach(requestBuilder::addHeader);
-            Request streamRequest = requestBuilder.build();
-            try (Response resp = client.newCall(streamRequest).execute()) {
-                if (!resp.isSuccessful()) {
+    public Object coPilotConversation(HttpServletResponse response, HttpServletRequest request, @org.springframework.web.bind.annotation.RequestBody Conversation conversation) throws ExecutionException, InterruptedException {
+        if (conversation == null) {
+            return new ResponseEntity<>("Request body is missing or not in JSON format", HttpStatus.BAD_REQUEST);
+        }
+        String authorizationHeader = StringUtils.trimToNull(request.getHeader("Authorization"));
+        String apiKey;
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            apiKey = authorizationHeader.substring(7);
+        } else {
+            return new ResponseEntity<>("Authorization header is missing", HttpStatus.UNAUTHORIZED);
+        }
+        Future<Object> future = executor.submit(() -> {
+            try {
+                if (!copilotTokenList.containsKey(apiKey)) {
                     String token = getCopilotToken(apiKey);
                     if (token == null) {
                         return new ResponseEntity<>("copilot APIKey is wrong", HttpStatus.UNAUTHORIZED);
                     }
                     copilotTokenList.put(apiKey, token);
-                    log.info("coCopilotTokenList重置化成功！");
-                    coPilotConversation(response, request, conversation);
-                    return null;
+                    log.info("coCopilotTokenList初始化成功！");
                 }
-                // 流式和非流式输出
-                outPutChat(response, resp, conversation);
-                addModel(conversation);
+                // 创建OkHttpClient请求 请求https://api.githubcopilot.com/chat/completions
+                String chat_token = copilotTokenList.get(apiKey);
+                OkHttpClient client = productClient(5);
+                Map<String, String> headersMap = new HashMap<>();
+                //添加头部
+                addHeader(headersMap, chat_token);
+                String json = JSON.toJSONString(conversation);
+                // 创建一个 RequestBody 对象
+                MediaType JSON = MediaType.get("application/json; charset=utf-8");
+                RequestBody requestBody = RequestBody.create(json, JSON);
+                Request.Builder requestBuilder = new Request.Builder()
+                        .url("https://api.githubcopilot.com/chat/completions")
+                        .post(requestBody);
+                headersMap.forEach(requestBuilder::addHeader);
+                Request streamRequest = requestBuilder.build();
+                try (Response resp = client.newCall(streamRequest).execute()) {
+                    if (!resp.isSuccessful()) {
+                        String token = getCopilotToken(apiKey);
+                        if (token == null) {
+                            return new ResponseEntity<>("copilot APIKey is wrong", HttpStatus.UNAUTHORIZED);
+                        }
+                        copilotTokenList.put(apiKey, token);
+                        log.info("coCopilotTokenList重置化成功！");
+                        coPilotConversation(response, request, conversation);
+                        return null;
+                    }
+                    // 流式和非流式输出
+                    outPutChat(response, resp, conversation);
+                    addModel(conversation);
+                }
+                return null;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-            return null;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        });
+        return future.get();
     }
+
 
     /**
      * 请求体不是json 会报Request body is missing or not in JSON format
@@ -187,61 +188,65 @@ public class chatController {
      * @throws IOException
      */
     @PostMapping(value = "/cocopilot/v1/chat/completions")
-    public Object coCoPilotConversation(HttpServletResponse response, HttpServletRequest request, @org.springframework.web.bind.annotation.RequestBody Conversation conversation) {
-        try {
-            if (conversation == null) {
-                return new ResponseEntity<>("Request body is missing or not in JSON format", HttpStatus.BAD_REQUEST);
-            }
-            String authorizationHeader = StringUtils.trimToNull(request.getHeader("Authorization"));
-            String apiKey;
-            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-                apiKey = authorizationHeader.substring(7);
-            } else {
-                return new ResponseEntity<>("Authorization header is missing", HttpStatus.UNAUTHORIZED);
-            }
-            if (!coCopilotTokenList.containsKey(apiKey)) {
-                String token = getCoCoToken(apiKey);
-                if (token == null) {
-                    return new ResponseEntity<>("copilot APIKey is wrong", HttpStatus.UNAUTHORIZED);
-                }
-                coCopilotTokenList.put(apiKey, token);
-                log.info("coCopilotTokenList初始化成功！");
-            }
-            // 创建OkHttpClient请求 请求https://api.githubcopilot.com/chat/completions
-            String chat_token = coCopilotTokenList.get(apiKey);
-            OkHttpClient client = productClient(5);
-            Map<String, String> headersMap = new HashMap<>();
-            //添加头部
-            addHeader(headersMap, chat_token);
-            String json = JSON.toJSONString(conversation);
-            // 创建一个 RequestBody 对象
-            MediaType JSON = MediaType.get("application/json; charset=utf-8");
-            RequestBody requestBody = RequestBody.create(json, JSON);
-            Request.Builder requestBuilder = new Request.Builder()
-                    .url("https://api.githubcopilot.com/chat/completions")
-                    .post(requestBody);
-            headersMap.forEach(requestBuilder::addHeader);
-            Request streamRequest = requestBuilder.build();
-            try (Response resp = client.newCall(streamRequest).execute()) {
-                if (!resp.isSuccessful()) {
+    public Object coCoPilotConversation(HttpServletResponse response, HttpServletRequest request, @org.springframework.web.bind.annotation.RequestBody Conversation conversation) throws ExecutionException, InterruptedException {
+        if (conversation == null) {
+            return new ResponseEntity<>("Request body is missing or not in JSON format", HttpStatus.BAD_REQUEST);
+        }
+        String authorizationHeader = StringUtils.trimToNull(request.getHeader("Authorization"));
+        String apiKey;
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            apiKey = authorizationHeader.substring(7);
+        } else {
+            return new ResponseEntity<>("Authorization header is missing", HttpStatus.UNAUTHORIZED);
+        }
+        Future<Object> future = executor.submit(() -> {
+            try {
+                if (!coCopilotTokenList.containsKey(apiKey)) {
                     String token = getCoCoToken(apiKey);
                     if (token == null) {
                         return new ResponseEntity<>("copilot APIKey is wrong", HttpStatus.UNAUTHORIZED);
                     }
                     coCopilotTokenList.put(apiKey, token);
-                    log.info("coCopilotTokenList重置化成功！");
-                    coCoPilotConversation(response, request, conversation);
-                    return null;
+                    log.info("coCopilotTokenList初始化成功！");
                 }
-                // 流式和非流式输出
-                outPutChat(response, resp, conversation);
-                addModel(conversation);
+                // 创建OkHttpClient请求 请求https://api.githubcopilot.com/chat/completions
+                String chat_token = coCopilotTokenList.get(apiKey);
+                OkHttpClient client = productClient(5);
+                Map<String, String> headersMap = new HashMap<>();
+                //添加头部
+                addHeader(headersMap, chat_token);
+                String json = JSON.toJSONString(conversation);
+                // 创建一个 RequestBody 对象
+                MediaType JSON = MediaType.get("application/json; charset=utf-8");
+                RequestBody requestBody = RequestBody.create(json, JSON);
+                Request.Builder requestBuilder = new Request.Builder()
+                        .url("https://api.githubcopilot.com/chat/completions")
+                        .post(requestBody);
+                headersMap.forEach(requestBuilder::addHeader);
+                Request streamRequest = requestBuilder.build();
+                try (Response resp = client.newCall(streamRequest).execute()) {
+                    if (!resp.isSuccessful()) {
+                        String token = getCoCoToken(apiKey);
+                        if (token == null) {
+                            return new ResponseEntity<>("copilot APIKey is wrong", HttpStatus.UNAUTHORIZED);
+                        }
+                        coCopilotTokenList.put(apiKey, token);
+                        log.info("coCopilotTokenList重置化成功！");
+                        coCoPilotConversation(response, request, conversation);
+                        return null;
+                    }
+                    // 流式和非流式输出
+                    outPutChat(response, resp, conversation);
+                    addModel(conversation);
+                }
+                return null;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-            return null;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        });
+        return future.get();
     }
+
 
     private void addModel(Conversation conversation) {
         String model = conversation.getModel();

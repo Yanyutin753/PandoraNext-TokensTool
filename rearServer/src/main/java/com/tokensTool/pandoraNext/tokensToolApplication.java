@@ -42,8 +42,8 @@ public class tokensToolApplication {
 
     public static void main(String[] args) {
         log.info("--------------------------------------------------------------\n" +
-                "PandoraNext-tokensTool v 0.6.4版本\n" +
-                "1.新增share_token可直接转入one-api,并可自定义模型重定向\n" +
+                "PandoraNext-tokensTool v 0.6.5版本\n" +
+                "1.优化copilot接口的流式输出\n" +
                 "2.修复历史问题bug,优化代码，优化前端\n" +
                 "--------------------------------------------------------------\n");
         Instant instant = Instant.now();

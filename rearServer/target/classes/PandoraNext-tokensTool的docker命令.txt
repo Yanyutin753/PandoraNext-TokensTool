@@ -34,7 +34,8 @@ nohup java -jar pandoraNext-0.0.1-SNAPSHOT.jar --server.port=8081 --deployWay=re
 
 nohup java -jar pandoraNext-0.0.1-SNAPSHOT.jar --server.port=8081 --deployWay=docker --deployPosition=/pandora/data --server.servlet.context-path=/tokensTool > myput.log 2>&1 &
 
-nohup java -jar pandoraNext-0.0.1-SNAPSHOT.jar --server.port=8081 --deployWay=docker --deployPosition=/pandora/data > myput.log 2>&1 &
+nohup java -jar pandoraNext-0.0.1-SNAPSHOT.jar --server.port=8082 --deployWay=docker --deployPosition=/pandora/data > myput.log 2>&1 &
+
 sudo mkdir -p /etc/docker
 sudo tee /etc/docker/daemon.json <<-'EOF'
 {
@@ -61,6 +62,7 @@ docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t yangclivi
 
 
 sudo docker buildx build --platform linux/amd64 -t yangclivia/tokenstooltest -f /www/PandoraNext/Dockerfile --push /www/PandoraNext
+
 
 sudo docker buildx build --platform linux/amd64,linux/arm/v7,linux/arm64 -t yangclivia/tokenstool -f /www/PandoraNext/Dockerfile --push /www/PandoraNext
 
@@ -113,7 +115,7 @@ docker run -d \
   --deployWay=docker \
   --deployPosition=/data \
   --hotReload=true \
-  --server.port=8082 \
+  --server.port=8081 \
 
 
 #!/bin/bash

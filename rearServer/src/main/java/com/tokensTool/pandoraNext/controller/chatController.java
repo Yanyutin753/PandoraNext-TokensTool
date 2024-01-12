@@ -351,7 +351,7 @@ public class chatController {
                 sleep_time = 0;
             } else {
                 one_messageByte = 128;
-                sleep_time = 25;
+                sleep_time = 24;
             }
             response.setContentType("text/event-stream; charset=UTF-8");
         } else {

@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Yangyang
@@ -99,6 +100,10 @@ public class apiServiceImpl implements apiService {
                         if (!nodeToModifyInNew.has("useRefreshToken")) {
                             nodeToModifyInNew.put("useRefreshToken", false);
                             log.info("为节点 " + nodeName + " 添加 useRefreshToken 变量成功！");
+                        }
+                        if (nodeToModifyInNew.has("shared") && !nodeToModifyInNew.has("auto_shared")) {
+                            nodeToModifyInNew.put("auto_shared", nodeToModifyInNew.get("shared").asBoolean());
+                            log.info("为节点 " + nodeName + " 添加 auto_shared 变量成功！");
                         }
                         // 将修改后的 newObjectNode 写回文件
                         objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(parent), newObjectNode);
@@ -177,6 +182,7 @@ public class apiServiceImpl implements apiService {
                     temRes.setShare_token(temNode.has("share_token") ? temNode.get("share_token").asText() : "未开启pool_token无法生成");
                     temRes.setUserPassword(temNode.has("userPassword") ? temNode.get("userPassword").asText() : "");
                     temRes.setShared(temNode.has("shared") && temNode.get("shared").asBoolean());
+                    temRes.setAuto_shared(temNode.has("auto_shared") && temNode.get("auto_shared").asBoolean());
                     temRes.setShow_user_info(temNode.has("show_user_info") && temNode.get("show_user_info").asBoolean());
                     temRes.setPlus(temNode.has("plus") && temNode.get("plus").asBoolean());
                     temRes.setSetPoolToken(temNode.has("setPoolToken") && temNode.get("setPoolToken").asBoolean());
@@ -317,6 +323,7 @@ public class apiServiceImpl implements apiService {
             newData.put("username", token.getUsername());
             newData.put("userPassword", token.getUserPassword());
             newData.put("shared", token.isShared());
+            newData.put("auto_shared", token.isAuto_shared());
             newData.put("show_user_info", token.isShow_user_info());
             newData.put("plus", token.isPlus());
             newData.put("setPoolToken", token.isSetPoolToken());
@@ -371,8 +378,7 @@ public class apiServiceImpl implements apiService {
                 // 获取之前的节点值
                 boolean previousUseRefreshToken = nodeToModifyInNew.has("useRefreshToken") && nodeToModifyInNew.get("useRefreshToken").asBoolean();
                 // 初始修改相应的值
-                require_beginToken(tem, nodeToModifyInNew);
-
+                require_beginToken(tem, nodeToModifyInNew, true);
                 //web条件 api转web web转api 消耗余额
                 if (previousSetPoolToken != tem.isSetPoolToken()) {
                     if (!tem.isSetPoolToken()) {
@@ -471,8 +477,11 @@ public class apiServiceImpl implements apiService {
     }
 
 
-    public void require_beginToken(token tem, ObjectNode nodeToModifyInNew) {
+    public void require_beginToken(token tem, ObjectNode nodeToModifyInNew, boolean autoShare) {
         // 修改节点的值
+        if (autoShare) {
+            nodeToModifyInNew.put("auto_shared", tem.isAuto_shared());
+        }
         nodeToModifyInNew.put("token", tem.getToken());
         nodeToModifyInNew.put("username", tem.getUsername());
         nodeToModifyInNew.put("userPassword", tem.getUserPassword());
@@ -497,7 +506,7 @@ public class apiServiceImpl implements apiService {
      * @param tem
      * @return
      */
-    public String product_requireToken(token tem) {
+    public String product_requireToken(token tem, boolean autoShare) {
         try {
             String parent = selectFile();
             ObjectMapper objectMapper = new ObjectMapper();
@@ -516,7 +525,7 @@ public class apiServiceImpl implements apiService {
                 // 获取之前的节点值
                 String previousToken = nodeToModifyInNew.has("token") ? nodeToModifyInNew.get("token").asText() : null;
                 // 初始修改相应的值
-                require_beginToken(tem, nodeToModifyInNew);
+                require_beginToken(tem, nodeToModifyInNew, autoShare);
                 if (!previousToken.equals(tem.getToken())
                         && tem.isSetPoolToken()) {
                     // 将修改后的 newObjectNode 写回文件
@@ -619,7 +628,11 @@ public class apiServiceImpl implements apiService {
         }
         log.info("将通过这个网址请求登录信息：" + url);
         try {
-            OkHttpClient client = new OkHttpClient();
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)  // 设置连接超时时间为10秒
+                    .readTimeout(30, TimeUnit.SECONDS)     // 设置读取超时时间为30秒
+                    .writeTimeout(15, TimeUnit.SECONDS)    // 设置写入超时时间为15秒
+                    .build();
             RequestBody requestBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("username", token.getUsername())
@@ -675,7 +688,11 @@ public class apiServiceImpl implements apiService {
         }
         log.info("将通过这个网址请求登录信息：" + url);
         try {
-            OkHttpClient client = new OkHttpClient();
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)  // 设置连接超时时间为10秒
+                    .readTimeout(30, TimeUnit.SECONDS)     // 设置读取超时时间为30秒
+                    .writeTimeout(15, TimeUnit.SECONDS)    // 设置写入超时时间为15秒
+                    .build();
             RequestBody requestBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("username", token.getUsername())
@@ -735,7 +752,11 @@ public class apiServiceImpl implements apiService {
         }
         log.info("将通过这个网址请求登录信息：" + url);
         try {
-            OkHttpClient client = new OkHttpClient();
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)  // 设置连接超时时间为10秒
+                    .readTimeout(30, TimeUnit.SECONDS)     // 设置读取超时时间为30秒
+                    .writeTimeout(15, TimeUnit.SECONDS)    // 设置写入超时时间为15秒
+                    .build();
             RequestBody requestBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart(tokenName, token.getToken())
@@ -778,7 +799,11 @@ public class apiServiceImpl implements apiService {
         log.info("将通过这个网址请求登录信息：" + url);
         String data = "unique_name=" + token.getName() + "&access_token=" + token.getAccess_token() +
                 "&expires_in=0&show_conversations=false&show_userinfo=" + token.isShow_user_info();
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)  // 设置连接超时时间为10秒
+                .readTimeout(30, TimeUnit.SECONDS)     // 设置读取超时时间为30秒
+                .writeTimeout(15, TimeUnit.SECONDS)    // 设置写入超时时间为15秒
+                .build();
         RequestBody body = RequestBody.create(data, MediaType.parse("application/x-www-form-urlencoded"));
         Request request = new Request.Builder()
                 .url(url)
@@ -807,7 +832,11 @@ public class apiServiceImpl implements apiService {
         log.info("将通过这个网址请求登录信息：" + url);
         String data = "unique_name=" + token.getName() + "&access_token=" + token.getAccess_token() +
                 "&expires_in=-1&show_conversations=false&show_userinfo=" + token.isShow_user_info();
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)  // 设置连接超时时间为10秒
+                .readTimeout(30, TimeUnit.SECONDS)     // 设置读取超时时间为30秒
+                .writeTimeout(15, TimeUnit.SECONDS)    // 设置写入超时时间为15秒
+                .build();
         RequestBody body = RequestBody.create(data, MediaType.parse("application/x-www-form-urlencoded"));
         Request request = new Request.Builder()
                 .url(url)
@@ -833,7 +862,11 @@ public class apiServiceImpl implements apiService {
                 : systemSetting.getAutoToken_url() + poolToken;
         log.info("将通过这个网址请求登录信息：" + url);
         try {
-            OkHttpClient client = new OkHttpClient();
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)  // 设置连接超时时间为10秒
+                    .readTimeout(30, TimeUnit.SECONDS)     // 设置读取超时时间为30秒
+                    .writeTimeout(15, TimeUnit.SECONDS)    // 设置写入超时时间为15秒
+                    .build();
             RequestBody requestBody;
             if (shareTokens == "") {
                 List<token> tokens = selectToken("");
@@ -899,7 +932,10 @@ public class apiServiceImpl implements apiService {
             token.setShare_token(share_token);
             if (share_token != null) {
                 token.setCheckSession(true);
-                String res = product_requireToken(token);
+                if (token.isAuto_shared()) {
+                    token.setShared(true);
+                }
+                String res = product_requireToken(token, false);
                 if (res.contains("成功")) {
                     log.info(res + "，修改share_token为：" + share_token);
                     return token;
@@ -908,7 +944,7 @@ public class apiServiceImpl implements apiService {
         } else {
             token.setCheckSession(false);
             token.setShared(false);
-            String res = product_requireToken(token);
+            String res = product_requireToken(token, false);
             if (res.contains("成功")) {
                 log.info("已为您禁用该session_token!");
             }
@@ -937,7 +973,7 @@ public class apiServiceImpl implements apiService {
                     newToken++;
                 }
                 allToken++;
-                Thread.sleep(1000);
+                Thread.sleep(1200);
             }
             if (newToken == 0) {
                 log.info("自动生成Token失败！");
@@ -996,7 +1032,11 @@ public class apiServiceImpl implements apiService {
         }
         log.info("将通过这个网址请求登录信息：" + url);
         try {
-            OkHttpClient client = new OkHttpClient();
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)  // 设置连接超时时间为10秒
+                    .readTimeout(30, TimeUnit.SECONDS)     // 设置读取超时时间为30秒
+                    .writeTimeout(15, TimeUnit.SECONDS)    // 设置写入超时时间为15秒
+                    .build();
             RequestBody requestBody = new FormBody.Builder()
                     .add("share_tokens", "")
                     .add("pool_token", pool_token)
@@ -1034,7 +1074,11 @@ public class apiServiceImpl implements apiService {
         String url = "https://dash.pandoranext.com/api/" + systemSetting.getLicense_id() + "/usage";
         log.info("将通过这个网址请求PandoraNext余额信息：" + url);
         try {
-            OkHttpClient client = new OkHttpClient();
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)  // 设置连接超时时间为10秒
+                    .readTimeout(30, TimeUnit.SECONDS)     // 设置读取超时时间为30秒
+                    .writeTimeout(15, TimeUnit.SECONDS)    // 设置写入超时时间为15秒
+                    .build();
             Request request = new Request.Builder()
                     .url(url)
                     .get()

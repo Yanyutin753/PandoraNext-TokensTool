@@ -114,18 +114,18 @@ public class chatController {
      */
     @PostMapping(value = "/v1/chat/completions")
     public Object coPilotConversation(HttpServletResponse response, HttpServletRequest request, @org.springframework.web.bind.annotation.RequestBody Conversation conversation) throws ExecutionException, InterruptedException {
-        if (conversation == null) {
-            return new ResponseEntity<>("Request body is missing or not in JSON format", HttpStatus.BAD_REQUEST);
-        }
-        String authorizationHeader = StringUtils.trimToNull(request.getHeader("Authorization"));
-        String apiKey;
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            apiKey = authorizationHeader.substring(7);
-        } else {
-            return new ResponseEntity<>("Authorization header is missing", HttpStatus.UNAUTHORIZED);
-        }
         Future<Object> future = executor.submit(() -> {
             try {
+                if (conversation == null) {
+                    return new ResponseEntity<>("Request body is missing or not in JSON format", HttpStatus.BAD_REQUEST);
+                }
+                String authorizationHeader = StringUtils.trimToNull(request.getHeader("Authorization"));
+                String apiKey;
+                if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                    apiKey = authorizationHeader.substring(7);
+                } else {
+                    return new ResponseEntity<>("Authorization header is missing", HttpStatus.UNAUTHORIZED);
+                }
                 if (!copilotTokenList.containsKey(apiKey)) {
                     String token = getCopilotToken(apiKey);
                     if (token == null) {
@@ -185,20 +185,21 @@ public class chatController {
      * @throws JSONException
      * @throws IOException
      */
+
     @PostMapping(value = "/cocopilot/v1/chat/completions")
     public Object coCoPilotConversation(HttpServletResponse response, HttpServletRequest request, @org.springframework.web.bind.annotation.RequestBody Conversation conversation) throws ExecutionException, InterruptedException {
-        if (conversation == null) {
-            return new ResponseEntity<>("Request body is missing or not in JSON format", HttpStatus.BAD_REQUEST);
-        }
-        String authorizationHeader = StringUtils.trimToNull(request.getHeader("Authorization"));
-        String apiKey;
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            apiKey = authorizationHeader.substring(7);
-        } else {
-            return new ResponseEntity<>("Authorization header is missing", HttpStatus.UNAUTHORIZED);
-        }
         Future<Object> future = executor.submit(() -> {
             try {
+                if (conversation == null) {
+                    return new ResponseEntity<>("Request body is missing or not in JSON format", HttpStatus.BAD_REQUEST);
+                }
+                String authorizationHeader = StringUtils.trimToNull(request.getHeader("Authorization"));
+                String apiKey;
+                if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                    apiKey = authorizationHeader.substring(7);
+                } else {
+                    return new ResponseEntity<>("Authorization header is missing", HttpStatus.UNAUTHORIZED);
+                }
                 if (!coCopilotTokenList.containsKey(apiKey)) {
                     String token = getCoCoToken(apiKey);
                     if (token == null) {
@@ -245,6 +246,150 @@ public class chatController {
         return future.get();
     }
 
+
+    /**
+     * 请求体不是json 会报Request body is missing or not in JSON format
+     * Authorization token缺失  会报Authorization header is missing
+     * 无法请求到chat_token 会报copilot APIKey is wrong
+     *
+     * @param response
+     * @param request
+     * @param conversation
+     * @return
+     * @throws JSONException
+     * @throws IOException
+     */
+    @PostMapping(value = "/v1/embeddings")
+    public Object coPilotEmbeddings(HttpServletResponse response, HttpServletRequest request, @org.springframework.web.bind.annotation.RequestBody Object conversation) throws ExecutionException, InterruptedException {
+        Future<Object> future = executor.submit(() -> {
+            try {
+                if (conversation == null) {
+                    return new ResponseEntity<>("Request body is missing or not in JSON format", HttpStatus.BAD_REQUEST);
+                }
+                String authorizationHeader = StringUtils.trimToNull(request.getHeader("Authorization"));
+                String apiKey;
+                if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                    apiKey = authorizationHeader.substring(7);
+                } else {
+                    return new ResponseEntity<>("Authorization header is missing", HttpStatus.UNAUTHORIZED);
+                }
+                if (!copilotTokenList.containsKey(apiKey)) {
+                    String token = getCopilotToken(apiKey);
+                    if (token == null) {
+                        return new ResponseEntity<>("copilot APIKey is wrong", HttpStatus.UNAUTHORIZED);
+                    }
+                    copilotTokenList.put(apiKey, token);
+                    log.info("coCopilotTokenList初始化成功！");
+                }
+                // 创建OkHttpClient请求 请求https://api.githubcopilot.com/chat/completions
+                String chat_token = copilotTokenList.get(apiKey);
+                OkHttpClient client = productClient(5);
+                Map<String, String> headersMap = new HashMap<>();
+                //添加头部
+                addHeader(headersMap, chat_token);
+                String json = JSON.toJSONString(conversation);
+                // 创建一个 RequestBody 对象
+                MediaType JSON = MediaType.get("application/json; charset=utf-8");
+                RequestBody requestBody = RequestBody.create(json, JSON);
+                Request.Builder requestBuilder = new Request.Builder()
+                        .url("https://api.githubcopilot.com/embeddings")
+                        .post(requestBody);
+                headersMap.forEach(requestBuilder::addHeader);
+                Request streamRequest = requestBuilder.build();
+                try (Response resp = client.newCall(streamRequest).execute()) {
+                    if (!resp.isSuccessful()) {
+                        String token = getCopilotToken(apiKey);
+                        if (token == null) {
+                            return new ResponseEntity<>("copilot APIKey is wrong", HttpStatus.UNAUTHORIZED);
+                        }
+                        copilotTokenList.put(apiKey, token);
+                        log.info("coCopilotTokenList重置化成功！");
+                        coPilotEmbeddings(response, request, conversation);
+                        return null;
+                    }
+                    // 非流式输出
+                    outPutEmbeddings(response, resp);
+                    com.alibaba.fastjson2.JSONObject jsonObject = com.alibaba.fastjson2.JSON.parseObject(json);
+                    String model = jsonObject.getString("model");
+                    if (modelsUsage.containsKey(model)) {
+                        modelsUsage.put(model, modelsUsage.get(model) + 1);
+                    } else {
+                        modelsUsage.put(model, 1);
+                    }
+                }
+                return null;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return future.get();
+    }
+
+
+    @PostMapping(value = "/cocopilot/v1/embeddings")
+    public Object coCoPilotEmbeddings(HttpServletResponse response, HttpServletRequest request, @org.springframework.web.bind.annotation.RequestBody Object conversation) throws ExecutionException, InterruptedException {
+        Future<Object> future = executor.submit(() -> {
+            if (conversation == null) {
+                return new ResponseEntity<>("Request body is missing or not in JSON format", HttpStatus.BAD_REQUEST);
+            }
+            String authorizationHeader = StringUtils.trimToNull(request.getHeader("Authorization"));
+            String apiKey;
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                apiKey = authorizationHeader.substring(7);
+            } else {
+                return new ResponseEntity<>("Authorization header is missing", HttpStatus.UNAUTHORIZED);
+            }
+            try {
+                if (!coCopilotTokenList.containsKey(apiKey)) {
+                    String token = getCoCoToken(apiKey);
+                    if (token == null) {
+                        return new ResponseEntity<>("copilot APIKey is wrong", HttpStatus.UNAUTHORIZED);
+                    }
+                    coCopilotTokenList.put(apiKey, token);
+                    log.info("coCopilotTokenList初始化成功！");
+                }
+                // 创建OkHttpClient请求 请求https://api.githubcopilot.com/chat/completions
+                String chat_token = coCopilotTokenList.get(apiKey);
+                OkHttpClient client = productClient(5);
+                Map<String, String> headersMap = new HashMap<>();
+                //添加头部
+                addHeader(headersMap, chat_token);
+                String json = JSON.toJSONString(conversation);
+                MediaType JSON = MediaType.get("application/json; charset=utf-8");
+                RequestBody requestBody = RequestBody.create(json, JSON);
+                Request.Builder requestBuilder = new Request.Builder()
+                        .url("https://api.githubcopilot.com/embeddings")
+                        .post(requestBody);
+                headersMap.forEach(requestBuilder::addHeader);
+                Request streamRequest = requestBuilder.build();
+                try (Response resp = client.newCall(streamRequest).execute()) {
+                    if (!resp.isSuccessful()) {
+                        String token = getCoCoToken(apiKey);
+                        if (token == null) {
+                            return new ResponseEntity<>("copilot APIKey is wrong", HttpStatus.UNAUTHORIZED);
+                        }
+                        coCopilotTokenList.put(apiKey, token);
+                        log.info("coCopilotTokenList重置化成功！");
+                        coCoPilotEmbeddings(response, request, conversation);
+                        return null;
+                    }
+                    // 非流式输出
+                    outPutEmbeddings(response, resp);
+                    com.alibaba.fastjson2.JSONObject jsonObject = com.alibaba.fastjson2.JSON.parseObject(json);
+                    String model = jsonObject.getString("model");
+                    if (modelsUsage.containsKey(model)) {
+                        modelsUsage.put(model, modelsUsage.get(model) + 1);
+                    } else {
+                        modelsUsage.put(model, 1);
+                    }
+                }
+                return null;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return future.get();
+    }
 
     private void addModel(Conversation conversation) {
         String model = conversation.getModel();
@@ -324,6 +469,16 @@ public class chatController {
         return new ObjectMapper().readTree(jsonString);
     }
 
+    private void addEmbeddingsHeader(Map<String, String> headersMap, String chat_token) {
+        headersMap.put("Host", "api.githubcopilot.com");
+        headersMap.put("Accept-Encoding", "gzip, deflate, br");
+        headersMap.put("Accept", "*/*");
+        headersMap.put("Authorization", "Bearer " + chat_token);
+        headersMap.put("X-Request-Id", UUID.randomUUID().toString());
+        headersMap.put("X-Github-Api-Version", "2023-07-07");
+        headersMap.put("Editor-Version", "vscode/1.85.0");
+    }
+
     private void addHeader(Map<String, String> headersMap, String chat_token) {
         headersMap.put("Host", "api.githubcopilot.com");
         headersMap.put("Accept-Encoding", "gzip, deflate, br");
@@ -341,25 +496,25 @@ public class chatController {
         headersMap.put("User-Agent", "GitHubCopilotChat/0.11.1");
     }
 
-    private void outPutChat(HttpServletResponse response, Response resp, Conversation conversation) throws IOException {
-        Boolean isStream = conversation.getStream();
-        int one_messageByte;
-        int sleep_time;
-        if (isStream != null && isStream) {
-            if (!conversation.getModel().contains("gpt-4")) {
-                one_messageByte = 2048;
-                sleep_time = 0;
-            } else {
-                one_messageByte = 128;
-                sleep_time = 24;
-            }
-            response.setContentType("text/event-stream; charset=UTF-8");
-        } else {
-            one_messageByte = 8192;
-            sleep_time = 0;
-            response.setContentType("application/json; charset=utf-8");
-        }
+    private void outPutChat(HttpServletResponse response, Response resp, Conversation conversation) {
         try {
+            Boolean isStream = conversation.getStream();
+            int one_messageByte;
+            int sleep_time;
+            if (isStream != null && isStream) {
+                if (!conversation.getModel().contains("gpt-4")) {
+                    one_messageByte = 2048;
+                    sleep_time = 0;
+                } else {
+                    one_messageByte = 128;
+                    sleep_time = 24;
+                }
+                response.setContentType("text/event-stream; charset=UTF-8");
+            } else {
+                one_messageByte = 8192;
+                sleep_time = 0;
+                response.setContentType("application/json; charset=utf-8");
+            }
             OutputStream out = new BufferedOutputStream(response.getOutputStream());
             InputStream in = new BufferedInputStream(resp.body().byteStream());
             // 一次拿多少数据 迭代循环
@@ -377,7 +532,23 @@ public class chatController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    private void outPutEmbeddings(HttpServletResponse response, Response resp) {
+        try {
+            response.setContentType("application/json; charset=utf-8");
+            OutputStream out = new BufferedOutputStream(response.getOutputStream());
+            InputStream in = new BufferedInputStream(resp.body().byteStream());
+            // 一次拿多少数据 迭代循环
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = in.read(buffer)) != -1) {
+                out.write(buffer, 0, bytesRead);
+                out.flush();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

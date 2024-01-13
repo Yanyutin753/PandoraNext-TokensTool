@@ -35,6 +35,12 @@ public class token {
     private boolean shared;
 
     /**
+     * token 镜像分享，用于刷新失败后自动复原
+     */
+    private boolean auto_shared;
+
+
+    /**
      * token 是否分享聊天信息
      */
     private boolean show_user_info;

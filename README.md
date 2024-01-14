@@ -60,10 +60,10 @@ sudo apt install git
 sudo yum update
 sudo yum install git
 
-# 国内
+# 国内服务器
 cd / && git clone https://gitee.com/yangyangEN/tokenTools-sh.git
 
-# 国外
+# 国外服务器
 cd / && git clone https://github.com/Yanyutin753/tokenTools-sh.git
 
 # 运行脚本
@@ -73,8 +73,13 @@ cd /tokenTools-sh && sudo sh install.sh
 cd /tokenTools-sh && sudo sh update.sh
 
 # 更新update.sh或者install.sh
+
+# 国内
 sudo rm -rf /tokenTools-sh && cd / && git clone https://gitee.com/yangyangEN/tokenTools-sh.git
+# 国外
+sudo rm -rf /tokenTools-sh && cd / && git clone https://github.com/Yanyutin753/tokenTools-sh.git
 ```
+
 
 #### 1. 开放8081和8181端口，先访问8081,然后填写系统变量，把127.0.0.1:8181改成0.0.0.0:8181
 

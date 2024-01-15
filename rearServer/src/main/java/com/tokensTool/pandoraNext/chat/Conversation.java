@@ -1,7 +1,6 @@
 package com.tokensTool.pandoraNext.chat;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.plexpt.chatgpt.entity.chat.Message;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

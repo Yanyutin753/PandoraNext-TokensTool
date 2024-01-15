@@ -161,7 +161,7 @@ public class apiServiceImpl implements apiService {
             // 如果 JSON 文件不存在或为空，则创建一个新的 JSON 对象并写入空数组
             if (!jsonFile.exists() || jsonFile.length() == 0) {
                 Files.writeString(Paths.get(parent), "{}");
-                log.info("未找到tokens.json,新建tokens.json并初始化tokens.json成功！");
+                log.error("未找到tokens.json,新建tokens.json并初始化tokens.json成功！");
                 return res;
             }
             // 读取JSON文件并获取根节点
@@ -459,7 +459,7 @@ public class apiServiceImpl implements apiService {
                 objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(parent), newObjectNode);
                 return "修改成功！";
             } else {
-                log.info("节点未找到或不是对象,请检查tokens.json！ " + nodeNameToModify);
+                log.error("节点未找到或不是对象,请检查tokens.json！ " + nodeNameToModify);
                 return "节点未找到或不是对象！";
             }
         } catch (IOException e) {
@@ -538,7 +538,7 @@ public class apiServiceImpl implements apiService {
                 objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(parent), newObjectNode);
                 return "修改成功！";
             } else {
-                log.info("节点未找到或不是对象,请检查tokens.json！ " + nodeNameToModify);
+                log.error("节点未找到或不是对象,请检查tokens.json！ " + nodeNameToModify);
                 return "节点未找到或不是对象！";
             }
         } catch (IOException e) {
@@ -732,26 +732,26 @@ public class apiServiceImpl implements apiService {
 
 
     public String getAccessToken(token token) {
-        String url;
-        systemSetting systemSetting = systemService.selectSettingUrl();
-        String tokenKind;
-        String tokenName;
-        if (token.isUseRefreshToken()) {
-            tokenKind = reAccessToken;
-            tokenName = "refresh_token";
-        } else {
-            tokenKind = accessToken;
-            tokenName = "session_token";
-        }
-        if (systemSetting.getAutoToken_url().equals("default")) {
-            String bingUrl = systemSetting.getBing();
-            String[] parts = bingUrl.split(":");
-            url = "http://127.0.0.1" + ":" + parts[1] + "/" + systemSetting.getProxy_api_prefix() + tokenKind;
-        } else {
-            url = systemSetting.getAutoToken_url() + tokenKind;
-        }
-        log.info("将通过这个网址请求登录信息：" + url);
         try {
+            String url;
+            systemSetting systemSetting = systemService.selectSettingUrl();
+            String tokenKind;
+            String tokenName;
+            if (token.isUseRefreshToken()) {
+                tokenKind = reAccessToken;
+                tokenName = "refresh_token";
+            } else {
+                tokenKind = accessToken;
+                tokenName = "session_token";
+            }
+            if (systemSetting.getAutoToken_url().equals("default")) {
+                String bingUrl = systemSetting.getBing();
+                String[] parts = bingUrl.split(":");
+                url = "http://127.0.0.1" + ":" + parts[1] + "/" + systemSetting.getProxy_api_prefix() + tokenKind;
+            } else {
+                url = systemSetting.getAutoToken_url() + tokenKind;
+            }
+            log.info("将通过这个网址请求登录信息：" + url);
             OkHttpClient client = new OkHttpClient.Builder()
                     .connectTimeout(30, TimeUnit.SECONDS)  // 设置连接超时时间为10秒
                     .readTimeout(30, TimeUnit.SECONDS)     // 设置读取超时时间为30秒
@@ -765,24 +765,21 @@ public class apiServiceImpl implements apiService {
                     .url(url)
                     .post(requestBody)
                     .build();
-            try (Response response = client.newCall(request).execute()) {
-                if (!response.isSuccessful()) {
-                    log.info("Request failed: " + response.body().string().trim());
-                    return null;
-                }
-                String responseContent = response.body().string();
-                String resToken = null;
-                try {
-                    JSONObject jsonResponse = new JSONObject(responseContent);
-                    resToken = jsonResponse.getString("access_token");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                if (response.code() == 200 && resToken != null && resToken.length() > 400) {
-                    return resToken;
-                }
-            } catch (Exception e) {
+            Response response = client.newCall(request).execute();
+            if (!response.isSuccessful()) {
+                log.error("Request failed: " + response.body().string().trim());
+                return null;
+            }
+            String responseContent = response.body().string();
+            String resToken = null;
+            try {
+                JSONObject jsonResponse = new JSONObject(responseContent);
+                resToken = jsonResponse.getString("access_token");
+            } catch (JSONException e) {
                 e.printStackTrace();
+            }
+            if (response.code() == 200 && resToken != null && resToken.length() > 400) {
+                return resToken;
             }
         } catch (Exception e) {
             e.printStackTrace();

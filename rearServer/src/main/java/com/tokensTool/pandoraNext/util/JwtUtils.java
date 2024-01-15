@@ -1,8 +1,6 @@
 package com.tokensTool.pandoraNext.util;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -68,10 +66,15 @@ public class JwtUtils {
      * @return JWT第二部分负载 payload 中存储的内容
      */
     public static Claims parseJWT(String jwt) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(getSignKey())
-                .parseClaimsJws(jwt)
-                .getBody();
-        return claims;
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(getSignKey())
+                    .parseClaimsJws(jwt)
+                    .getBody();
+            return claims;
+        } catch (Exception e) {
+            log.error("解析令牌失败, 返回未登录错误信息");
+            return null;
+        }
     }
 }

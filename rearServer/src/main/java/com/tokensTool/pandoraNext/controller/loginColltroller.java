@@ -8,6 +8,7 @@ import com.tokensTool.pandoraNext.service.impl.systemServiceImpl;
 import com.tokensTool.pandoraNext.service.loginService;
 import com.tokensTool.pandoraNext.util.JwtUtils;
 import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -17,7 +18,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -88,10 +88,10 @@ public class loginColltroller {
                     String addr = (String) resultMap.get("addr");
                     return addr;
                 } else {
-                    log.info("No JSON object found in the response");
+                    log.error("响应中未找到JSON对象");
                 }
             } else {
-                log.info("No JSON object found in the response");
+                log.error("响应中未找到JSON对象");
             }
 
         } catch (Exception e) {
@@ -185,7 +185,7 @@ public class loginColltroller {
             }
             return ip;
         } catch (Exception e) {
-            log.error("getIpAddr error! e:", e);
+            log.error("getIpAddress 获取失败! e:", e);
         }
         return "";
     }
@@ -202,22 +202,23 @@ public class loginColltroller {
         String username = systemSetting.getLoginUsername();
 
         if (!StringUtils.hasLength(token)) {
-            log.info("请求头token为空,返回未登录的信息");
+            log.error("请求头token为空,返回未登录的信息");
             return Result.error("NOT_LOGIN");
         }
+        Claims claims = null;
         try {
-            Claims claims = JwtUtils.parseJWT(token);
-            String resPassword = claims.get("password").toString();
-            String resUsername = claims.get("username").toString();
-            if (resPassword.equals(password) && resUsername.equals(username)) {
-                log.info("令牌合法，可以正常登录");
-                return Result.success("YES_LOGIN");
-            }
-            return Result.error("YES_LOGIN");
+            claims = JwtUtils.parseJWT(token);
         } catch (Exception e) {
-            log.info("解析令牌失败, 返回未登录错误信息");
-            return Result.error("NOT_LOGIN");
+            log.error("解析令牌失败, 返回未登录错误信息");
         }
+        String resPassword = claims.get("password").toString();
+        String resUsername = claims.get("username").toString();
+        if (resPassword.equals(password) && resUsername.equals(username)) {
+            log.info("令牌合法，可以正常登录");
+            return Result.success("YES_LOGIN");
+        }
+        return Result.error("YES_LOGIN");
+
     }
 
     /**

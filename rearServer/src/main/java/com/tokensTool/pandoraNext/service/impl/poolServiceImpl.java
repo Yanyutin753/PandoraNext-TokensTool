@@ -370,7 +370,7 @@ public class poolServiceImpl implements poolService {
             if (deletePoolToken != null && deletePoolToken.contains("pk")) {
                 String s = apiService.deletePoolToken(deletePoolToken);
                 if (s == null) {
-                    log.info("删除失败，看看自己的poolToken是否合法");
+                    log.error("删除失败，看看自己的poolToken是否合法");
                 }
             }
             if (poolToken.isIntoOneApi()) {
@@ -393,7 +393,7 @@ public class poolServiceImpl implements poolService {
                 newObjectNode.remove(name);
                 // 将修改后的 newObjectNode 写回文件
                 objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(parent), newObjectNode);
-                log.info("删除成功");
+                log.error("删除成功");
                 return "删除成功！";
             } else {
                 System.out.println("Node not found: " + name);
@@ -460,7 +460,7 @@ public class poolServiceImpl implements poolService {
                 }
             }
         }
-        log.info("pool_token刷新成功:" + count + "，失败:" + (poolTokens.size() - count));
+        log.error("pool_token刷新成功:" + count + "，失败:" + (poolTokens.size() - count));
         return ("<br>pool_token刷新成功:" + count + "，失败:" + (poolTokens.size() - count));
     }
 
@@ -759,7 +759,7 @@ public class poolServiceImpl implements poolService {
             jsonObject.put("type", 8);
             jsonObject.put("key", addKeyPojo.getPoolToken());
             jsonObject.put("name", addKeyPojo.getPoolName());
-            jsonObject.put("base_url", getOpenaiUrl());
+            jsonObject.put("base_url", addKeyPojo.getOneApi_pandoraUrl());
             jsonObject.put("other", "");
             if (addKeyPojo.isPandoraNextGpt4()) {
                 jsonObject.put("models", gpt4Models);

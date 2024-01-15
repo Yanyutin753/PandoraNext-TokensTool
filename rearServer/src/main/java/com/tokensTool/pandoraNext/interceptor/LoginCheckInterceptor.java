@@ -6,6 +6,8 @@ import com.tokensTool.pandoraNext.pojo.systemSetting;
 import com.tokensTool.pandoraNext.service.impl.systemServiceImpl;
 import com.tokensTool.pandoraNext.util.JwtUtils;
 import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,8 +15,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 @Slf4j
 @Component
@@ -41,7 +41,7 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
 
         //4.判断令牌是否存在，如果不存在，返回错误结果（未登录）。
         if (!StringUtils.hasLength(jwt) || !jwt.startsWith("Bearer ")) {
-            log.info("请求头token空或没有Bearer ,返回未登录的信息");
+            log.error("请求头token空或没有Bearer ,返回未登录的信息");
             Result error = Result.error("NOT_LOGIN");
             //手动转换 对象--json --------> 阿里巴巴fastJSON
             String notLogin = JSONObject.toJSONString(error);

@@ -47,7 +47,7 @@ public class autoTokenController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        log.info(Result.error("自动检查更新access_token,share_token和pool_token失败").toString());
+        log.warn(Result.error("自动检查更新access_token,share_token和pool_token失败").toString());
     }
 
     /**

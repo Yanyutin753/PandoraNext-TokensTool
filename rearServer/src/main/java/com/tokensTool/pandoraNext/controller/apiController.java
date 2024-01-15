@@ -268,7 +268,7 @@ public class apiController {
             try {
                 int exitCode = reloadProcess.waitFor();
                 if (exitCode != 0) {
-                    log.info("无法重载PandoraNext服务");
+                    log.error("无法重载PandoraNext服务");
                     return Result.success("无法重载PandoraNext服务");
                 }
                 return Result.success("重置PandoraNext服务成功！");
@@ -305,11 +305,11 @@ public class apiController {
                     throw new RuntimeException(e);
                 }
             } catch (Exception e) {
-                log.info("无法重启PandoraNext服务");
+                log.error("无法重启PandoraNext服务");
                 throw new RuntimeException(e);
             }
         } else {
-            log.info("jar包填错信息");
+            log.error("jar包填错信息");
         }
     }
 
@@ -336,10 +336,10 @@ public class apiController {
                 throw new RuntimeException(e);
             }
             if (exitCode != 0) {
-                log.info("无法关闭PandoraNext服务");
+                log.error("无法关闭PandoraNext服务");
                 throw new RuntimeException("无法关闭PandoraNext服务");
             }
-            log.info("关闭PandoraNext服务成功！");
+            log.error("关闭PandoraNext服务成功！");
         } catch (Exception e) {
             throw new RuntimeException();
         }
@@ -364,7 +364,7 @@ public class apiController {
             Process startProcess = executeCommand(startCommand);
             int exitCode = startProcess.waitFor();
             if (exitCode != 0) {
-                log.info("无法启动PandoraNext服务");
+                log.error("无法启动PandoraNext服务");
                 throw new RuntimeException("无法启动PandoraNext服务");
             }
             log.info("启动PandoraNext服务成功！");
@@ -384,7 +384,7 @@ public class apiController {
             Process process = executeCommand(dockerCommand);
             int exitCode = process.waitFor();
             if (exitCode != 0) {
-                log.info("无法" + way + "PandoraNext服务");
+                log.error("无法" + way + "PandoraNext服务");
                 throw new RuntimeException("无法" + way + "PandoraNext服务");
             }
             log.info(way + "PandoraNext服务");
@@ -403,7 +403,7 @@ public class apiController {
             ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", command);
             return processBuilder.start();
         } catch (Exception e) {
-            throw new RuntimeException();
+            throw new RuntimeException("重载失败！");
         }
     }
 

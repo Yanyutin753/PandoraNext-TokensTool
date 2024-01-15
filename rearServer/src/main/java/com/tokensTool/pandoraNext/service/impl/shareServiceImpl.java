@@ -207,7 +207,6 @@ public class shareServiceImpl implements shareService {
     public boolean addKey(shareToken addKeyPojo, String[] systemSetting) {
         String url = systemSetting[0].endsWith("/") ? systemSetting[0] + oneAPiChannel
                 : systemSetting[0] + "/" + oneAPiChannel;
-        log.info(url);
         try {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("type", 8);
@@ -232,7 +231,7 @@ public class shareServiceImpl implements shareService {
                     .build();
             try (Response response = client.newCall(request).execute()) {
                 if (!response.isSuccessful()) {
-                    log.info("请求one-api失败，失败码: " + response.code());
+                    log.error("请求one-api失败，失败码: " + response.code());
                     return false;
                 }
                 String responseContent = response.body().string();
@@ -241,7 +240,7 @@ public class shareServiceImpl implements shareService {
                 if (response.code() == 200 && success) {
                     return true;
                 } else {
-                    log.info("请求one-api失败，失败码: " + response.code());
+                    log.error("请求one-api失败，失败码: " + response.code());
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -255,7 +254,6 @@ public class shareServiceImpl implements shareService {
     public boolean deleteKeyId(shareToken shareToken, String[] systemSetting) {
         String url = systemSetting[0].endsWith("/") ? systemSetting[0] + oneApiSelect
                 : systemSetting[0] + "/" + oneApiSelect;
-        log.info(url);
         try {
             OkHttpClient client = new OkHttpClient();
             Request request = new Request.Builder()
@@ -264,7 +262,7 @@ public class shareServiceImpl implements shareService {
                     .build();
             try (Response response = client.newCall(request).execute()) {
                 if (!response.isSuccessful()) {
-                    log.info("浏览器状态为： " + response.code());
+                    log.error("浏览器状态为： " + response.code());
                     return false;
                 }
                 String responseContent = response.body().string();
@@ -284,10 +282,10 @@ public class shareServiceImpl implements shareService {
                         boolean res = deleteKey(systemSetting, id);
                         return res;
                     }
-                    log.info("没有找到相应的key名!");
+                    log.error("没有找到相应的key名!");
                     return true;
                 } else {
-                    log.info("浏览器状态为： " + response.code());
+                    log.error("浏览器状态为： " + response.code());
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -301,7 +299,6 @@ public class shareServiceImpl implements shareService {
     public boolean getPriority(shareToken shareToken, String[] systemSetting) {
         String url = systemSetting[0].endsWith("/") ? systemSetting[0] + oneApiSelect
                 : systemSetting[0] + "/" + oneApiSelect;
-        log.info(url);
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(url)
@@ -309,7 +306,7 @@ public class shareServiceImpl implements shareService {
                 .build();
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                log.info("没有找到相应的key名，浏览器状态为： " + response.code());
+                log.error("没有找到相应的key名，浏览器状态为： " + response.code());
                 return false;
             }
             String responseContent = response.body().string();
@@ -323,7 +320,7 @@ public class shareServiceImpl implements shareService {
                     return priorityKey(systemSetting, id, shareToken.getPriority());
                 }
             }
-            log.info("没有找到相应的key名");
+            log.error("没有找到相应的key名");
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -42,10 +42,10 @@ public class LogAspect {
                 log.info(controller.reloadContainer().toString());
             } catch (Exception e) {
                 e.printStackTrace();
-                log.info("热重载失败！");
+                log.error("热重载失败！");
             }
         } else {
-            log.info("热重载未开启！");
+            log.error("热重载未开启！");
         }
     }
 }

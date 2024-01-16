@@ -24,6 +24,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 /**
@@ -35,13 +36,12 @@ import java.util.regex.Pattern;
 public class shareServiceImpl implements shareService {
     private static final String oneApiSelect = "api/channel/?p=0";
     private static final String oneAPiChannel = "api/channel/";
-    private static final HashMap<String, String> share_tokenList;
 
-    static {
-        share_tokenList = new HashMap<>();
-        log.info("初始化share_tokenList成功！");
-    }
-
+    private final OkHttpClient client = new OkHttpClient.Builder()
+            .connectTimeout(1, TimeUnit.MINUTES)
+            .readTimeout(1, TimeUnit.MINUTES)
+            .writeTimeout(1, TimeUnit.MINUTES)
+            .build();
     private final String deploy = "default";
     @Value("${deployPosition}")
     private String deployPosition;
@@ -124,63 +124,24 @@ public class shareServiceImpl implements shareService {
      * @return
      */
     public String addShareToken(shareToken shareToken) {
-        try {
-            shareToken = getShareValue(shareToken);
-            String[] strings = systemService.selectOneAPi();
-            boolean b = addKey(shareToken, strings);
-            if (b && shareToken.getPriority() != 0) {
-                boolean b1 = getPriority(shareToken, strings);
-                if (b1) {
-                    log.info("修改优先级成功！");
-                }
+        shareToken = getShareValue(shareToken);
+        String[] strings = systemService.selectOneAPi();
+        boolean b = addKey(shareToken, strings);
+        if (b && shareToken.getPriority() != 0) {
+            boolean b1 = getPriority(shareToken, strings);
+            if (b1) {
+                log.info("修改优先级成功！");
             }
-            if (b) {
-                log.info("share_token进one-Api成功！");
-            } else {
+        }
+        if (b && addJson(shareToken)) {
+            log.info("share_token数据添加成功！");
+            return "share_token数据添加成功";
+        } else {
+            if(!b){
                 return "share_token添加进one-api失败！";
             }
-            String parent = selectFile();
-            File jsonFile = new File(parent);
-            Path jsonFilePath = Paths.get(parent);
-            ObjectMapper objectMapper = new ObjectMapper();
-            ObjectNode rootNode;
-            // 如果 JSON 文件不存在，创建一个新的 JSON 对象
-            if (!jsonFile.exists()) {
-                // 创建文件
-                Files.createFile(jsonFilePath);
-                System.out.println("share.json创建完成: " + jsonFilePath);
-                rootNode = objectMapper.createObjectNode();
-            } else {
-                if (Files.exists(jsonFilePath) && Files.size(jsonFilePath) > 0) {
-                    rootNode = objectMapper.readTree(jsonFile).deepCopy();
-                } else {
-                    rootNode = objectMapper.createObjectNode();
-                }
-            }
-            // 创建要添加的新数据
-            ObjectNode newData = objectMapper.createObjectNode();
-            newData.put("token_name", shareToken.getToken_name());
-            //0.5.0
-            newData.put("token_value", shareToken.getToken_value());
-            newData.put("oneApi_groups", shareToken.getOneApi_groups());
-            newData.put("oneApi_models", shareToken.getOneApi_models());
-            newData.put("model_mapping", shareToken.getModel_mapping());
-            newData.put("oneApi_baseUrl", shareToken.getOneApi_baseUrl());
-            newData.put("priority", shareToken.getPriority());
-
-            LocalDateTime now = LocalDateTime.now();
-            newData.put("shareTime", now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-            // 将新数据添加到 JSON 树中
-            rootNode.put(shareToken.getOneApi_name(), newData);
-            // 将修改后的数据写回到文件
-            objectMapper.writerWithDefaultPrettyPrinter().writeValue(jsonFile, rootNode);
-            log.info("数据成功添加到 JSON 文件中。");
-            share_tokenList.put(shareToken.getOneApi_name(), shareToken.getToken_value());
-            return "share_token数据添加成功";
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "添加失败！";
         }
+        return "share_token添加失败！";
     }
 
     public shareToken getShareValue(shareToken shareToken) {
@@ -190,7 +151,7 @@ public class shareServiceImpl implements shareService {
         List<token> tokens = apiService.selectToken("");
         for (token token : tokens) {
             if (token.getName().equals(shareToken.getToken_name())) {
-                if (token.isSetPoolToken() && Pattern.matches("fk-[0-9a-zA-Z_\\-]{43}", token.getShare_token())) {
+                if (Pattern.matches("fk-[0-9a-zA-Z_\\-]{43}", token.getShare_token())) {
                     shareToken.setToken_value(token.getShare_token());
                 }
             }
@@ -221,8 +182,6 @@ public class shareServiceImpl implements shareService {
             jsonObject.put("groups", new JSONArray().put(group));
             // 将JSON对象转换为字符串
             String json = jsonObject.toString();
-
-            OkHttpClient client = new OkHttpClient();
             RequestBody body = RequestBody.create(json, MediaType.parse("application/json; charset=utf-8"));
             Request request = new Request.Builder()
                     .url(url)
@@ -255,7 +214,6 @@ public class shareServiceImpl implements shareService {
         String url = systemSetting[0].endsWith("/") ? systemSetting[0] + oneApiSelect
                 : systemSetting[0] + "/" + oneApiSelect;
         try {
-            OkHttpClient client = new OkHttpClient();
             Request request = new Request.Builder()
                     .url(url)
                     .addHeader("Authorization", "Bearer " + systemSetting[1])
@@ -296,10 +254,54 @@ public class shareServiceImpl implements shareService {
         return false;
     }
 
+
+    public boolean requireKeyId(shareToken shareToken, String[] systemSetting) {
+        String url = systemSetting[0].endsWith("/") ? systemSetting[0] + oneApiSelect
+                : systemSetting[0] + "/" + oneApiSelect;
+        try {
+            Request request = new Request.Builder()
+                    .url(url)
+                    .addHeader("Authorization", "Bearer " + systemSetting[1])
+                    .build();
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    log.error("浏览器状态为： " + response.code());
+                    return false;
+                }
+                String responseContent = response.body().string();
+                JSONObject jsonObject = new JSONObject(responseContent);
+                JSONArray dataArray = jsonObject.getJSONArray("data");
+                int id = -1;
+                for (int i = 0; i < dataArray.length(); i++) {
+                    JSONObject dataObject = dataArray.getJSONObject(i);
+                    String name = dataObject.getString("name");
+                    if (name.equals(shareToken.getOneApi_name())) {
+                        id = dataObject.getInt("id");
+                        break;
+                    }
+                }
+                if (response.code() == 200) {
+                    if (id > 0) {
+                        boolean res = requireKey(systemSetting, shareToken, id);
+                        return res;
+                    }
+                    log.error("没有找到相应的key名!");
+                    return false;
+                } else {
+                    log.error("浏览器状态为： " + response.code());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public boolean getPriority(shareToken shareToken, String[] systemSetting) {
         String url = systemSetting[0].endsWith("/") ? systemSetting[0] + oneApiSelect
                 : systemSetting[0] + "/" + oneApiSelect;
-        OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(url)
                 .addHeader("Authorization", "Bearer " + systemSetting[1])
@@ -327,11 +329,57 @@ public class shareServiceImpl implements shareService {
         return false;
     }
 
+    public boolean requireKey(String[] systemSetting, shareToken shareToken, int keyId) {
+        String url = systemSetting[0].endsWith("/") ? systemSetting[0] + oneApiSelect
+                : systemSetting[0] + "/" + oneApiSelect;
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("id", keyId);
+            jsonObject.put("type", 8);
+            jsonObject.put("key", shareToken.getToken_value());
+            jsonObject.put("name", shareToken.getOneApi_name());
+            jsonObject.put("base_url", shareToken.getOneApi_baseUrl());
+            jsonObject.put("other", "");
+            jsonObject.put("models", shareToken.getOneApi_models());
+            String group = shareToken.getOneApi_groups();
+            jsonObject.put("group", group);
+            jsonObject.put("model_mapping", shareToken.getModel_mapping());
+            jsonObject.put("groups", new JSONArray().put(group));
+            jsonObject.put("priority", shareToken.getPriority());
+            // 将JSON对象转换为字符串
+            String json = jsonObject.toString();
+            RequestBody body = RequestBody.create(json, MediaType.parse("application/json; charset=utf-8"));
+            Request request = new Request.Builder()
+                    .url(url)
+                    .put(body)
+                    .addHeader("Authorization", "Bearer " + systemSetting[1])
+                    .build();
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    log.error("请求one-api失败，失败码: " + response.code());
+                    return false;
+                }
+                String responseContent = response.body().string();
+                JSONObject jsonResponse = new JSONObject(responseContent);
+                boolean success = jsonResponse.getBoolean("success");
+                if (response.code() == 200 && success) {
+                    return true;
+                } else {
+                    log.error("请求one-api失败，失败码: " + response.code());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public boolean deleteKey(String[] systemSetting, int keyId) {
         String url = systemSetting[0].endsWith("/") ? systemSetting[0] + oneAPiChannel + keyId
                 : systemSetting[0] + "/" + oneAPiChannel + keyId;
         log.info("请求one-api的网址为：" + url);
-        OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(url)
                 .addHeader("Authorization", "Bearer " + systemSetting[1])
@@ -361,7 +409,6 @@ public class shareServiceImpl implements shareService {
         String url = systemSetting[0].endsWith("/") ? systemSetting[0] + oneAPiChannel
                 : systemSetting[0] + "/" + oneAPiChannel;
         log.info("请求one-api的网址为：" + url);
-        OkHttpClient client = new OkHttpClient();
         RequestBody body = null;
         try {
             JSONObject jsonObject = new JSONObject();
@@ -392,20 +439,6 @@ public class shareServiceImpl implements shareService {
         return false;
     }
 
-    public String requireShareToken(shareToken shareToken) {
-        try {
-            String res1 = deleteShareToken(shareToken);
-            if (res1.contains("成功")) {
-                String res2 = addShareToken(shareToken);
-                if (res2.contains("成功")) {
-                    return "修改share_token到oneapi成功";
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "修改失败！";
-    }
 
     public String deleteShareToken(shareToken shareToken) {
         try {
@@ -441,22 +474,79 @@ public class shareServiceImpl implements shareService {
         return "删除失败";
     }
 
-    public String refreshAllToken() {
+    public String requireShareToken(shareToken shareToken) {
+        String[] strings = systemService.selectOneAPi();
+        boolean b = requireKeyId(shareToken, strings);
+        if (!b) {
+            String s = addShareToken(shareToken);
+             return s.contains("成功") ? "未在oneapi找到相应的渠道，已为你自动添加并修改成功！"
+                     : "未在oneapi找到相应的渠道，已为你自动添加并修改失败！";
+        }
+        else{
+            return addJson(shareToken) ? "share_token数据修改成功"
+                    : "share_token数据修改失败";
+        }
+    }
+
+    public boolean addJson(shareToken shareToken) {
         try {
+            String name = shareToken.getOneApi_name();
+            String parent = selectFile();
+            File jsonFile = new File(parent);
+            Path jsonFilePath = Paths.get(parent);
+            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectNode rootNode;
+            // 如果 JSON 文件不存在，创建一个新的 JSON 对象
+            if (!jsonFile.exists()) {
+                // 创建文件
+                Files.createFile(jsonFilePath);
+                System.out.println("share.json创建完成: " + jsonFilePath);
+                rootNode = objectMapper.createObjectNode();
+            } else {
+                if (Files.exists(jsonFilePath) && Files.size(jsonFilePath) > 0) {
+                    rootNode = objectMapper.readTree(jsonFile).deepCopy();
+                } else {
+                    rootNode = objectMapper.createObjectNode();
+                }
+            }
+            // 创建要添加的新数据
+            ObjectNode newData = objectMapper.createObjectNode();
+            newData.put("token_name", shareToken.getToken_name());
+            //0.5.0
+            newData.put("token_value", shareToken.getToken_value());
+            newData.put("oneApi_groups", shareToken.getOneApi_groups());
+            newData.put("oneApi_models", shareToken.getOneApi_models());
+            newData.put("model_mapping", shareToken.getModel_mapping());
+            newData.put("oneApi_baseUrl", shareToken.getOneApi_baseUrl());
+            newData.put("priority", shareToken.getPriority());
+
+            LocalDateTime now = LocalDateTime.now();
+            newData.put("shareTime", now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            // 将新数据添加到 JSON 树中
+            rootNode.put(name, newData);
+            // 将修改后的数据写回到文件
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(jsonFile, rootNode);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    public String refreshAllShareTokens() {
+        try {
+            log.info("开始自动更新shareToken in oneapi..........................");
             int count = 0;
             int count_sus = 0;
             List<shareToken> shareTokens = selectShareToken("");
             for (shareToken shareToken : shareTokens) {
                 String newShareToken = getshareToken(shareToken);
-                log.info(newShareToken);
-                if (!newShareToken.equals(share_tokenList.get(shareToken.getOneApi_name()))
+                if (!newShareToken.equals(shareToken.getToken_value())
                         && newShareToken != null) {
-                    String res1 = deleteShareToken(shareToken);
-                    if (res1.contains("成功")) {
-                        String res2 = addShareToken(shareToken);
-                        if (res2.contains("成功")) {
-                            count++;
-                        }
+                    shareToken.setToken_value(newShareToken);
+                    String res = requireShareToken(shareToken);
+                    if (res.contains("成功")) {
+                        count++;
                     }
                 } else {
                     count_sus++;
@@ -464,11 +554,13 @@ public class shareServiceImpl implements shareService {
                     log.info(("share_token未发生变化，无需更新"));
                 }
             }
+            log.info("share_tokens in oneApi刷新成功/未过期：" + count + "/" + count_sus + "，失败：" + (shareTokens.size() - count));
             return "<br>share_tokens in oneApi刷新成功/未过期：" + count + "/" + count_sus + "，失败：" + (shareTokens.size() - count);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "share_tokens in oneApi刷新失败！";
+        log.error("share_tokens in oneApi刷新失败！");
+        return "<br>share_tokens in oneApi刷新失败！";
     }
 
     public String getshareToken(shareToken shareToken) {
@@ -477,7 +569,7 @@ public class shareServiceImpl implements shareService {
         }
         List<token> tokens = apiService.selectToken("");
         for (token token : tokens) {
-            if (token.getName().equals(shareToken.getToken_name())) {
+            if (token.isSetPoolToken() && token.getName().equals(shareToken.getToken_name())) {
                 return token.getShare_token();
             }
         }

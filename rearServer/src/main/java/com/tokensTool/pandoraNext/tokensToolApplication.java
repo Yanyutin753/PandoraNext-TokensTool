@@ -44,12 +44,10 @@ public class tokensToolApplication {
 
     public static void main(String[] args) {
         log.info("\n--------------------------------------------------------------\n" +
-                "PandoraNext-tokensTool v 0.6.6版本\n" +
-                "1.新增copilot接口的/cocopilot/v1/embeddings,/v1/embeddings\n" +
-                "2.接口使用多线程，提高并发能力\n" +
-                "3.优化失效之后自动关闭分享，恢复之后自动打开分享\n" +
-                "4.修复历史问题bug,优化代码，优化前端\n" +
-                "  - 修复修改Pool传递到oneapi无法更改默认的URl\n" +
+                "PandoraNext-tokensTool v 0.6.7版本\n" +
+                "1.优化添加进one-api的代码，使得id不一直增加\n" +
+                "2.优化copilot，cocopilot的chat接口\n" +
+                "3.修复历史问题bug,优化代码，优化前端\n" +
                 "--------------------------------------------------------------\n");
         // 启动
         Instant instant = Instant.now();

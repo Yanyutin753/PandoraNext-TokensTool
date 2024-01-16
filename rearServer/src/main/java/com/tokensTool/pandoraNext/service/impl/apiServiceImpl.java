@@ -36,6 +36,11 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Service
 public class apiServiceImpl implements apiService {
+    private final OkHttpClient client = new OkHttpClient.Builder()
+            .connectTimeout(1, TimeUnit.MINUTES)
+            .readTimeout(1, TimeUnit.MINUTES)
+            .writeTimeout(1, TimeUnit.MINUTES)
+            .build();
     /**
      * 登录接口获取session_token或者access_token
      */
@@ -628,11 +633,6 @@ public class apiServiceImpl implements apiService {
         }
         log.info("将通过这个网址请求登录信息：" + url);
         try {
-            OkHttpClient client = new OkHttpClient.Builder()
-                    .connectTimeout(30, TimeUnit.SECONDS)  // 设置连接超时时间为10秒
-                    .readTimeout(30, TimeUnit.SECONDS)     // 设置读取超时时间为30秒
-                    .writeTimeout(15, TimeUnit.SECONDS)    // 设置写入超时时间为15秒
-                    .build();
             RequestBody requestBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("username", token.getUsername())
@@ -688,11 +688,6 @@ public class apiServiceImpl implements apiService {
         }
         log.info("将通过这个网址请求登录信息：" + url);
         try {
-            OkHttpClient client = new OkHttpClient.Builder()
-                    .connectTimeout(30, TimeUnit.SECONDS)  // 设置连接超时时间为10秒
-                    .readTimeout(30, TimeUnit.SECONDS)     // 设置读取超时时间为30秒
-                    .writeTimeout(15, TimeUnit.SECONDS)    // 设置写入超时时间为15秒
-                    .build();
             RequestBody requestBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("username", token.getUsername())
@@ -752,11 +747,6 @@ public class apiServiceImpl implements apiService {
                 url = systemSetting.getAutoToken_url() + tokenKind;
             }
             log.info("将通过这个网址请求登录信息：" + url);
-            OkHttpClient client = new OkHttpClient.Builder()
-                    .connectTimeout(30, TimeUnit.SECONDS)  // 设置连接超时时间为10秒
-                    .readTimeout(30, TimeUnit.SECONDS)     // 设置读取超时时间为30秒
-                    .writeTimeout(15, TimeUnit.SECONDS)    // 设置写入超时时间为15秒
-                    .build();
             RequestBody requestBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart(tokenName, token.getToken())
@@ -796,11 +786,6 @@ public class apiServiceImpl implements apiService {
         log.info("将通过这个网址请求登录信息：" + url);
         String data = "unique_name=" + token.getName() + "&access_token=" + token.getAccess_token() +
                 "&expires_in=0&show_conversations=false&show_userinfo=" + token.isShow_user_info();
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(30, TimeUnit.SECONDS)  // 设置连接超时时间为10秒
-                .readTimeout(30, TimeUnit.SECONDS)     // 设置读取超时时间为30秒
-                .writeTimeout(15, TimeUnit.SECONDS)    // 设置写入超时时间为15秒
-                .build();
         RequestBody body = RequestBody.create(data, MediaType.parse("application/x-www-form-urlencoded"));
         Request request = new Request.Builder()
                 .url(url)
@@ -829,11 +814,6 @@ public class apiServiceImpl implements apiService {
         log.info("将通过这个网址请求登录信息：" + url);
         String data = "unique_name=" + token.getName() + "&access_token=" + token.getAccess_token() +
                 "&expires_in=-1&show_conversations=false&show_userinfo=" + token.isShow_user_info();
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(30, TimeUnit.SECONDS)  // 设置连接超时时间为10秒
-                .readTimeout(30, TimeUnit.SECONDS)     // 设置读取超时时间为30秒
-                .writeTimeout(15, TimeUnit.SECONDS)    // 设置写入超时时间为15秒
-                .build();
         RequestBody body = RequestBody.create(data, MediaType.parse("application/x-www-form-urlencoded"));
         Request request = new Request.Builder()
                 .url(url)
@@ -859,11 +839,6 @@ public class apiServiceImpl implements apiService {
                 : systemSetting.getAutoToken_url() + poolToken;
         log.info("将通过这个网址请求登录信息：" + url);
         try {
-            OkHttpClient client = new OkHttpClient.Builder()
-                    .connectTimeout(30, TimeUnit.SECONDS)  // 设置连接超时时间为10秒
-                    .readTimeout(30, TimeUnit.SECONDS)     // 设置读取超时时间为30秒
-                    .writeTimeout(15, TimeUnit.SECONDS)    // 设置写入超时时间为15秒
-                    .build();
             RequestBody requestBody;
             if (shareTokens == "") {
                 List<token> tokens = selectToken("");
@@ -1029,11 +1004,6 @@ public class apiServiceImpl implements apiService {
         }
         log.info("将通过这个网址请求登录信息：" + url);
         try {
-            OkHttpClient client = new OkHttpClient.Builder()
-                    .connectTimeout(30, TimeUnit.SECONDS)  // 设置连接超时时间为10秒
-                    .readTimeout(30, TimeUnit.SECONDS)     // 设置读取超时时间为30秒
-                    .writeTimeout(15, TimeUnit.SECONDS)    // 设置写入超时时间为15秒
-                    .build();
             RequestBody requestBody = new FormBody.Builder()
                     .add("share_tokens", "")
                     .add("pool_token", pool_token)
@@ -1071,11 +1041,6 @@ public class apiServiceImpl implements apiService {
         String url = "https://dash.pandoranext.com/api/" + systemSetting.getLicense_id() + "/usage";
         log.info("将通过这个网址请求PandoraNext余额信息：" + url);
         try {
-            OkHttpClient client = new OkHttpClient.Builder()
-                    .connectTimeout(30, TimeUnit.SECONDS)  // 设置连接超时时间为10秒
-                    .readTimeout(30, TimeUnit.SECONDS)     // 设置读取超时时间为30秒
-                    .writeTimeout(15, TimeUnit.SECONDS)    // 设置写入超时时间为15秒
-                    .build();
             Request request = new Request.Builder()
                     .url(url)
                     .get()

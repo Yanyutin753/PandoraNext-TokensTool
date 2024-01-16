@@ -162,7 +162,7 @@ public class poolController {
     @GetMapping("updateAllPoolToken")
     public Result updateAllPoolToken() {
         try {
-            String res = poolService.refreshAllTokens();
+            String res = poolService.refreshAllPoolTokens();
             return Result.success(res);
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,6 +1,8 @@
 package com.tokensTool.pandoraNext.util;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,11 +20,17 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 public class JwtUtils {
-    //硬编码的伤
-    private static String signKey = "123456";
-    // JWT里的内容
-    private static String JwtPassword = "tokensTool";
-    // 有效期
+    /**
+     * 硬编码的伤
+     */
+    private static String signKey;
+    /**
+     * JWT里的内容
+     */
+    private static String JwtPassword;
+    /**
+     * 有效期七天
+     */
     private static Long expire = 604800000L;
 
     public static String getSignKey() {
@@ -66,15 +74,12 @@ public class JwtUtils {
      * @return JWT第二部分负载 payload 中存储的内容
      */
     public static Claims parseJWT(String jwt) {
-        try {
-            Claims claims = Jwts.parser()
-                    .setSigningKey(getSignKey())
-                    .parseClaimsJws(jwt)
-                    .getBody();
-            return claims;
-        } catch (Exception e) {
-            log.error("解析令牌失败, 返回未登录错误信息");
-            return null;
-        }
+        Claims claims = Jwts.parser()
+                .setSigningKey(getSignKey())
+                .parseClaimsJws(jwt)
+                .getBody();
+        return claims;
+
+
     }
 }

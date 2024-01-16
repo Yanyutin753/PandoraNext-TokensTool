@@ -20,7 +20,7 @@ public interface poolService {
 
     List<poolToken> selectPoolToken(String name);
 
-    String refreshAllTokens();
+    String refreshAllPoolTokens();
 
     String verifySimplyPoolToken(poolToken poolToken);
 

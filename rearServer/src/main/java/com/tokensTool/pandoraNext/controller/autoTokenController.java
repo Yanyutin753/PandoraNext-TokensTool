@@ -65,8 +65,8 @@ public class autoTokenController {
             String res = apiService.autoUpdateToken("");
             if (res.contains("生成Token成功")) {
                 try {
-                    String s = poolService.refreshAllTokens();
-                    String s1 = shareService.refreshAllToken();
+                    String s = poolService.refreshAllPoolTokens();
+                    String s1 = shareService.refreshAllShareTokens();
                     return Result.success(res + s + s1);
                 } catch (Exception e) {
                     return Result.success(res + "<br>但是自动更新pool_token和oneApi里的share_token失败");

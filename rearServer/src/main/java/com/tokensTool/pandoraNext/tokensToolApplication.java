@@ -46,7 +46,7 @@ public class tokensToolApplication {
         log.info("\n--------------------------------------------------------------\n" +
                 "PandoraNext-tokensTool v 0.6.7版本\n" +
                 "1.优化添加进one-api的代码，使得id不一直增加\n" +
-                "2.优化copilot，cocopilot的chat接口\n" +
+                "2.优化copilot，cocopilot的chat，embeddings接口，接受高并发\n" +
                 "3.修复历史问题bug,优化代码，优化前端\n" +
                 "--------------------------------------------------------------\n");
         // 启动

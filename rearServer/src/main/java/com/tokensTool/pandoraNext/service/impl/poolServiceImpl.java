@@ -125,10 +125,18 @@ public class poolServiceImpl implements poolService {
                             log.info("为节点 " + nodeName + " 添加 intoOneApi 变量成功！");
                         }
                         // 初始化pandoraNextGpt4的值为false
-                        if (!nodeToModifyInNew.has("pandoraNextGpt4")) {
-                            nodeToModifyInNew.put("pandoraNextGpt4", false);
-                            log.info("为节点 " + nodeName + " 添加 pandoraNextGpt4 变量成功！");
+                        if (nodeToModifyInNew.has("pandoraNextGpt4")) {
+                            if(nodeToModifyInNew.get("pandoraNextGpt4").asBoolean()){
+                                nodeToModifyInNew.put("poolOneApi_models",gpt4Models);
+                            }
+                            else{
+                                nodeToModifyInNew.put("poolOneApi_models",gpt3Models);
+                            }
+                            nodeToModifyInNew.put("poolModel_mapping","{}");
+                            nodeToModifyInNew.remove("pandoraNextGpt4");
+                            log.info("为节点 " + nodeName + " 删除 pandoraNextGpt4 变量成功！");
                         }
+
                         // 初始化oneApi_pandoraUrl的值为""
                         if (!nodeToModifyInNew.has("oneApi_pandoraUrl")) {
                             nodeToModifyInNew.put("oneApi_pandoraUrl", "");
@@ -182,7 +190,8 @@ public class poolServiceImpl implements poolService {
                     temRes.setCheckPool(!temNode.has("checkPool") || temNode.get("checkPool").asBoolean());
                     //0.5.0
                     temRes.setIntoOneApi(temNode.has("intoOneApi") && temNode.get("intoOneApi").asBoolean());
-                    temRes.setPandoraNextGpt4(temNode.has("pandoraNextGpt4") && temNode.get("pandoraNextGpt4").asBoolean());
+                    temRes.setPoolOneApi_models(temNode.has("poolOneApi_models") ? temNode.get("poolOneApi_models").asText() : "");
+                    temRes.setPoolModel_mapping(temNode.has("poolModel_mapping") ? temNode.get("poolModel_mapping").asText() : "{}");
                     temRes.setOneApi_pandoraUrl(temNode.has("oneApi_pandoraUrl") ? temNode.get("oneApi_pandoraUrl").asText() : "");
                     temRes.setGroupChecked(temNode.has("groupChecked") ? temNode.get("groupChecked").asText() : "");
                     temRes.setPriority(temNode.has("priority") ? temNode.get("priority").asInt() : 0);
@@ -332,6 +341,36 @@ public class poolServiceImpl implements poolService {
                     rootNode = objectMapper.createObjectNode();
                 }
             }
+            return addPoolJson(poolToken,resPoolToken) ? "pool_token数据添加成功" : "添加失败！";
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "添加失败！";
+        }
+    }
+
+    /**
+     *
+     */
+    private boolean addPoolJson(poolToken poolToken,String resPoolToken){
+        try {
+            String parent = selectFile();
+            File jsonFile = new File(parent);
+            Path jsonFilePath = Paths.get(parent);
+            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectNode rootNode;
+            // 如果 JSON 文件不存在，创建一个新的 JSON 对象
+            if (!jsonFile.exists()) {
+                // 创建文件
+                Files.createFile(jsonFilePath);
+                System.out.println("pool.json创建完成: " + jsonFilePath);
+                rootNode = objectMapper.createObjectNode();
+            } else {
+                if (Files.exists(jsonFilePath) && Files.size(jsonFilePath) > 0) {
+                    rootNode = objectMapper.readTree(jsonFile).deepCopy();
+                } else {
+                    rootNode = objectMapper.createObjectNode();
+                }
+            }
             // 创建要添加的新数据
             ObjectNode newData = objectMapper.createObjectNode();
             newData.put("poolToken", resPoolToken);
@@ -344,7 +383,8 @@ public class poolServiceImpl implements poolService {
             //0.5.0
             newData.put("checkPool", true);
             newData.put("intoOneApi", poolToken.isIntoOneApi());
-            newData.put("pandoraNextGpt4", poolToken.isPandoraNextGpt4());
+            newData.put("poolOneApi_models", poolToken.getPoolOneApi_models());
+            newData.put("poolModel_mapping", poolToken.getPoolModel_mapping());
             newData.put("oneApi_pandoraUrl", poolToken.getOneApi_pandoraUrl());
             newData.put("groupChecked", poolToken.getGroupChecked());
             LocalDateTime now = LocalDateTime.now();
@@ -354,11 +394,11 @@ public class poolServiceImpl implements poolService {
             // 将修改后的数据写回到文件
             objectMapper.writerWithDefaultPrettyPrinter().writeValue(jsonFile, rootNode);
             log.info("数据成功添加到 JSON 文件中。");
-            return "pool_token数据添加成功";
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
-            return "添加失败！";
         }
+        return false;
     }
 
     /**
@@ -402,7 +442,7 @@ public class poolServiceImpl implements poolService {
                 log.error("删除成功");
                 return "删除成功！";
             } else {
-                System.out.println("Node not found: " + name);
+                log.error("节点未找到: " + name);
                 return "节点未找到！";
             }
         } catch (IOException e) {
@@ -614,14 +654,10 @@ public class poolServiceImpl implements poolService {
             jsonObject.put("name", addKeyPojo.getPoolName());
             jsonObject.put("base_url", addKeyPojo.getOneApi_pandoraUrl());
             jsonObject.put("other", "");
-            if (addKeyPojo.isPandoraNextGpt4()) {
-                jsonObject.put("models", gpt4Models);
-            } else {
-                jsonObject.put("models", gpt3Models);
-            }
+            jsonObject.put("models", addKeyPojo.getPoolOneApi_models());
             String group = addKeyPojo.getGroupChecked();
             jsonObject.put("group", group);
-            jsonObject.put("model_mapping", "");
+            jsonObject.put("model_mapping", addKeyPojo.getPoolModel_mapping());
             jsonObject.put("groups", new JSONArray().put(group));
             jsonObject.put("priority", addKeyPojo.getPriority());
             // 将JSON对象转换为字符串
@@ -680,20 +716,20 @@ public class poolServiceImpl implements poolService {
 
     @Override
     public String toRequirePoolToken(poolToken poolToken) {
-        String[] strings = systemService.selectOneAPi();
-        String resPoolToken;
         try {
-            String shareTokens = getShareTokens(poolToken.getShareTokens());
-            String temPoolToken = poolToken.getPoolToken();
-            if (temPoolToken != null && temPoolToken.contains("pk")) {
-                resPoolToken = apiService.getPoolToken(temPoolToken, shareTokens);
-            } else {
-                resPoolToken = apiService.getPoolToken("", shareTokens);
+            String[] strings = systemService.selectOneAPi();
+            String resPoolToken;
+            try {
+                String shareTokens = getShareTokens(poolToken.getShareTokens());
+                String temPoolToken = poolToken.getPoolToken();
+                if (temPoolToken != null && temPoolToken.contains("pk")) {
+                    resPoolToken = apiService.getPoolToken(temPoolToken, shareTokens);
+                } else {
+                    resPoolToken = apiService.getPoolToken("", shareTokens);
+                }
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
             }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-        try {
             if (resPoolToken == null) {
                 return "pool_token数据添加失败，请先按全部选择并生成，并确保url配对正确！";
             }
@@ -706,51 +742,9 @@ public class poolServiceImpl implements poolService {
                     return "pool_token修改进one-api失败！";
                 }
             }
-            String parent = selectFile();
-            File jsonFile = new File(parent);
-            Path jsonFilePath = Paths.get(parent);
-            ObjectMapper objectMapper = new ObjectMapper();
-            ObjectNode rootNode;
-            // 如果 JSON 文件不存在，创建一个新的 JSON 对象
-            if (!jsonFile.exists()) {
-                // 创建文件
-                Files.createFile(jsonFilePath);
-                System.out.println("pool.json创建完成: " + jsonFilePath);
-                rootNode = objectMapper.createObjectNode();
-            } else {
-                if (Files.exists(jsonFilePath) && Files.size(jsonFilePath) > 0) {
-                    rootNode = objectMapper.readTree(jsonFile).deepCopy();
-                } else {
-                    rootNode = objectMapper.createObjectNode();
-                }
-            }
-            // 创建要添加的新数据
-            ObjectNode newData = objectMapper.createObjectNode();
-            newData.put("poolToken", resPoolToken);
-            List<String> shareTokensList = poolToken.getShareTokens();
-            ArrayNode arrayNode = objectMapper.createArrayNode();
-            for (String value : shareTokensList) {
-                arrayNode.add(value);
-            }
-            newData.set("shareTokens", arrayNode);
-            //0.5.0
-            newData.put("checkPool", true);
-            newData.put("intoOneApi", poolToken.isIntoOneApi());
-            newData.put("pandoraNextGpt4", poolToken.isPandoraNextGpt4());
-            newData.put("oneApi_pandoraUrl", poolToken.getOneApi_pandoraUrl());
-            newData.put("groupChecked", poolToken.getGroupChecked());
-            newData.put("priority", poolToken.getPriority());
-            LocalDateTime now = LocalDateTime.now();
-            newData.put("poolTime", now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-            // 将新数据添加到 JSON 树中
-            rootNode.put(poolToken.getPoolName(), newData);
-            // 将修改后的数据写回到文件
-            objectMapper.writerWithDefaultPrettyPrinter().writeValue(jsonFile, rootNode);
-            log.info("数据成功添加到 JSON 文件中。");
-            return "pool_token数据修改成功";
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "修改失败！";
+            return addPoolJson(poolToken,resPoolToken) ? "pool_token数据修改成功" : "修改失败！";
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -858,14 +852,10 @@ public class poolServiceImpl implements poolService {
             jsonObject.put("name", addKeyPojo.getPoolName());
             jsonObject.put("base_url", addKeyPojo.getOneApi_pandoraUrl());
             jsonObject.put("other", "");
-            if (addKeyPojo.isPandoraNextGpt4()) {
-                jsonObject.put("models", gpt4Models);
-            } else {
-                jsonObject.put("models", gpt3Models);
-            }
+            jsonObject.put("models", addKeyPojo.getPoolOneApi_models());
             String group = addKeyPojo.getGroupChecked();
             jsonObject.put("group", group);
-            jsonObject.put("model_mapping", "");
+            jsonObject.put("model_mapping", addKeyPojo.getPoolModel_mapping());
             jsonObject.put("groups", new JSONArray().put(group));
             // 将JSON对象转换为字符串
             String json = jsonObject.toString();

@@ -45,9 +45,14 @@ public class poolToken {
     private boolean intoOneApi;
 
     /**
-     * 接入oneAPI是否开启gpt4模型
+     * 接入oneApi自定义PandoraNext模型
      */
-    private boolean pandoraNextGpt4;
+    private String poolOneApi_models;
+
+    /**
+     * 模型重定向
+     */
+    private String poolModel_mapping;
 
     /**
      * 接入oneApi自定义PandoraNext地址

@@ -945,7 +945,7 @@ public class apiServiceImpl implements apiService {
                     newToken++;
                 }
                 allToken++;
-                Thread.sleep(1200);
+                Thread.sleep(1000);
             }
             if (newToken == 0) {
                 log.info("自动生成Token失败！");
